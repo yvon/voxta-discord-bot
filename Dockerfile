@@ -25,8 +25,5 @@ COPY . .
 # Create and set environment variables file
 RUN touch .env
 
-# Expose port if needed
-EXPOSE 3000
-
 # Start the bot
 CMD [ "node", "index.js" ]

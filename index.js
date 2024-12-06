@@ -1,9 +1,14 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorType } = require('@discordjs/voice');
-const { createClient } = require('@deepgram/sdk');
+const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 const { pipeline } = require('stream');
+const { OpusEncoder } = require('@discordjs/opus');
 const prism = require('prism-media');
+
+// Create the encoder.
+// Specify 48kHz sampling rate and 2 channel size.
+const encoder = new OpusEncoder(48000, 2);
 
 const client = new Client({
     intents: [
@@ -16,6 +21,30 @@ const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
+});
+
+const deepgram_connection = deepgram.listen.live({
+  model: "nova-2",
+  language: "fr",
+  smart_format: true,
+});
+
+deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
+  deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
+    console.log("Connection closed.");
+  });
+
+  deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+    console.log(data.channel.alternatives[0].transcript);
+  });
+
+  deepgram_connection.on(LiveTranscriptionEvents.Metadata, (data) => {
+    console.log(data);
+  });
+
+  deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {
+    console.error(err);
+  });
 });
 
 // Map to store active transcription sessions
@@ -44,7 +73,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
-            console.log(`Taille du stream audio: ${audioStream.readableLength} bytes`);
+
+            audioStream.on('data', (chunk) => {
+              const decoded = encoder.decode(chunk);
+              deepgram_connection.send(decoded);
+            });
+
         });
     }
     // User switched voice channels

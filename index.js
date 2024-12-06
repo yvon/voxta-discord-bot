@@ -30,16 +30,18 @@ const deepgram_connection = deepgram.listen.live({
 });
 
 deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
+  console.log("Deepgram connection opened.");
+
   deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
-    console.log("Connection closed.");
+    console.log("Deepgram connection closed.");
   });
 
   deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-    console.log(data.channel.alternatives[0].transcript);
+    console.log('Transcript:', data.channel.alternatives[0].transcript);
   });
 
   deepgram_connection.on(LiveTranscriptionEvents.Metadata, (data) => {
-    console.log(data);
+    console.log('Metadata:', data);
   });
 
   deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {

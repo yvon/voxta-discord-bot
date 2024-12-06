@@ -44,6 +44,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
+            console.log(`Taille du stream audio: ${audioStream.readableLength} bytes`);
         });
     }
     // User switched voice channels

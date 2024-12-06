@@ -1,6 +1,9 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const { joinVoiceChannel } = require('@discordjs/voice');
+const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorType } = require('@discordjs/voice');
+const { createClient } = require('@deepgram/sdk');
+const { pipeline } = require('stream');
+const prism = require('prism-media');
 
 const client = new Client({
     intents: [
@@ -9,9 +12,14 @@ const client = new Client({
     ]
 });
 
+const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
+
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
+
+// Map to store active transcription sessions
+const activeTranscriptions = new Map();
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
     // Ignore bot's own voice state updates
@@ -23,6 +31,19 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             channelId: newState.channelId,
             guildId: newState.guild.id,
             adapterCreator: newState.guild.voiceAdapterCreator,
+            selfDeaf: false,
+            selfMute: false
+        });
+
+        const receiver = connection.receiver;
+        receiver.speaking.on('start', async (userId) => {
+            const user = client.users.cache.get(userId);
+            if (!user) return;
+            
+            console.log(`User ${user.tag} started speaking`);
+
+            // Create a readable stream for the user's audio
+            const audioStream = receiver.subscribe(userId);
         });
     }
     // User switched voice channels

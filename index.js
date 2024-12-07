@@ -30,26 +30,32 @@ const deepgram_connection = deepgram.listen.live({
   encoding: "linear16",
   sample_rate: 48000,
   channels: 2,
+  interim_results: true,
+  endpointing: true,
+  utterance_end_ms: 1000
 });
 
 deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
   console.log("Deepgram connection opened.");
+});
 
-  deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
-    console.log("Deepgram connection closed.");
-  });
+deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
+  console.log("Deepgram connection closed.");
+});
 
-  deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+  console.log('Raw Deepgram response:', JSON.stringify(data));
+  if (data.channel?.alternatives?.[0]?.transcript) {
     console.log('Transcript:', data.channel.alternatives[0].transcript);
-  });
+  }
+});
 
-  deepgram_connection.on(LiveTranscriptionEvents.Metadata, (data) => {
-    console.log('Metadata:', data);
-  });
+deepgram_connection.on(LiveTranscriptionEvents.Warning, (warning) => {
+  console.warn('Deepgram warning:', warning);
+});
 
-  deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {
-    console.error(err);
-  });
+deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {
+  console.error('Deepgram error:', err);
 });
 
 // Gestionnaire pour l'arrêt propre

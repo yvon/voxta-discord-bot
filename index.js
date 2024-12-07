@@ -235,7 +235,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
     }
 });
 
-// Démarrer la connexion Deepgram
-setupDeepgramConnection();
-
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN).then(() => {
+    // Démarrer la connexion Deepgram une fois connecté à Discord
+    setupDeepgramConnection();
+}).catch(error => {
+    console.error('Erreur de connexion Discord:', error);
+    process.exit(1);
+});

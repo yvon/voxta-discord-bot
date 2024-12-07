@@ -131,6 +131,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                         // Envoyer tous les chunks audio
                         console.log('PCM Data length:', pcmData.length);
                         console.log('Sample values:', pcmData.slice(0, 5));
+                        console.log('Full PCM data:', pcmData);
+                        console.log('Timestamp:', new Date().toISOString());
                         deepgram_connection.send(pcmData);
                         callback(null, chunk);
                     } catch (error) {

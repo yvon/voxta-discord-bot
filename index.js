@@ -4,6 +4,7 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorTyp
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 const { pipeline, Transform } = require('stream');
 const { OpusEncoder } = require('@discordjs/opus');
+const prism = require('prism-media');
 // Specify 48kHz sampling rate and 2 channel size.
 const encoder = new OpusEncoder(48000, 2);
 
@@ -130,15 +131,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 console.log('Audio stream closed');
             });
 
+            const decoder = new prism.opus.Decoder({
+                rate: 48000,
+                channels: 2,
+                frameSize: 960
+            });
+
             const transformStream = new Transform({
                 transform(chunk, encoding, callback) {
                     try {
-                        // Convertir le buffer en Int16Array
-                        const pcmData = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
-                        
-                        // Envoyer tous les chunks audio
-                        console.log('Sending chunk to Deepgram, size:', pcmData.length * 2); // *2 car Int16 = 2 bytes
-                        deepgram_connection.send(pcmData);
+                        console.log('Sending chunk to Deepgram, size:', chunk.length);
+                        deepgram_connection.send(chunk);
                         callback(null, chunk);
                     } catch (error) {
                         console.error('Transform error:', error);
@@ -149,6 +152,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             currentPipeline = pipeline(
                 audioStream,
+                decoder,
                 transformStream,
                 (err) => {
                     if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
@@ -160,6 +164,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Store cleanup function
             activeTranscriptions.set(userId, () => {
                 if (currentPipeline) {
+                    decoder.destroy();
                     transformStream.destroy();
                 }
             });

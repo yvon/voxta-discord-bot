@@ -1,12 +1,9 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorType } = require('@discordjs/voice');
+const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const { pipeline, Transform } = require('stream');
-const { OpusEncoder } = require('@discordjs/opus');
+const { Transform } = require('stream');
 const prism = require('prism-media');
-// Specify 48kHz sampling rate and 2 channel size.
-const encoder = new OpusEncoder(48000, 2);
 
 const client = new Client({
     intents: [
@@ -107,8 +104,6 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-// Map to store active transcription sessions
-const activeTranscriptions = new Map();
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
     // Ignore bot's own voice state updates
@@ -203,13 +198,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             if (!user) return;
             
             console.log(`User ${user.tag} stopped speaking`);
-            
-            // Clean up resources
-            const cleanup = activeTranscriptions.get(userId);
-            if (cleanup) {
-                cleanup();
-                activeTranscriptions.delete(userId);
-            }
             receiver.subscriptions.get(userId)?.destroy();
         });
     }

@@ -27,6 +27,9 @@ const deepgram_connection = deepgram.listen.live({
   model: "nova-2",
   language: "fr",
   smart_format: true,
+  encoding: "linear16",
+  sample_rate: 48000,
+  channels: 2,
 });
 
 deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
@@ -104,7 +107,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             const transformStream = new Transform({
                 transform(chunk, encoding, callback) {
                     try {
-                        deepgram_connection.send(chunk);
+                        // Convertir le buffer en Int16Array pour Deepgram
+                        const audioData = new Int16Array(chunk.buffer);
+                        deepgram_connection.send(audioData);
                         callback(null, chunk);
                     } catch (error) {
                         callback(error);

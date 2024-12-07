@@ -45,26 +45,31 @@ class DeepgramService {
         }
     }
 
-    ensureConnection() {
-        if (!this.connection || this.connection.getReadyState() !== 1) {
-            if (this.connection) {
-                logger.info("Closing existing Deepgram connection...");
-                this.connection.finish();
-                this.connection = null;
-            }
-            this.setupConnection();
+    reopenConnection() {
+        logger.info("Reopening Deepgram connection...");
+        if (this.connection) {
+            this.connection.finish();
+            this.connection = null;
         }
+        return this.setupConnection();
     }
 
     sendAudio(chunk) {
         try {
-            this.ensureConnection();
+            // Initial setup if no connection exists
+            if (!this.connection) {
+                this.setupConnection();
+            }
+            // Reopen if connection is not ready
+            else if (this.connection.getReadyState() !== 1) {
+                this.reopenConnection();
+            }
+            
             this.connection.send(chunk);
         } catch (error) {
             logger.error('Error sending audio to Deepgram:', error);
-            // Try to recover by creating a new connection
-            this.connection = null;
-            this.ensureConnection();
+            // Try to recover by reopening
+            this.reopenConnection();
             this.connection?.send(chunk);
         }
     }

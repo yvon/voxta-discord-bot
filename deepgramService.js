@@ -48,9 +48,9 @@ class DeepgramService {
     reopenConnection() {
         logger.info("Reopening Deepgram connection...");
         if (this.connection) {
-            this.connection.finish();
-            this.connection = null;
+            return this.connection.reconnect();
         }
+        // Si pas de connexion existante, on fait un setup complet
         return this.setupConnection();
     }
 

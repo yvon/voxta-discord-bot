@@ -27,7 +27,7 @@ const deepgram_connection = deepgram.listen.live({
   model: "nova-2",
   language: "fr",
   smart_format: true,
-  encoding: "opus",
+  encoding: "linear16",
   sample_rate: 48000,
   channels: 2,
 });
@@ -102,17 +102,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             let currentPipeline;
             
-            const oggStream = new prism.opus.OggLogicalBitstream({
-                opusHead: new prism.opus.OpusHead({
-                    channelCount: 2,
-                    sampleRate: 48000,
-                }),
-                pageSizeControl: {
-                    maxPackets: 10,
-                },
+            const decoder = new prism.opus.Decoder({
+                rate: 48000,
+                channels: 2,
+                frameSize: 960
             });
 
-            // Gérer la fin propre du stream
             audioStream.on('end', () => {
                 console.log('Audio stream ended normally');
             });
@@ -123,7 +118,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             currentPipeline = pipeline(
                 audioStream,
-                oggStream,
+                decoder,
                 new Transform({
                     transform(chunk, encoding, callback) {
                         try {

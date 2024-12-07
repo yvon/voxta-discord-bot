@@ -85,6 +85,9 @@ deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {
   console.error('Deepgram error:', err);
 });
 
+return deepgram_connection;
+}  // Close setupDeepgramConnection function
+
 // Gestionnaire pour l'arrêt propre
 process.on('SIGINT', async () => {
   console.log('\nFermeture des connexions...');

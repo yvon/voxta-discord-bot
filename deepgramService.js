@@ -47,11 +47,7 @@ class DeepgramService {
 
     reopenConnection() {
         logger.info("Reopening Deepgram connection...");
-        if (this.connection) {
-            return this.connection.reconnect();
-        }
-        // Si pas de connexion existante, on fait un setup complet
-        return this.setupConnection();
+        return this.connection.reconnect();
     }
 
     sendAudio(chunk) {

@@ -6,6 +6,7 @@ class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
         this.audioBuffer = [];  // New buffer to store audio chunks
+        this.isReconnecting = false;  // Flag to prevent simultaneous reconnections
         this.setupConnection();
     }
 
@@ -20,6 +21,7 @@ class DeepgramService {
 
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
+            this.isReconnecting = false;  // Reset reconnection flag
             this.processAudioBuffer();
         });
 
@@ -66,15 +68,26 @@ class DeepgramService {
         }
     }
 
-    reopenConnection() {
+    async reopenConnection() {
+        // Check if reconnection is already in progress
+        if (this.isReconnecting) {
+            logger.info("Reconnection already in progress, skipping");
+            return;
+        }
+
         if (this.isConnected()) {
             logger.info("Deepgram connection already active, skipping reopen");
             return;
         }
 
-        logger.info("Reopening Deepgram connection...");
-        this.closeConnection();
-        this.setupConnection();
+        try {
+            this.isReconnecting = true;
+            logger.info("Reopening Deepgram connection...");
+            this.closeConnection();
+            this.setupConnection();
+        } finally {
+            this.isReconnecting = false;
+        }
     }
 
     sendAudio(chunk) {

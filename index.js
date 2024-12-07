@@ -4,9 +4,6 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorTyp
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 const { pipeline, Transform } = require('stream');
 const { OpusEncoder } = require('@discordjs/opus');
-const prism = require('prism-media');
-
-// Create the encoder.
 // Specify 48kHz sampling rate and 2 channel size.
 const encoder = new OpusEncoder(48000, 2);
 
@@ -125,12 +122,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             let currentPipeline;
             
-            const decoder = new prism.opus.Decoder({
-                rate: 48000,
-                channels: 2,
-                frameSize: 960
-            });
-
             audioStream.on('end', () => {
                 console.log('Audio stream ended normally');
             });
@@ -158,7 +149,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             currentPipeline = pipeline(
                 audioStream,
-                decoder,
                 transformStream,
                 (err) => {
                     if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
@@ -170,7 +160,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Store cleanup function
             activeTranscriptions.set(userId, () => {
                 if (currentPipeline) {
-                    decoder.destroy();
                     transformStream.destroy();
                 }
             });

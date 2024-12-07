@@ -51,9 +51,12 @@ class DeepgramService {
         this.connection = null;
     }
 
+    isConnected() {
+        return this.connection?.isConnected?.() || false;
+    }
+
     reopenConnection() {
-        // Vérifie si la connexion existe et est active
-        if (this.connection?.isConnected()) {
+        if (this.isConnected()) {
             logger.info("Deepgram connection already active, skipping reopen");
             return;
         }
@@ -63,10 +66,9 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-        if (this.connection) {
-            // Does nothing if already connected
-          console.log(this.connection.reconnect);
-            this.connection.reconnect();
+        if (!this.isConnected()) {
+            logger.info("Connection not active, reopening before sending audio");
+            this.reopenConnection();
         }
 
         try {

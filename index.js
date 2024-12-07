@@ -4,7 +4,7 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorTyp
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 const { pipeline } = require('stream');
 const { OpusEncoder } = require('@discordjs/opus');
-const { OggLogicalBitstream, OpusHead } = require('prism-media');
+const { OggLogicalBitstream, OpusHead } = require('prism-media/dist/opus');
 
 // Create the encoder.
 // Specify 48kHz sampling rate and 2 channel size.

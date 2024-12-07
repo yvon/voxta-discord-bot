@@ -51,9 +51,10 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-        if (this.connection) {
-            this.connection.send(chunk);
+        if (!this.connection) {
+            this.setupConnection();
         }
+        this.connection.send(chunk);
     }
 }
 

@@ -50,22 +50,22 @@ function setupDeepgramConnection() {
 }
 
 process.on('SIGINT', async () => {
-  console.log('\nFermeture des connexions...');
+  console.log('\nClosing connections...');
   
-  // Fermer la connexion Deepgram
+  // Close Deepgram connection
   if (deepgram_connection) {
     deepgram_connection.finish();
   }
 
-  // Détruire toutes les connexions vocales actives
+  // Destroy all active voice connections
   client.voice.adapters.forEach((connection) => {
     connection.destroy();
   });
 
-  // Déconnecter le client Discord
+  // Disconnect Discord client
   await client.destroy();
   
-  console.log('Arrêt du programme.');
+  console.log('Program stopped.');
   process.exit(0);
 });
 
@@ -148,9 +148,9 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 client.login(process.env.DISCORD_TOKEN).then(() => {
-    // Démarrer la connexion Deepgram une fois connecté à Discord
+    // Start Deepgram connection once connected to Discord
     setupDeepgramConnection();
 }).catch(error => {
-    console.error('Erreur de connexion Discord:', error);
+    console.error('Discord connection error:', error);
     process.exit(1);
 });

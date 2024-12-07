@@ -9,17 +9,6 @@ class DeepgramService {
     }
 
     setupConnection() {
-        if (this.connection?.getReadyState() === 1) {
-            // Connection is already open and ready
-            return this.connection;
-        }
-
-        if (this.connection) {
-            logger.info("Closing existing Deepgram connection...");
-            this.connection.finish();
-            this.connection = null;
-        }
-
         logger.info("Setting up new Deepgram connection...");
         this.connection = this.deepgram.listen.live({
             model: CONFIG.deepgram.model,
@@ -56,17 +45,26 @@ class DeepgramService {
         }
     }
 
+    ensureConnection() {
+        if (!this.connection || this.connection.getReadyState() !== 1) {
+            if (this.connection) {
+                logger.info("Closing existing Deepgram connection...");
+                this.connection.finish();
+                this.connection = null;
+            }
+            this.setupConnection();
+        }
+    }
+
     sendAudio(chunk) {
         try {
-            if (!this.connection || this.connection.getReadyState() !== 1) {
-                this.setupConnection();
-            }
+            this.ensureConnection();
             this.connection.send(chunk);
         } catch (error) {
             logger.error('Error sending audio to Deepgram:', error);
             // Try to recover by creating a new connection
             this.connection = null;
-            this.setupConnection();
+            this.ensureConnection();
             this.connection?.send(chunk);
         }
     }

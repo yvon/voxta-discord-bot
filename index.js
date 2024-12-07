@@ -4,7 +4,7 @@ const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorTyp
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
 const { pipeline } = require('stream');
 const { OpusEncoder } = require('@discordjs/opus');
-const prism = require('prism-media');
+const { OggLogicalBitstream, OpusHead } = require('prism-media');
 
 // Create the encoder.
 // Specify 48kHz sampling rate and 2 channel size.
@@ -97,9 +97,22 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
 
-            audioStream.on('data', (chunk) => {
-              const decoded = encoder.decode(chunk);
-              deepgram_connection.send(decoded);
+            const oggStream = new OggLogicalBitstream({
+                opusHead: new OpusHead({
+                    channelCount: 2,
+                    sampleRate: 48000,
+                }),
+                pageSizeControl: {
+                    maxPackets: 10,
+                },
+            });
+
+            pipeline(audioStream, oggStream, (err) => {
+                if (err) console.error(err);
+            });
+
+            oggStream.on('data', (chunk) => {
+                deepgram_connection.send(chunk);
             });
 
         });

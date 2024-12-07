@@ -128,12 +128,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                         // Convertir le buffer en Int16Array
                         const pcmData = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
                         
-                        // Ne pas envoyer les chunks de silence
-                        if (pcmData.some(value => value !== 0)) {
-                            console.log('PCM Data length:', pcmData.length);
-                            console.log('Sample values:', pcmData.slice(0, 5));
-                            deepgram_connection.send(pcmData);
-                        }
+                        // Envoyer tous les chunks audio
+                        console.log('PCM Data length:', pcmData.length);
+                        console.log('Sample values:', pcmData.slice(0, 5));
+                        deepgram_connection.send(pcmData);
                         callback(null, chunk);
                     } catch (error) {
                         console.error('Transform error:', error);

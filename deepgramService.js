@@ -73,6 +73,7 @@ class DeepgramService {
         }
 
         logger.info("Reopening Deepgram connection...");
+        this.closeConnection();
         this.setupConnection();
     }
 

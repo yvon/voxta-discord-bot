@@ -2,7 +2,7 @@ require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, createAudioPlayer, createAudioResource, EndBehaviorType } = require('@discordjs/voice');
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const { pipeline } = require('stream');
+const { pipeline, Transform } = require('stream');
 const { OpusEncoder } = require('@discordjs/opus');
 const prism = require('prism-media');
 
@@ -97,23 +97,23 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
 
-            const oggStream = new prism.opus.OggLogicalBitstream({
-                opusHead: new prism.opus.OpusHead({
-                    channelCount: 2,
-                    sampleRate: 48000,
+            const demuxer = new prism.opus.OggDemuxer();
+            const decoder = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
+
+            pipeline(
+                audioStream,
+                demuxer,
+                decoder,
+                new Transform({
+                    transform(chunk, encoding, callback) {
+                        deepgram_connection.send(chunk);
+                        callback(null, chunk);
+                    }
                 }),
-                pageSizeControl: {
-                    maxPackets: 10,
-                },
-            });
-
-            pipeline(audioStream, oggStream, (err) => {
-                if (err) console.error(err);
-            });
-
-            oggStream.on('data', (chunk) => {
-                deepgram_connection.send(chunk);
-            });
+                (err) => {
+                    if (err) console.error('Pipeline error:', err);
+                }
+            );
 
         });
 

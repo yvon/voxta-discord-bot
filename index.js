@@ -90,7 +90,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             console.log(`User ${user.tag} stopped speaking`);
             
             // Clean up resources
-            receiver.subscriptions.get(userId)?.unsubscribe();
+            receiver.subscriptions.get(userId)?.destroy();
         });
     }
     // User switched voice channels

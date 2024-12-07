@@ -20,12 +20,7 @@ class DeepgramService {
 
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
-            // Process any pending audio chunks in the send buffer
-            while (this.connection.sendBuffer && this.connection.sendBuffer.length > 0) {
-                const callback = this.connection.sendBuffer.shift();
-                logger.info(`Processing callback, ${this.connection.sendBuffer.length} remaining`);
-                callback();
-            }
+            this.processAudioBuffer();
         });
 
         this.connection.on(LiveTranscriptionEvents.Close, () => {
@@ -56,6 +51,21 @@ class DeepgramService {
         return this.connection?.isConnected?.() || false;
     }
 
+    processAudioBuffer() {
+        while (this.audioBuffer.length > 0) {
+            const audioChunk = this.audioBuffer.shift();
+            try {
+                this.connection.send(audioChunk);
+            } catch (error) {
+                logger.error('Error sending audio to Deepgram:', error);
+                // En cas d'erreur, remet le chunk dans le buffer et réinitialise la connexion
+                this.audioBuffer.unshift(audioChunk);
+                this.setupConnection();
+                break;
+            }
+        }
+    }
+
     reopenConnection() {
         if (this.isConnected()) {
             logger.info("Deepgram connection already active, skipping reopen");
@@ -67,24 +77,12 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-        // Add the new chunk to buffer
+        // Ajoute le nouveau chunk au buffer
         this.audioBuffer.push(chunk);
         
-        // Check connection state
+        // Vérifie l'état de la connexion
         if (this.isConnected()) {
-            // If connected, send all pending chunks
-            while (this.audioBuffer.length > 0) {
-                const audioChunk = this.audioBuffer.shift();
-                try {
-                    this.connection.send(audioChunk);
-                } catch (error) {
-                    logger.error('Error sending audio to Deepgram:', error);
-                    // On error, put chunk back in buffer and reset connection
-                    this.audioBuffer.unshift(audioChunk);
-                    this.setupConnection();
-                    break;
-                }
-            }
+            this.processAudioBuffer();
         } else {
             logger.info("Connection not active, reopening before sending audio");
             this.reopenConnection();

@@ -32,16 +32,11 @@ function setupDeepgramConnection() {
 
   console.log("Setting up new Deepgram connection...");
   deepgram_connection = deepgram.listen.live({
-  model: "nova-2",
-  language: "fr",
-  smart_format: true,
-  encoding: "linear16",
-  sample_rate: 48000,
-  channels: 2,
-  interim_results: true,
-  endpointing: true,
-  utterance_end_ms: 1000
-});
+    model: "nova-2",
+    language: "fr",
+    encoding: "opus",
+    sample_rate: 48000,
+  });
 
   deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
     console.log("🟢 Deepgram connection opened");
@@ -72,7 +67,7 @@ function setupDeepgramConnection() {
   });
 
 deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-  console.log('Received transcript data:', JSON.stringify(data, null, 2));
+  // console.log('Received transcript data:', JSON.stringify(data, null, 2));
   if (data.channel?.alternatives?.[0]?.transcript) {
     console.log('🎤 Transcription:', data.channel.alternatives[0].transcript);
   } else {
@@ -145,7 +140,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             });
 
             audioStream.on('data', (chunk) => {
-                console.log('Raw audio chunk received at:', new Date().toISOString());
+                // console.log('Raw audio chunk received at:', new Date().toISOString());
+              deepgram_connection.send(chunk);
             });
 
             let currentPipeline;
@@ -182,24 +178,23 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 }
             });
 
-            currentPipeline = pipeline(
-                audioStream,
-                decoder,
-                transformStream,
-                (err) => {
-                    if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
-                        console.error('Pipeline error:', err);
-                    }
-                }
-            );
+            // currentPipeline = pipeline(
+            //     audioStream,
+            //     transformStream,
+            //     (err) => {
+            //         if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
+            //             console.error('Pipeline error:', err);
+            //         }
+            //     }
+            // );
 
             // Store cleanup function
-            activeTranscriptions.set(userId, () => {
-                if (currentPipeline) {
-                    decoder.destroy();
-                    transformStream.destroy();
-                }
-            });
+            // activeTranscriptions.set(userId, () => {
+            //     if (currentPipeline) {
+            //         decoder.destroy();
+            //         transformStream.destroy();
+            //     }
+            // });
 
         });
 

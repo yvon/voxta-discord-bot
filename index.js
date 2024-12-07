@@ -36,8 +36,17 @@ const deepgram_connection = deepgram.listen.live({
 });
 
 deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
-  console.log("Deepgram connection opened.");
+  console.log("🟢 Deepgram connection opened");
 });
+
+// Ajouter un heartbeat pour vérifier que la connexion reste active
+setInterval(() => {
+  if (deepgram_connection.getReadyState() === 1) {
+    console.log("💓 Deepgram connection is alive");
+  } else {
+    console.log("💔 Deepgram connection is closed or closing");
+  }
+}, 5000);
 
 deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
   console.log("Deepgram connection closed.");
@@ -137,6 +146,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                         const pcmData = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
                         
                         // Envoyer tous les chunks audio
+                        console.log('Sending chunk to Deepgram, size:', pcmData.length * 2); // *2 car Int16 = 2 bytes
                         deepgram_connection.send(pcmData);
                         callback(null, chunk);
                     } catch (error) {

@@ -27,7 +27,7 @@ const deepgram_connection = deepgram.listen.live({
   model: "nova-2",
   language: "fr",
   smart_format: true,
-  encoding: "linear16",
+  encoding: "opus",
   sample_rate: 48000,
   channels: 2,
 });
@@ -102,19 +102,14 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             let currentPipeline;
             
-            const decoder = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
-            
-            const transformStream = new Transform({
-                transform(chunk, encoding, callback) {
-                    try {
-                        // Convertir le buffer en Int16Array pour Deepgram
-                        const audioData = new Int16Array(chunk.buffer);
-                        deepgram_connection.send(audioData);
-                        callback(null, chunk);
-                    } catch (error) {
-                        callback(error);
-                    }
-                }
+            const oggStream = new prism.opus.OggLogicalBitstream({
+                opusHead: new prism.opus.OpusHead({
+                    channelCount: 2,
+                    sampleRate: 48000,
+                }),
+                pageSizeControl: {
+                    maxPackets: 10,
+                },
             });
 
             // Gérer la fin propre du stream
@@ -128,8 +123,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
             currentPipeline = pipeline(
                 audioStream,
-                decoder,
-                transformStream,
+                oggStream,
+                new Transform({
+                    transform(chunk, encoding, callback) {
+                        try {
+                            deepgram_connection.send(chunk);
+                            callback(null, chunk);
+                        } catch (error) {
+                            callback(error);
+                        }
+                    }
+                }),
                 (err) => {
                     if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
                         console.error('Pipeline error:', err);

@@ -97,27 +97,48 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
 
+            let currentPipeline;
+            
             const decoder = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
-
-            pipeline(
-                audioStream,
-                decoder,
-                new Transform({
-                    transform(chunk, encoding, callback) {
+            
+            const transformStream = new Transform({
+                transform(chunk, encoding, callback) {
+                    try {
                         deepgram_connection.send(chunk);
                         callback(null, chunk);
+                    } catch (error) {
+                        callback(error);
                     }
-                }),
+                }
+            });
+
+            // Gérer la fin propre du stream
+            audioStream.on('end', () => {
+                console.log('Audio stream ended normally');
+            });
+
+            audioStream.on('close', () => {
+                console.log('Audio stream closed');
+            });
+
+            currentPipeline = pipeline(
+                audioStream,
+                decoder,
+                transformStream,
                 (err) => {
-                    if (err) {
+                    if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
                         console.error('Pipeline error:', err);
-                        // Don't stop the pipeline on error
-                        if (!audioStream.destroyed) {
-                            audioStream.resume();
-                        }
                     }
                 }
             );
+
+            // Store cleanup function
+            activeTranscriptions.set(userId, () => {
+                if (currentPipeline) {
+                    decoder.destroy();
+                    transformStream.destroy();
+                }
+            });
 
         });
 
@@ -128,6 +149,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             console.log(`User ${user.tag} stopped speaking`);
             
             // Clean up resources
+            const cleanup = activeTranscriptions.get(userId);
+            if (cleanup) {
+                cleanup();
+                activeTranscriptions.delete(userId);
+            }
             receiver.subscriptions.get(userId)?.destroy();
         });
     }

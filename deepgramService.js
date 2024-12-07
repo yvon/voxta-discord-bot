@@ -21,7 +21,7 @@ class DeepgramService {
             logger.info("Deepgram connection opened");
             // Process any pending audio chunks in the send buffer
             while (this.connection.sendBuffer && this.connection.sendBuffer.length > 0) {
-                const callback = this.connection.sendBuffer.shift(); // Retire et retourne le premier élément
+                const callback = this.connection.sendBuffer.shift();
                 logger.info(`Processing callback, ${this.connection.sendBuffer.length} remaining`);
                 callback();
             }
@@ -56,18 +56,13 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-      if (this.connection) {
-        this.connection.reconnect();
-      }
+        if (this.connection) {
+            // Does nothing if already connected
+          console.log(this.connection.reconnect);
+            this.connection.reconnect();
+        }
 
-      logger.info(`isConnected: ${this.connection.isConnected()}`);
-      logger.info(`sendBuffer: ${this.connection.sendBuffer.length}`);
         try {
-            if (!this.connection || this.connection.getReadyState() === 3) { // 3 = CLOSED
-                logger.info("Connection closed, setting up new connection...");
-                this.setupConnection();
-            }
-
             this.connection.send(chunk);
         } catch (error) {
             logger.error('Error sending audio to Deepgram:', error);

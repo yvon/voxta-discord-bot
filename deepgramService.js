@@ -6,11 +6,17 @@ class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
         this.audioBuffer = [];  // New buffer to store audio chunks
-        this.isReconnecting = false;  // Flag to prevent simultaneous reconnections
+        this.isConnected = false;  // Global connection state flag
         this.setupConnection();
     }
 
     setupConnection() {
+        // Check if already connected
+        if (this.isConnected) {
+            logger.info("Connection already active, skipping setup");
+            return this.connection;
+        }
+
         logger.info("Setting up new Deepgram connection...");
         this.connection = this.deepgram.listen.live({
             model: CONFIG.deepgram.model,
@@ -21,12 +27,13 @@ class DeepgramService {
 
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
-            this.isReconnecting = false;  // Reset reconnection flag
+            this.isConnected = true;
             this.processAudioBuffer();
         });
 
         this.connection.on(LiveTranscriptionEvents.Close, () => {
             logger.info("Deepgram connection closed.");
+            this.isConnected = false;
         });
 
         this.connection.on(LiveTranscriptionEvents.Error, (error) => {
@@ -47,10 +54,11 @@ class DeepgramService {
 
         this.connection.finish();
         this.connection = null;
+        this.isConnected = false;
     }
 
-    isConnected() {
-        return this.connection?.isConnected?.() || false;
+    isConnectionActive() {
+        return this.isConnected;
     }
 
     processAudioBuffer() {
@@ -69,33 +77,20 @@ class DeepgramService {
     }
 
     async reopenConnection() {
-        // Check if reconnection is already in progress
-        if (this.isReconnecting) {
-            logger.info("Reconnection already in progress, skipping");
+        if (this.isConnected) {
+            logger.info("Connection already active, skipping reopen");
             return;
         }
 
-        if (this.isConnected()) {
-            logger.info("Deepgram connection already active, skipping reopen");
-            return;
-        }
-
-        try {
-            this.isReconnecting = true;
-            logger.info("Reopening Deepgram connection...");
-            this.closeConnection();
-            this.setupConnection();
-        } finally {
-            this.isReconnecting = false;
-        }
+        logger.info("Reopening Deepgram connection...");
+        this.closeConnection();
+        this.setupConnection();
     }
 
     sendAudio(chunk) {
-        // Add new chunk to buffer
         this.audioBuffer.push(chunk);
         
-        // Check connection status
-        if (this.isConnected()) {
+        if (this.isConnected) {
             this.processAudioBuffer();
         } else {
             logger.info("Connection not active, reopening before sending audio");

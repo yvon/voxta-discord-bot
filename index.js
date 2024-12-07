@@ -19,43 +19,39 @@ client.on('ready', () => {
 });
 
 function setupDeepgramConnection() {
-  if (deepgram_connection) {
-    console.log("Closing existing Deepgram connection...");
-    deepgram_connection.finish();
-  }
-
-  console.log("Setting up new Deepgram connection...");
-  deepgram_connection = deepgram.listen.live({
+  // Use the deepgramService instance instead of direct deepgram variables
+  deepgramService.setupConnection({
     model: "nova-2",
     language: "fr",
     encoding: "opus",
     sample_rate: 48000,
   });
 
-  deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
-    console.log("Deepgram connection opened");
+  // Get the connection from deepgramService
+  const connection = deepgramService.connection;
+
+  connection.on(LiveTranscriptionEvents.Open, () => {
+    logger.info("Deepgram connection opened");
   });
 
-  deepgram_connection.on(LiveTranscriptionEvents.Close, (event) => {
-    console.log("Deepgram connection closed.");
+  connection.on(LiveTranscriptionEvents.Close, (event) => {
+    logger.info("Deepgram connection closed.");
   });
 
-  deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+  connection.on(LiveTranscriptionEvents.Transcript, (data) => {
     if (data.channel?.alternatives?.[0]?.transcript) {
-      console.log('Transcription:', data.channel.alternatives[0].transcript);
+      logger.info('Transcription:', data.channel.alternatives[0].transcript);
     }
   });
 
-  return deepgram_connection;
+  return connection;
 }
 
 process.on('SIGINT', async () => {
-  console.log('\nClosing connections...');
+  logger.info('\nClosing connections...');
   
-  // Close Deepgram connection
-  if (deepgram_connection) {
-    deepgram_connection.finish();
-  }
+  // Close Deepgram connection using the service
+  deepgramService.closeConnection();
 
   // Destroy all active voice connections
   client.voice.adapters.forEach((connection) => {
@@ -124,7 +120,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             });
 
             audioStream.on('data', (chunk) => {
-              deepgram_connection.send(chunk);
+              deepgramService.connection?.send(chunk);
             });
             
             audioStream.on('end', () => {

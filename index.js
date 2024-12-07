@@ -119,9 +119,15 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             const transformStream = new Transform({
                 transform(chunk, encoding, callback) {
                     try {
-                        deepgram_connection.send(chunk);
+                        // Convertir le buffer en Int16Array
+                        const pcmData = new Int16Array(chunk.buffer, chunk.byteOffset, chunk.length / 2);
+                        console.log('PCM Data length:', pcmData.length);
+                        console.log('Sample values:', pcmData.slice(0, 5)); // Log des 5 premières valeurs
+                        
+                        deepgram_connection.send(pcmData.buffer);
                         callback(null, chunk);
                     } catch (error) {
+                        console.error('Transform error:', error);
                         callback(error);
                     }
                 }

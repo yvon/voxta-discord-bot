@@ -20,10 +20,10 @@ class DeepgramService {
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
             // Process any pending audio chunks in the send buffer
-            if (this.connection.sendBuffer && this.connection.sendBuffer.length > 0) {
-                logger.info(`Processing ${this.connection.sendBuffer.length} pending callbacks`);
-                this.connection.sendBuffer.forEach(callback => callback());
-                this.connection.sendBuffer = [];
+            while (this.connection.sendBuffer && this.connection.sendBuffer.length > 0) {
+                const callback = this.connection.sendBuffer.shift(); // Retire et retourne le premier élément
+                logger.info(`Processing callback, ${this.connection.sendBuffer.length} remaining`);
+                callback();
             }
         });
 

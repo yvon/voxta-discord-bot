@@ -21,7 +21,17 @@ client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
 });
 
-const deepgram_connection = deepgram.listen.live({
+let deepgram_connection;
+
+// Fonction pour configurer la connexion Deepgram
+function setupDeepgramConnection() {
+  if (deepgram_connection) {
+    console.log("Closing existing Deepgram connection...");
+    deepgram_connection.finish();
+  }
+
+  console.log("Setting up new Deepgram connection...");
+  deepgram_connection = deepgram.listen.live({
   model: "nova-2",
   language: "fr",
   smart_format: true,
@@ -33,22 +43,33 @@ const deepgram_connection = deepgram.listen.live({
   utterance_end_ms: 1000
 });
 
-deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
-  console.log("🟢 Deepgram connection opened");
-});
+  deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
+    console.log("🟢 Deepgram connection opened");
+  });
 
-// Ajouter un heartbeat pour vérifier que la connexion reste active
-setInterval(() => {
-  if (deepgram_connection.getReadyState() === 1) {
-    console.log("💓 Deepgram connection is alive");
-  } else {
-    console.log("💔 Deepgram connection is closed or closing");
-  }
-}, 5000);
+  // Envoyer un KeepAlive toutes les 5 secondes pour maintenir la connexion
+  const keepAliveInterval = setInterval(() => {
+    if (deepgram_connection.getReadyState() === 1) {
+      console.log("💓 Sending KeepAlive to Deepgram");
+      deepgram_connection.send(JSON.stringify({ type: "KeepAlive" }));
+    } else {
+      console.log("💔 Deepgram connection is closed or closing");
+    }
+  }, 5000);
 
-deepgram_connection.on(LiveTranscriptionEvents.Close, () => {
-  console.log("Deepgram connection closed.");
-});
+  deepgram_connection.on(LiveTranscriptionEvents.Close, (event) => {
+    console.log("Deepgram connection closed.", {
+      code: event.code,
+      reason: event.reason
+    });
+    
+    clearInterval(keepAliveInterval);
+
+    if (event.code === 1011) {
+      console.log("Timeout - Trying to reconnect in 1 second...");
+      setTimeout(setupDeepgramConnection, 1000);
+    }
+  });
 
 deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
   if (data.channel?.alternatives?.[0]?.transcript) {
@@ -140,9 +161,14 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             const transformStream = new Transform({
                 transform(chunk, encoding, callback) {
                     try {
-                        console.log('Sending chunk to Deepgram, size:', chunk.length);
-                        deepgram_connection.send(chunk);
-                        callback(null, chunk);
+                        if (deepgram_connection.getReadyState() === 1) {
+                            console.log('Sending chunk to Deepgram, size:', chunk.length);
+                            deepgram_connection.send(chunk);
+                            callback(null, chunk);
+                        } else {
+                            console.log('Skipping chunk - Deepgram connection not ready');
+                            callback(null, chunk);
+                        }
                     } catch (error) {
                         console.error('Transform error:', error);
                         callback(error);
@@ -208,5 +234,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
         }
     }
 });
+
+// Démarrer la connexion Deepgram
+setupDeepgramConnection();
 
 client.login(process.env.DISCORD_TOKEN);

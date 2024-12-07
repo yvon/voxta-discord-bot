@@ -72,8 +72,11 @@ function setupDeepgramConnection() {
   });
 
 deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+  console.log('Received transcript data:', JSON.stringify(data, null, 2));
   if (data.channel?.alternatives?.[0]?.transcript) {
-    console.log('🎤', data.channel.alternatives[0].transcript);
+    console.log('🎤 Transcription:', data.channel.alternatives[0].transcript);
+  } else {
+    console.log('⚠️ No transcript in data');
   }
 });
 

@@ -105,12 +105,38 @@ process.on('SIGINT', async () => {
 });
 
 
+// Function to cleanup voice connection resources
+function cleanupVoiceConnection(connection) {
+    if (!connection) return;
+    
+    // Cleanup existing audio subscriptions
+    connection.receiver?.subscriptions.forEach((subscription) => {
+        subscription.destroy();
+    });
+    
+    // Destroy the connection itself
+    connection.destroy();
+}
+
 client.on('voiceStateUpdate', async (oldState, newState) => {
     // Ignore bot's own voice state updates
     if (newState.member.user.bot) return;
 
-    // User joined a voice channel
-    if (newState.channelId && !oldState.channelId) {
+    // Cleanup old connection if exists
+    if (oldState.channelId) {
+        const oldConnection = oldState.guild.voiceStates.cache
+            .get(client.user.id)?.channel;
+        if (oldConnection) {
+            cleanupVoiceConnection(joinVoiceChannel({
+                channelId: oldState.channelId,
+                guildId: oldState.guild.id,
+                adapterCreator: oldState.guild.voiceAdapterCreator,
+            }));
+        }
+    }
+
+    // User joined a voice channel or switched channels
+    if (newState.channelId) {
         const connection = joinVoiceChannel({
             channelId: newState.channelId,
             guildId: newState.guild.id,
@@ -155,27 +181,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             console.log(`User ${user.tag} stopped speaking`);
             receiver.subscriptions.get(userId)?.destroy();
         });
-    }
-    // User switched voice channels
-    else if (newState.channelId && oldState.channelId && newState.channelId !== oldState.channelId) {
-        const connection = joinVoiceChannel({
-            channelId: newState.channelId,
-            guildId: newState.guild.id,
-            adapterCreator: newState.guild.voiceAdapterCreator,
-        });
-    }
-    // User left voice channel
-    else if (!newState.channelId) {
-        const connection = newState.guild.voiceStates.cache
-            .get(client.user.id)?.channel;
-        if (connection) {
-            const voiceConnection = joinVoiceChannel({
-                channelId: oldState.channelId,
-                guildId: oldState.guild.id,
-                adapterCreator: oldState.guild.voiceAdapterCreator,
-            });
-            voiceConnection.destroy();
-        }
     }
 });
 

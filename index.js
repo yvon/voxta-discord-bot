@@ -97,12 +97,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             // Create a readable stream for the user's audio
             const audioStream = receiver.subscribe(userId);
 
-            const demuxer = new prism.opus.OggDemuxer();
             const decoder = new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 });
 
             pipeline(
                 audioStream,
-                demuxer,
                 decoder,
                 new Transform({
                     transform(chunk, encoding, callback) {
@@ -111,7 +109,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                     }
                 }),
                 (err) => {
-                    if (err) console.error('Pipeline error:', err);
+                    if (err) {
+                        console.error('Pipeline error:', err);
+                        // Don't stop the pipeline on error
+                        if (!audioStream.destroyed) {
+                            audioStream.resume();
+                        }
+                    }
                 }
             );
 

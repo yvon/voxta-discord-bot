@@ -116,19 +116,21 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
                 console.log('Audio stream closed');
             });
 
+            const transformStream = new Transform({
+                transform(chunk, encoding, callback) {
+                    try {
+                        deepgram_connection.send(chunk);
+                        callback(null, chunk);
+                    } catch (error) {
+                        callback(error);
+                    }
+                }
+            });
+
             currentPipeline = pipeline(
                 audioStream,
                 decoder,
-                new Transform({
-                    transform(chunk, encoding, callback) {
-                        try {
-                            deepgram_connection.send(chunk);
-                            callback(null, chunk);
-                        } catch (error) {
-                            callback(error);
-                        }
-                    }
-                }),
+                transformStream,
                 (err) => {
                     if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
                         console.error('Pipeline error:', err);

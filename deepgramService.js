@@ -5,6 +5,7 @@ const CONFIG = require('./config');
 class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
+        this.audioBuffer = [];  // New buffer to store audio chunks
         this.setupConnection();
     }
 
@@ -66,17 +67,27 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-        if (!this.isConnected()) {
+        // Add the new chunk to buffer
+        this.audioBuffer.push(chunk);
+        
+        // Check connection state
+        if (this.isConnected()) {
+            // If connected, send all pending chunks
+            while (this.audioBuffer.length > 0) {
+                const audioChunk = this.audioBuffer.shift();
+                try {
+                    this.connection.send(audioChunk);
+                } catch (error) {
+                    logger.error('Error sending audio to Deepgram:', error);
+                    // On error, put chunk back in buffer and reset connection
+                    this.audioBuffer.unshift(audioChunk);
+                    this.setupConnection();
+                    break;
+                }
+            }
+        } else {
             logger.info("Connection not active, reopening before sending audio");
             this.reopenConnection();
-        }
-
-        try {
-            this.connection.send(chunk);
-        } catch (error) {
-            logger.error('Error sending audio to Deepgram:', error);
-            // Try to recover by setting up a new connection
-            this.setupConnection();
         }
     }
 }

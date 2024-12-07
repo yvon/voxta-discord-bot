@@ -82,6 +82,16 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             });
 
         });
+
+        receiver.speaking.on('end', (userId) => {
+            const user = client.users.cache.get(userId);
+            if (!user) return;
+            
+            console.log(`User ${user.tag} stopped speaking`);
+            
+            // Clean up resources
+            receiver.subscriptions.get(userId)?.unsubscribe();
+        });
     }
     // User switched voice channels
     else if (newState.channelId && oldState.channelId && newState.channelId !== oldState.channelId) {

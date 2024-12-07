@@ -2,8 +2,6 @@ require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const { Transform } = require('stream');
-const prism = require('prism-media');
 
 const client = new Client({
     intents: [
@@ -20,7 +18,6 @@ client.on('ready', () => {
 
 let deepgram_connection;
 
-// Fonction pour configurer la connexion Deepgram
 function setupDeepgramConnection() {
   if (deepgram_connection) {
     console.log("Closing existing Deepgram connection...");
@@ -36,54 +33,22 @@ function setupDeepgramConnection() {
   });
 
   deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
-    console.log("🟢 Deepgram connection opened");
+    console.log("Deepgram connection opened");
   });
-
-  // Envoyer un KeepAlive toutes les 5 secondes pour maintenir la connexion
-  const keepAliveInterval = setInterval(() => {
-    if (deepgram_connection.getReadyState() === 1) {
-      console.log("💓 Sending KeepAlive to Deepgram");
-      deepgram_connection.send(JSON.stringify({ type: "KeepAlive" }));
-    } else {
-      console.log("💔 Deepgram connection is closed or closing");
-    }
-  }, 5000);
 
   deepgram_connection.on(LiveTranscriptionEvents.Close, (event) => {
-    console.log("Deepgram connection closed.", {
-      code: event.code,
-      reason: event.reason
-    });
-    
-    clearInterval(keepAliveInterval);
+    console.log("Deepgram connection closed.");
+  });
 
-    if (event.code === 1011) {
-      console.log("Timeout - Trying to reconnect in 1 second...");
-      setTimeout(setupDeepgramConnection, 1000);
+  deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
+    if (data.channel?.alternatives?.[0]?.transcript) {
+      console.log('Transcription:', data.channel.alternatives[0].transcript);
     }
   });
 
-deepgram_connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-  // console.log('Received transcript data:', JSON.stringify(data, null, 2));
-  if (data.channel?.alternatives?.[0]?.transcript) {
-    console.log('🎤 Transcription:', data.channel.alternatives[0].transcript);
-  } else {
-    console.log('⚠️ No transcript in data');
-  }
-});
+  return deepgram_connection;
+}
 
-deepgram_connection.on(LiveTranscriptionEvents.Warning, (warning) => {
-  console.warn('Deepgram warning:', warning);
-});
-
-deepgram_connection.on(LiveTranscriptionEvents.Error, (err) => {
-  console.error('Deepgram error:', err);
-});
-
-return deepgram_connection;
-}  // Close setupDeepgramConnection function
-
-// Gestionnaire pour l'arrêt propre
 process.on('SIGINT', async () => {
   console.log('\nFermeture des connexions...');
   
@@ -104,7 +69,6 @@ process.on('SIGINT', async () => {
   process.exit(0);
 });
 
-
 // Function to cleanup voice connection resources
 function cleanupVoiceConnection(connection) {
     if (!connection) return;
@@ -124,8 +88,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
     // Cleanup old connection if exists
     if (oldState.channelId) {
-        const oldConnection = oldState.guild.voiceStates.cache
-            .get(client.user.id)?.channel;
+        const oldConnection = oldState.guild.voiceStates.cache.get(client.user.id)?.channel;
         if (oldConnection) {
             cleanupVoiceConnection(joinVoiceChannel({
                 channelId: oldState.channelId,

@@ -21,15 +21,8 @@ class DeepgramService {
             logger.info("Deepgram connection opened");
             // Process any pending audio chunks in the send buffer
             if (this.connection.sendBuffer && this.connection.sendBuffer.length > 0) {
-                logger.info(`Processing ${this.connection.sendBuffer.length} pending chunks`);
-                this.connection.sendBuffer.forEach(chunk => {
-                    try {
-                        this.connection.send(chunk);
-                    } catch (error) {
-                        logger.error('Error sending buffered chunk:', error);
-                    }
-                });
-                // Clear the buffer after processing
+                logger.info(`Processing ${this.connection.sendBuffer.length} pending callbacks`);
+                this.connection.sendBuffer.forEach(callback => callback());
                 this.connection.sendBuffer = [];
             }
         });

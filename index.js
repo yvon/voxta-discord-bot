@@ -1,7 +1,9 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
-const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
+const DeepgramService = require('./deepgramService');
+const logger = require('./logger');
+const CONFIG = require('./config');
 
 const client = new Client({
     intents: [
@@ -10,13 +12,11 @@ const client = new Client({
     ]
 });
 
-const deepgram = createClient(process.env.DEEPGRAM_API_KEY);
+const deepgramService = new DeepgramService(process.env.DEEPGRAM_API_KEY);
 
 client.on('ready', () => {
-    console.log(`Logged in as ${client.user.tag}!`);
+    logger.info(`Logged in as ${client.user.tag}!`);
 });
-
-let deepgram_connection;
 
 function setupDeepgramConnection() {
   if (deepgram_connection) {

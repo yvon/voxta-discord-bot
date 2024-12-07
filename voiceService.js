@@ -68,14 +68,6 @@ class VoiceService {
             audioStream.on('data', (chunk) => {
                 this.deepgramService.sendAudio(chunk);
             });
-            
-            audioStream.on('end', () => {
-                logger.info('Audio stream ended normally');
-            });
-
-            audioStream.on('close', () => {
-                logger.info('Audio stream closed');
-            });
         });
 
         receiver.speaking.on('end', (userId) => {

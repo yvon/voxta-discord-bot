@@ -77,7 +77,6 @@ class DeepgramService {
 
     async reopenConnection() {
         if (this.isConnecting) {
-            logger.info("Connection attempt already in progress, skipping reopen");
             return;
         }
 
@@ -89,10 +88,9 @@ class DeepgramService {
     sendAudio(chunk) {
         this.audioBuffer.push(chunk);
         
-        if (this.connection) {
+        if (this.connection.isConnected()) {
             this.processAudioBuffer();
         } else {
-            logger.info("No connection, attempting to connect before sending audio");
             this.reopenConnection();
         }
     }

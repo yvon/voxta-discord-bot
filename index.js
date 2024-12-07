@@ -20,32 +20,8 @@ client.on('ready', () => {
 });
 
 function setupDeepgramConnection() {
-  // Use the deepgramService instance instead of direct deepgram variables
-  deepgramService.setupConnection({
-    model: "nova-2",
-    language: "fr",
-    encoding: "opus",
-    sample_rate: 48000,
-  });
-
-  // Get the connection from deepgramService
-  const connection = deepgramService.connection;
-
-  connection.on(LiveTranscriptionEvents.Open, () => {
-    logger.info("Deepgram connection opened");
-  });
-
-  connection.on(LiveTranscriptionEvents.Close, (event) => {
-    logger.info("Deepgram connection closed.");
-  });
-
-  connection.on(LiveTranscriptionEvents.Transcript, (data) => {
-    if (data.channel?.alternatives?.[0]?.transcript) {
-      logger.info('Transcription:', data.channel.alternatives[0].transcript);
-    }
-  });
-
-  return connection;
+  // Use the deepgramService instance to setup connection
+  deepgramService.setupConnection();
 }
 
 process.on('SIGINT', async () => {

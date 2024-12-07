@@ -103,8 +103,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             
             console.log(`User ${user.tag} started speaking`);
 
-            // Create a readable stream for the user's audio
-            const audioStream = receiver.subscribe(userId);
+            // Create a readable stream for the user's audio with longer inactivity duration
+            const audioStream = receiver.subscribe(userId, {
+                end: {
+                    behavior: EndBehaviorType.AfterInactivity,
+                    duration: 1000
+                }
+            });
+
+            audioStream.on('data', (chunk) => {
+                console.log('Raw audio chunk received at:', new Date().toISOString());
+            });
 
             let currentPipeline;
             

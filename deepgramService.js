@@ -6,18 +6,20 @@ class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
         this.audioBuffer = [];  // New buffer to store audio chunks
-        this.isConnected = false;  // Global connection state flag
+        this.isConnecting = false;  // Flag to prevent simultaneous connection attempts
         this.setupConnection();
     }
 
     setupConnection() {
-        // Check if already connected
-        if (this.isConnected) {
-            logger.info("Connection already active, skipping setup");
+        // Check if connection attempt is already in progress
+        if (this.isConnecting) {
+            logger.info("Connection attempt already in progress, skipping setup");
             return this.connection;
         }
 
         logger.info("Setting up new Deepgram connection...");
+        this.isConnecting = true;  // Start connection attempt
+
         this.connection = this.deepgram.listen.live({
             model: CONFIG.deepgram.model,
             language: CONFIG.deepgram.language,
@@ -27,17 +29,18 @@ class DeepgramService {
 
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
-            this.isConnected = true;
+            this.isConnecting = false;  // Connection attempt completed
             this.processAudioBuffer();
         });
 
         this.connection.on(LiveTranscriptionEvents.Close, () => {
             logger.info("Deepgram connection closed.");
-            this.isConnected = false;
+            this.isConnecting = false;  // Reset connection attempt flag
         });
 
         this.connection.on(LiveTranscriptionEvents.Error, (error) => {
             logger.error('Deepgram error:', error);
+            this.isConnecting = false;  // Reset flag on error
         });
 
         this.connection.on(LiveTranscriptionEvents.Transcript, (data) => {
@@ -54,11 +57,7 @@ class DeepgramService {
 
         this.connection.finish();
         this.connection = null;
-        this.isConnected = false;
-    }
-
-    isConnectionActive() {
-        return this.isConnected;
+        this.isConnecting = false;
     }
 
     processAudioBuffer() {
@@ -77,8 +76,8 @@ class DeepgramService {
     }
 
     async reopenConnection() {
-        if (this.isConnected) {
-            logger.info("Connection already active, skipping reopen");
+        if (this.isConnecting) {
+            logger.info("Connection attempt already in progress, skipping reopen");
             return;
         }
 
@@ -90,10 +89,10 @@ class DeepgramService {
     sendAudio(chunk) {
         this.audioBuffer.push(chunk);
         
-        if (this.isConnected) {
+        if (this.connection) {
             this.processAudioBuffer();
         } else {
-            logger.info("Connection not active, reopening before sending audio");
+            logger.info("No connection, attempting to connect before sending audio");
             this.reopenConnection();
         }
     }

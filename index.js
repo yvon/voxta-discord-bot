@@ -1,6 +1,7 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
 const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
+const { LiveTranscriptionEvents } = require('@deepgram/sdk');
 const DeepgramService = require('./deepgramService');
 const logger = require('./logger');
 const CONFIG = require('./config');

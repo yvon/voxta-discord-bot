@@ -52,7 +52,14 @@ class DeepgramService {
     }
 
     reopenConnection() {
+        // Vérifie si la connexion existe et est active
+        if (this.connection?.isConnected()) {
+            logger.info("Deepgram connection already active, skipping reopen");
+            return;
+        }
+
         logger.info("Reopening Deepgram connection...");
+        this.setupConnection();
     }
 
     sendAudio(chunk) {

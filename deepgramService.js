@@ -39,6 +39,8 @@ class DeepgramService {
     }
 
     closeConnection() {
+        if (!this.connection) return;
+
         this.connection.finish();
         this.connection = null;
     }
@@ -48,11 +50,18 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
+      if (this.connection) {
+        this.connection.reconnect();
+      }
+
+      logger.info(`isConnected: ${this.connection.isConnected()}`);
+      logger.info(`sendBuffer: ${this.connection.sendBuffer.length}`);
         try {
             if (!this.connection || this.connection.getReadyState() === 3) { // 3 = CLOSED
                 logger.info("Connection closed, setting up new connection...");
                 this.setupConnection();
             }
+
             this.connection.send(chunk);
         } catch (error) {
             logger.error('Error sending audio to Deepgram:', error);

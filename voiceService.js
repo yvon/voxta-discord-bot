@@ -57,6 +57,11 @@ class VoiceService {
             if (!user) return;
             
             logger.info(`User ${user.tag} started speaking`);
+            
+            // Ensure Deepgram connection is active
+            if (!this.deepgramService.connection) {
+                this.deepgramService.setupConnection();
+            }
 
             const audioStream = receiver.subscribe(userId, {
                 end: {

@@ -16,7 +16,6 @@ const voiceService = new VoiceService(client, deepgramService);
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);
-    deepgramService.setupConnection();
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {

@@ -58,7 +58,7 @@ class DeepgramService {
                 this.connection.send(audioChunk);
             } catch (error) {
                 logger.error('Error sending audio to Deepgram:', error);
-                // En cas d'erreur, remet le chunk dans le buffer et réinitialise la connexion
+                // In case of error, put the chunk back in buffer and reinitialize connection
                 this.audioBuffer.unshift(audioChunk);
                 this.setupConnection();
                 break;
@@ -77,10 +77,10 @@ class DeepgramService {
     }
 
     sendAudio(chunk) {
-        // Ajoute le nouveau chunk au buffer
+        // Add new chunk to buffer
         this.audioBuffer.push(chunk);
         
-        // Vérifie l'état de la connexion
+        // Check connection status
         if (this.isConnected()) {
             this.processAudioBuffer();
         } else {

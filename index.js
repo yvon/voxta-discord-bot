@@ -49,6 +49,27 @@ deepgram_connection.on(LiveTranscriptionEvents.Open, () => {
   });
 });
 
+// Gestionnaire pour l'arrêt propre
+process.on('SIGINT', async () => {
+  console.log('\nFermeture des connexions...');
+  
+  // Fermer la connexion Deepgram
+  if (deepgram_connection) {
+    deepgram_connection.finish();
+  }
+
+  // Détruire toutes les connexions vocales actives
+  client.voice.adapters.forEach((connection) => {
+    connection.destroy();
+  });
+
+  // Déconnecter le client Discord
+  await client.destroy();
+  
+  console.log('Arrêt du programme.');
+  process.exit(0);
+});
+
 // Map to store active transcription sessions
 const activeTranscriptions = new Map();
 

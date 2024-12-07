@@ -27,7 +27,7 @@ function setupDeepgramConnection() {
   console.log("Setting up new Deepgram connection...");
   deepgram_connection = deepgram.listen.live({
     model: "nova-2",
-    language: "fr",
+    language: "en",
     encoding: "opus",
     sample_rate: 48000,
   });

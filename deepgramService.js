@@ -5,7 +5,7 @@ const CONFIG = require('./config');
 class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
-        this.connection = null;
+        this.setupConnection();
     }
 
     setupConnection() {
@@ -39,34 +39,20 @@ class DeepgramService {
     }
 
     closeConnection() {
-        if (this.connection) {
-            this.connection.finish();
-            this.connection = null;
-        }
+        this.connection.finish();
+        this.connection = null;
     }
 
     reopenConnection() {
         logger.info("Reopening Deepgram connection...");
-        return this.connection.reconnect();
     }
 
     sendAudio(chunk) {
         try {
-            // Initial setup if no connection exists
-            if (!this.connection) {
-                this.setupConnection();
-            }
-            // Reopen if connection is not ready
-            else if (this.connection.getReadyState() !== 1) {
-                this.reopenConnection();
-            }
-            
+            this.connection.reconnect();
             this.connection.send(chunk);
         } catch (error) {
             logger.error('Error sending audio to Deepgram:', error);
-            // Try to recover by reopening
-            this.reopenConnection();
-            this.connection?.send(chunk);
         }
     }
 }

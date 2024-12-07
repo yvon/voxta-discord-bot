@@ -135,11 +135,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             });
 
             audioStream.on('data', (chunk) => {
-                // console.log('Raw audio chunk received at:', new Date().toISOString());
               deepgram_connection.send(chunk);
             });
-
-            let currentPipeline;
             
             audioStream.on('end', () => {
                 console.log('Audio stream ended normally');
@@ -148,48 +145,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
             audioStream.on('close', () => {
                 console.log('Audio stream closed');
             });
-
-            const decoder = new prism.opus.Decoder({
-                rate: 48000,
-                channels: 2,
-                frameSize: 960
-            });
-
-            const transformStream = new Transform({
-                transform(chunk, encoding, callback) {
-                    try {
-                        if (deepgram_connection.getReadyState() === 1) {
-                            console.log('Sending chunk to Deepgram, size:', chunk.length);
-                            deepgram_connection.send(chunk);
-                            callback(null, chunk);
-                        } else {
-                            console.log('Skipping chunk - Deepgram connection not ready');
-                            callback(null, chunk);
-                        }
-                    } catch (error) {
-                        console.error('Transform error:', error);
-                        callback(error);
-                    }
-                }
-            });
-
-            // currentPipeline = pipeline(
-            //     audioStream,
-            //     transformStream,
-            //     (err) => {
-            //         if (err && err.code !== 'ERR_STREAM_PREMATURE_CLOSE') {
-            //             console.error('Pipeline error:', err);
-            //         }
-            //     }
-            // );
-
-            // Store cleanup function
-            // activeTranscriptions.set(userId, () => {
-            //     if (currentPipeline) {
-            //         decoder.destroy();
-            //         transformStream.destroy();
-            //     }
-            // });
 
         });
 

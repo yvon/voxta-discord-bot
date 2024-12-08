@@ -2,9 +2,10 @@
   "name": "discord-follow-bot",
   "version": "1.0.0",
   "description": "A Discord bot that follows users in voice channels",
-  "main": "index.js",
+  "type": "module",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node src/index.js"
   },
   "dependencies": {
     "@deepgram/sdk": "^3.9.0",

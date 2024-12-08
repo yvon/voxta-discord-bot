@@ -26,4 +26,4 @@ COPY . .
 RUN touch .env
 
 # Start the bot
-CMD [ "node", "index.js" ]
+CMD [ "npm", "start" ]

@@ -17,6 +17,7 @@ class VoxtaService {
         // WebSocket connection properties
         this.connection = null;
         this.wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+        this.sessionId = null; // Store the session ID for active chats
     }
 
     async connectWebSocket() {
@@ -37,7 +38,12 @@ class VoxtaService {
         // Add message handler
         this.connection.on("ReceiveMessage", (message) => {
             logger.info('Received message from Voxta:', message);
-            // Handle received message here
+            
+            // Handle chat session started message
+            if (message.$type === 'chatStarted') {
+                this.sessionId = message.sessionId;
+                logger.info('Chat session started with ID:', this.sessionId);
+            }
         });
 
         try {
@@ -102,6 +108,20 @@ class VoxtaService {
         }
         
         return chatId;
+    }
+
+    async sendMessage(text) {
+        if (!this.connection || !this.sessionId) {
+            throw new Error('No active connection or session');
+        }
+
+        await this.connection.invoke('SendMessage', {
+            $type: 'send',
+            sessionId: this.sessionId,
+            text: text,
+            doReply: true,
+            doCharacterActionInference: true
+        });
     }
 
     async cleanup() {

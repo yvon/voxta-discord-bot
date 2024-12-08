@@ -12,6 +12,11 @@ class VoxtaService {
         this.authHeader = credentials 
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
+            
+        // Debug log auth details
+        logger.debug('Voxta URL:', this.baseUrl);
+        logger.debug('Auth credentials present:', !!credentials);
+        logger.debug('Auth header present:', !!this.authHeader);
     }
 
     async getChats() {

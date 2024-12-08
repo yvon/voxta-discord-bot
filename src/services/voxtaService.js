@@ -40,8 +40,8 @@ class VoxtaService {
             logger.info('Received message from Voxta:', message);
             
             // Handle chat session started message
-            if (message.$type === 'chatStarted') {
-                this.sessionId = message.sessionId;
+            if (message.$type === 'chatStarted' && message.context?.sessionId) {
+                this.sessionId = message.context.sessionId;
                 logger.info('Chat session started with ID:', this.sessionId);
             }
         });

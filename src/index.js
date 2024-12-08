@@ -1,8 +1,8 @@
 require('dotenv').config();
 const { Client, GatewayIntentBits } = require('discord.js');
-const DeepgramService = require('./deepgramService');
-const VoiceService = require('./voiceService');
-const logger = require('./logger');
+const DeepgramService = require('./services/deepgramService');
+const VoiceService = require('./services/voiceService');
+const logger = require('./utils/logger');
 
 const client = new Client({
     intents: [

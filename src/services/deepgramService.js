@@ -1,6 +1,6 @@
 const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const logger = require('./logger');
-const CONFIG = require('./config');
+const logger = require('../utils/logger');
+const CONFIG = require('../config/config');
 
 class DeepgramService {
     constructor(apiKey) {

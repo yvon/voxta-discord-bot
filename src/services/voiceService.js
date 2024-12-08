@@ -1,5 +1,5 @@
 const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
-const logger = require('./logger');
+const logger = require('../utils/logger');
 
 class VoiceService {
     constructor(client, deepgramService) {

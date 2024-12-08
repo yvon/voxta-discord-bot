@@ -23,10 +23,23 @@ class VoxtaService {
                 : {};
             
             const response = await fetch(url, { headers });
-            const data = await response.json();
-            return data.chats || [];
+            const text = await response.text(); // Get raw response text first
+            
+            if (!response.ok) {
+                logger.error('Voxta API error:', response.status, text);
+                return [];
+            }
+            
+            try {
+                const data = JSON.parse(text);
+                return data.chats || [];
+            } catch (error) {
+                logger.error('Invalid JSON response from Voxta:', text);
+                logger.error('Parse error:', error);
+            }
+            return [];
         } catch (error) {
-            logger.error('Error fetching chats from Voxta:', error);
+            logger.error('Network error fetching chats from Voxta:', error);
             return [];
         }
     }

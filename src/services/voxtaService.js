@@ -24,22 +24,24 @@ class VoxtaService {
             return;
         }
 
-        // Build complete URL using baseUrl
         const wsUrl = `${this.baseUrl}/hub`;
         
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl, {
-                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
-            })
+            .withUrl(wsUrl)
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();
+
+        // Add message handler
+        this.connection.on("ReceiveMessage", (message) => {
+            logger.info('Received message from Voxta:', message);
+            // Handle received message here
+        });
 
         try {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
 
-            // Send authentication message using invoke instead of send
             await this.connection.invoke('SendMessage', {
                 "$type": "authenticate",
                 "client": "SimpleClient",

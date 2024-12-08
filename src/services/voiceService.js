@@ -1,5 +1,5 @@
-const { joinVoiceChannel, EndBehaviorType } = require('@discordjs/voice');
-const logger = require('../utils/logger');
+import { joinVoiceChannel, EndBehaviorType } from '@discordjs/voice';
+import logger from '@/utils/logger.js';
 
 class VoiceService {
     constructor(client, deepgramService) {
@@ -89,4 +89,4 @@ class VoiceService {
     }
 }
 
-module.exports = VoiceService;
+export default VoiceService;

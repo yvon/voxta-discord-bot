@@ -1,6 +1,6 @@
-const { createClient, LiveTranscriptionEvents } = require("@deepgram/sdk");
-const logger = require('../utils/logger');
-const CONFIG = require('../config/config');
+import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
+import logger from '@/utils/logger.js';
+import CONFIG from '@/config/config.js';
 
 class DeepgramService {
     constructor(apiKey) {
@@ -96,4 +96,4 @@ class DeepgramService {
     }
 }
 
-module.exports = DeepgramService;
+export default DeepgramService;

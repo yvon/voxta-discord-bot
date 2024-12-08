@@ -4,9 +4,6 @@
   "description": "A Discord bot that follows users in voice channels",
   "type": "module",
   "main": "src/index.js",
-  "imports": {
-    "#/*": "./src/*"
-  },
   "scripts": {
     "start": "node src/index.js"
   },

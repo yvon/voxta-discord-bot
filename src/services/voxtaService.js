@@ -4,11 +4,10 @@ import CONFIG from '../config/config.js';
 class VoxtaService {
     constructor() {
         this.baseUrl = CONFIG.voxta.baseUrl;
-        this.endpoints = CONFIG.voxta.endpoints;
     }
 
     async getChats() {
-        const url = `${this.baseUrl}${this.endpoints.chats}`;
+        const url = `${this.baseUrl}/api/chats`;
         
         try {
             const response = await fetch(url);

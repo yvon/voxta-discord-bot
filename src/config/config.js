@@ -9,10 +9,7 @@ const CONFIG = {
         inactivityDuration: 1000
     },
     voxta: {
-        baseUrl: process.env.VOXTA_URL || "http://localhost:5384",
-        endpoints: {
-            chats: "/api/chats"
-        }
+        baseUrl: process.env.VOXTA_URL || "http://localhost:5384"
     }
 };
 

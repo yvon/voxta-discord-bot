@@ -18,4 +18,4 @@ dev: build run
 
 # Test Voxta API connection
 test-voxta: build
-	docker run --rm --env-file .env $(IMAGE_NAME) npm run test-voxta
+	docker run --rm --env-file .env $(IMAGE_NAME) node src/test-voxta.js

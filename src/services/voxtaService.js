@@ -5,7 +5,7 @@ class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
-        // Extraire user:password de l'URL si présent
+        // Extract user:password from URL if present
         const credentials = url.username && url.password 
             ? `${url.username}:${url.password}`
             : null;

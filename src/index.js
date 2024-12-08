@@ -1,8 +1,8 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
-import DeepgramService from './services/deepgramService.js';
-import VoiceService from './services/voiceService.js';
-import logger from './utils/logger.js';
+import DeepgramService from '#/services/deepgramService.js';
+import VoiceService from '#/services/voiceService.js';
+import logger from '#/utils/logger.js';
 
 const client = new Client({
     intents: [

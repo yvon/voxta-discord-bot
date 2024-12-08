@@ -1,6 +1,6 @@
 import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
-import logger from '@/utils/logger.js';
-import CONFIG from '@/config/config.js';
+import logger from '../utils/logger.js';
+import CONFIG from '../config/config.js';
 
 class DeepgramService {
     constructor(apiKey) {

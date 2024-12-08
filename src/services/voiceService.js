@@ -1,5 +1,5 @@
 import { joinVoiceChannel, EndBehaviorType } from '@discordjs/voice';
-import logger from '@/utils/logger.js';
+import logger from '#/utils/logger.js';
 
 class VoiceService {
     constructor(client, deepgramService) {

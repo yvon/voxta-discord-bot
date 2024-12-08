@@ -27,15 +27,26 @@ class VoxtaService {
     async init() {
         const url = `${this.baseUrl}/api/ui/init?signin=true`;
         try {
-            const headers = this.authHeader 
-                ? { 'Authorization': this.authHeader }
-                : {};
+            const headers = {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                'User-Agent': 'Discord-Transcription-Bot',
+                ...(this.authHeader ? { 'Authorization': this.authHeader } : {})
+            };
             
-            const response = await fetch(url, { headers });
+            logger.debug('Init request headers:', headers);
+            const response = await fetch(url, { 
+                method: 'GET',
+                headers 
+            });
+            
+            // Log response headers for debugging
+            logger.debug('Init response headers:', Object.fromEntries(response.headers.entries()));
+            
             const text = await response.text();
-            
             if (!response.ok) {
                 logger.error('Voxta init error:', response.status, text);
+                logger.error('WWW-Authenticate header:', response.headers.get('WWW-Authenticate'));
                 return false;
             }
             

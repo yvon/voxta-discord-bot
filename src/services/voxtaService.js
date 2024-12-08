@@ -1,5 +1,6 @@
 import logger from '../utils/logger.js';
 import CONFIG from '../config/config.js';
+import * as signalR from '@microsoft/signalr';
 
 class VoxtaService {
     constructor() {
@@ -12,6 +13,43 @@ class VoxtaService {
         this.authHeader = credentials 
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
+            
+        // WebSocket connection properties
+        this.connection = null;
+        this.wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    }
+
+    async connectWebSocket() {
+        if (this.connection) {
+            return;
+        }
+
+        const wsUrl = `${this.wsProtocol}//${this.baseUrl.split('//')[1]}/hub`;
+        
+        this.connection = new signalR.HubConnectionBuilder()
+            .withUrl(wsUrl, {
+                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
+            })
+            .build();
+
+        try {
+            await this.connection.start();
+            logger.info('Connected to Voxta WebSocket');
+
+            // Send authentication message
+            await this.connection.send('SendMessage', {
+                "$type": "authenticate",
+                "client": "SimpleClient",
+                "clientVersion": "1.0",
+                "scope": ["role:app"],
+                "capabilities": {"audioInput": "None", "audioOutput": "None"}
+            });
+
+        } catch (error) {
+            logger.error('Error connecting to Voxta WebSocket:', error);
+            this.connection = null;
+            throw error;
+        }
     }
 
 
@@ -39,8 +77,16 @@ class VoxtaService {
     }
 
     async getFirstChatId() {
+        await this.connectWebSocket();
         const chats = await this.getChats();
         return chats.length > 0 ? chats[0].id : null;
+    }
+
+    async cleanup() {
+        if (this.connection) {
+            await this.connection.stop();
+            this.connection = null;
+        }
     }
 }
 

@@ -27,7 +27,10 @@ class VoxtaService {
         const wsUrl = `${this.baseUrl}/hub`;
         
         this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl)
+            .withUrl(wsUrl, {
+                headers: this.authHeader ? { 'Authorization': this.authHeader } : {},
+                accessTokenFactory: () => this.authHeader?.split(' ')[1]
+            })
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();

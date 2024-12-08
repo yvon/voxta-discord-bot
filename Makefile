@@ -3,7 +3,7 @@
 # Variables
 IMAGE_NAME = discord-transcription-bot
 
-.PHONY: build run dev
+.PHONY: build run dev test-voxta
 
 # Build the Docker image
 build:
@@ -15,3 +15,7 @@ run:
 
 # Build and run in one command
 dev: build run
+
+# Test Voxta API connection
+test-voxta: build
+	docker run --rm --env-file .env $(IMAGE_NAME) npm run test-voxta

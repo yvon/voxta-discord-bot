@@ -5,30 +5,13 @@ class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
-        // Extract user:password from URL if present
-        // Decode the username and password from URL encoding since the API expects 
-        // Basic auth with 'WWW-Authenticate: Basic realm="restricted"'
+        // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
             : null;
         this.authHeader = credentials 
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
-
-        // Log the first few characters of the auth header for debugging
-        if (this.authHeader) {
-            logger.debug('Auth header preview:', this.authHeader.substring(0, 20) + '...');
-        }
-            
-        // Debug log auth details
-        logger.debug('Voxta URL:', this.baseUrl);
-        logger.debug('Auth credentials present:', !!credentials);
-        logger.debug('Auth header present:', !!this.authHeader);
-        if (credentials) {
-            // Log username but mask password for security
-            const [username] = credentials.split(':');
-            logger.debug('Auth username:', username);
-        }
     }
 
 
@@ -41,20 +24,13 @@ class VoxtaService {
                 : {};
             
             const response = await fetch(url, { headers });
-            const text = await response.text(); // Get raw response text first
-            
             if (!response.ok) {
-                logger.error('Voxta API error:', response.status, text);
+                logger.error('Voxta API error:', response.status);
                 return [];
             }
             
-            try {
-                const data = JSON.parse(text);
-                return data.chats || [];
-            } catch (error) {
-                logger.error('Invalid JSON response from Voxta:', text);
-                logger.error('Parse error:', error);
-            }
+            const data = await response.json();
+            return data.chats || [];
             return [];
         } catch (error) {
             logger.error('Network error fetching chats from Voxta:', error);

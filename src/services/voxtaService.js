@@ -86,7 +86,18 @@ class VoxtaService {
     async getFirstChatId() {
         await this.connectWebSocket();
         const chats = await this.getChats();
-        return chats.length > 0 ? chats[0].id : null;
+        const chatId = chats.length > 0 ? chats[0].id : null;
+        
+        if (chatId) {
+            // Send resumeChat message after getting the chat ID
+            await this.connection.invoke('SendMessage', {
+                "$type": "resumeChat",
+                "chatId": chatId
+            });
+            logger.info('Resumed chat with ID:', chatId);
+        }
+        
+        return chatId;
     }
 
     async cleanup() {

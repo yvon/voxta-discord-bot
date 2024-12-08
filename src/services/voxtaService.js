@@ -24,7 +24,32 @@ class VoxtaService {
         }
     }
 
+    async init() {
+        const url = `${this.baseUrl}/api/ui/init?signin=true`;
+        try {
+            const headers = this.authHeader 
+                ? { 'Authorization': this.authHeader }
+                : {};
+            
+            const response = await fetch(url, { headers });
+            const text = await response.text();
+            
+            if (!response.ok) {
+                logger.error('Voxta init error:', response.status, text);
+                return false;
+            }
+            
+            logger.debug('Voxta init successful');
+            return true;
+        } catch (error) {
+            logger.error('Network error during Voxta init:', error);
+            return false;
+        }
+    }
+
     async getChats() {
+        // Initialize the connection before getting chats
+        await this.init();
         const url = `${this.baseUrl}/api/chats`;
         
         try {

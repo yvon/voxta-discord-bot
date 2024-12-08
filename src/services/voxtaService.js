@@ -36,13 +36,21 @@ class VoxtaService {
             .build();
 
         // Add message handler
-        this.connection.on("ReceiveMessage", (message) => {
+        this.connection.on("ReceiveMessage", async (message) => {
             logger.info('Received message from Voxta:', message);
             
             // Handle chat session started message
             if (message.$type === 'chatStarted' && message.context?.sessionId) {
                 this.sessionId = message.context.sessionId;
                 logger.info('Chat session started with ID:', this.sessionId);
+                
+                // Send automatic greeting message
+                try {
+                    await this.sendMessage("hello");
+                    logger.info('Sent initial greeting message');
+                } catch (error) {
+                    logger.error('Error sending initial greeting:', error);
+                }
             }
         });
 

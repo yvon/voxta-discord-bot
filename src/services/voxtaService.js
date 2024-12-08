@@ -17,6 +17,11 @@ class VoxtaService {
         logger.debug('Voxta URL:', this.baseUrl);
         logger.debug('Auth credentials present:', !!credentials);
         logger.debug('Auth header present:', !!this.authHeader);
+        if (credentials) {
+            // Log username but mask password for security
+            const [username] = credentials.split(':');
+            logger.debug('Auth username:', username);
+        }
     }
 
     async getChats() {

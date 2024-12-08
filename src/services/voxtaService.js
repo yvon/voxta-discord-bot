@@ -6,12 +6,19 @@ class VoxtaService {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
         // Extract user:password from URL if present
+        // Decode the username and password from URL encoding since the API expects 
+        // Basic auth with 'WWW-Authenticate: Basic realm="restricted"'
         const credentials = url.username && url.password 
-            ? `${url.username}:${url.password}`
+            ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
             : null;
         this.authHeader = credentials 
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
+
+        // Log the first few characters of the auth header for debugging
+        if (this.authHeader) {
+            logger.debug('Auth header preview:', this.authHeader.substring(0, 20) + '...');
+        }
             
         // Debug log auth details
         logger.debug('Voxta URL:', this.baseUrl);

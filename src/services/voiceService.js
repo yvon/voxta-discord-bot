@@ -7,6 +7,7 @@ class VoiceService {
         this.client = client;
         this.deepgramService = deepgramService;
         eventBus.on('cleanup', () => this.cleanup());
+        eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
 
     cleanupVoiceConnection(connection) {

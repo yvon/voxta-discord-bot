@@ -20,7 +20,7 @@ client.on('ready', () => {
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-    voiceService.handleVoiceStateUpdate(oldState, newState);
+    eventBus.emit('voiceStateUpdate', oldState, newState);
 });
 
 process.on('SIGINT', () => {

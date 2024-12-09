@@ -53,6 +53,7 @@ class VoiceService {
         });
 
         logger.info(`Joined voice channel ${state.channel.name}`);
+      //AI! publie un event pour dire que le bot a rejoint un channel vocal
         const receiver = connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {

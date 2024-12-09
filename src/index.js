@@ -13,7 +13,7 @@ const client = new Client({
 });
 
 const deepgramService = new DeepgramService(process.env.DEEPGRAM_API_KEY);
-const voiceService = new VoiceService(client, deepgramService);
+const voiceService = new VoiceService(client);
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);

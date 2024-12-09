@@ -3,9 +3,8 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoiceService {
-    constructor(client, deepgramService) {
+    constructor(client) {
         this.client = client;
-        this.deepgramService = deepgramService;
         eventBus.on('cleanup', () => this.cleanup());
         eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
@@ -53,6 +52,7 @@ class VoiceService {
             selfMute: false
         });
 
+        logger.info(`Joined voice channel ${state.channel.name}`);
         const receiver = connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {
@@ -69,7 +69,7 @@ class VoiceService {
             });
 
             audioStream.on('data', (chunk) => {
-                this.deepgramService.sendAudio(chunk);
+                // this.deepgramService.sendAudio(chunk);
             });
         });
 
@@ -85,7 +85,6 @@ class VoiceService {
     }
 
     cleanup() {
-        // Destroy all active voice connections
         this.client.voice.adapters.forEach((connection) => {
             connection.destroy();
         });

@@ -8,7 +8,6 @@ class DeepgramService {
         this.deepgram = createClient(apiKey);
         this.audioBuffer = [];  // New buffer to store audio chunks
         this.isConnecting = false;  // Flag to prevent simultaneous connection attempts
-        this.setupConnection();
         eventBus.on('cleanup', () => this.closeConnection());
     }
 

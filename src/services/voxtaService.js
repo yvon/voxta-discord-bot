@@ -7,6 +7,7 @@ class VoxtaService {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
         
+      //ai! deplacer tout ca dans la fonction buildHeaders ca sert que la
         // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`

@@ -27,6 +27,7 @@ class VoxtaService {
         };
     }
 
+  //AI! je veux deux functions. la mecanique de retry a part
     async callApi(endpoint, retryCount = 0) {
         const url = `${this.baseUrl}${endpoint}`;
         const MAX_RETRIES = 2;

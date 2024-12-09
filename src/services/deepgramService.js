@@ -9,9 +9,7 @@ class DeepgramService {
         this.audioBuffer = [];  // Buffer to store audio chunks
         this.connection = null;
         eventBus.on('cleanup', () => this.closeConnection());
-        eventBus.on('audioData', (chunk) => {
-            logger.info('Received audio chunk of size:', chunk.length);
-        });
+        eventBus.on('audioData', (chunk) => this.sendAudio(chunk));
     }
 
     setupConnection() {

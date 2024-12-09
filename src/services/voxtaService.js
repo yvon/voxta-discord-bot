@@ -14,7 +14,8 @@ class VoxtaService {
         this.authHeader = credentials 
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
-            
+        
+        this.headers = this.buildHeaders();
         this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.authHeader);
     }
 
@@ -22,8 +23,7 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
-    //ai! buildHeaders non plutot? et je pense que ce serait bien de les mettre en variable d'instance
-    getHeaders() {
+    buildHeaders() {
         return this.authHeader 
             ? { 'Authorization': this.authHeader }
             : {};
@@ -32,7 +32,7 @@ class VoxtaService {
     async callApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         try {
-            const response = await fetch(url, { headers: this.getHeaders() });
+            const response = await fetch(url, { headers: this.headers });
             const response = await fetch(url, { headers });
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);

@@ -29,6 +29,7 @@ class VoxtaService {
 
         const wsUrl = `${this.baseUrl}/hub`;
         
+        //AI! met ca dans une fonction a part
         this.connection = new signalR.HubConnectionBuilder()
             .withUrl(wsUrl, {
                 headers: this.authHeader ? { 'Authorization': this.authHeader } : {}

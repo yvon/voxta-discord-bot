@@ -35,8 +35,6 @@ class VoxtaService {
         const url = `${this.baseUrl}${endpoint}`;
         try {
             const response = await fetch(url, { headers: this.headers });
-          //ai! ya du code qui est pas bon ici
-            const response = await fetch(url, { headers });
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);
                 return null;

@@ -29,16 +29,7 @@ class VoxtaService {
 
         const wsUrl = `${this.baseUrl}/hub`;
         
-        //AI! met ca dans une fonction a part
-        this.connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl, {
-                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
-            })
-            .withAutomaticReconnect()
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
-
-        this.connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
+        this.connection = this.setupSignalRConnection(wsUrl);
 
         try {
             await this.connection.start();
@@ -127,14 +118,18 @@ class VoxtaService {
         }
     }
 
-    async handleMessage(message) {
-        logger.info('Received message from Voxta:', message);
-        
-        // Handle chat session started message
-        if (message.$type === 'chatStarted' && message.context?.sessionId) {
-            this.sessionId = message.context.sessionId;
-            logger.info('Chat session started with ID:', this.sessionId);
-        }
+
+    setupSignalRConnection(wsUrl) {
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl(wsUrl, {
+                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
+            })
+            .withAutomaticReconnect()
+            .configureLogging(signalR.LogLevel.Information)
+            .build();
+
+        connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
+        return connection;
     }
 
     async cleanup() {

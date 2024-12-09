@@ -1,3 +1,4 @@
+//AI! plutot que d'utiliser dotenv directement je prefere y acceder via la config
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import eventBus from './utils/eventBus.js';

@@ -1,5 +1,6 @@
 import logger from '../utils/logger.js';
 import CONFIG from '../config/config.js';
+import eventBus from '../utils/eventBus.js';
 
 class VoxtaService {
     constructor() {
@@ -8,6 +9,8 @@ class VoxtaService {
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.url = url;
         this.headers = this.buildHeaders();
+        
+        eventBus.on('voiceChannelJoined', () => this.joinLastChat());
     }
 
     buildHeaders() {
@@ -55,7 +58,6 @@ class VoxtaService {
         logger.info('Sending message to Voxta (not yet implemented):', text);
     }
 
-  //AI! appelle cette methode quand on rejoint un channel vocal
     async joinLastChat() {
         await this.connectWebSocket();
         const chatId = await this.getLastChatId();

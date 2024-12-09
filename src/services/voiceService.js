@@ -1,10 +1,12 @@
 import { joinVoiceChannel, EndBehaviorType } from '@discordjs/voice';
 import logger from '../utils/logger.js';
+import eventBus from '../utils/eventBus.js';
 
 class VoiceService {
     constructor(client, deepgramService) {
         this.client = client;
         this.deepgramService = deepgramService;
+        eventBus.on('cleanup', () => this.cleanup());
     }
 
     cleanupVoiceConnection(connection) {

@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
+import eventBus from './utils/eventBus.js';
 import DeepgramService from './services/deepgramService.js';
 import VoiceService from './services/voiceService.js';
 import logger from './utils/logger.js';
@@ -22,12 +23,9 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     voiceService.handleVoiceStateUpdate(oldState, newState);
 });
 
-process.on('SIGINT', async () => {
+process.on('SIGINT', () => {
     logger.info('\nClosing connections...');
-    deepgramService.closeConnection();
-    voiceService.cleanup();
-    await client.destroy();
-    logger.info('Program stopped.');
+    eventBus.emit('cleanup');
     process.exit(0);
 });
 

@@ -1,11 +1,13 @@
 import logger from '../utils/logger.js';
 import CONFIG from '../config/config.js';
 import * as signalR from '@microsoft/signalr';
+import eventBus from '../utils/eventBus.js';
 
 class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
+        eventBus.on('cleanup', () => this.cleanup());
         // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`

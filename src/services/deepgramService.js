@@ -1,6 +1,7 @@
 import { createClient, LiveTranscriptionEvents } from "@deepgram/sdk";
 import logger from '../utils/logger.js';
 import CONFIG from '../config/config.js';
+import eventBus from '../utils/eventBus.js';
 
 class DeepgramService {
     constructor(apiKey) {
@@ -8,6 +9,7 @@ class DeepgramService {
         this.audioBuffer = [];  // New buffer to store audio chunks
         this.isConnecting = false;  // Flag to prevent simultaneous connection attempts
         this.setupConnection();
+        eventBus.on('cleanup', () => this.closeConnection());
     }
 
     setupConnection() {

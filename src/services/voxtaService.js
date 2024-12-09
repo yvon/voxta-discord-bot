@@ -8,7 +8,6 @@ class VoxtaService {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
         eventBus.on('cleanup', () => this.cleanup());
-        eventBus.on('lastChatId', (chatId) => this.resumeChat(chatId));
         // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
@@ -104,16 +103,9 @@ class VoxtaService {
         }
     }
 
-    async getFirstChatId() {
-        await this.connectWebSocket();
+    async getLastChatId() {
         const chats = await this.getChats();
-        const chatId = chats.length > 0 ? chats[0].id : null;
-        
-        if (chatId) {
-            eventBus.emit('lastChatId', chatId);
-        }
-        
-        return chatId;
+        return chats.length > 0 ? chats[0].id : null;
     }
 
     async sendMessage(text) {
@@ -130,9 +122,10 @@ class VoxtaService {
         });
     }
 
-    async resumeChat(chatId) {
+    async joinLastChat() {
+        await this.connectWebSocket();
+        const chatId = await this.getLastChatId();
         if (!chatId) return;
-        
         await this.connection.invoke('SendMessage', {
             "$type": "resumeChat",
             "chatId": chatId

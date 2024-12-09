@@ -27,20 +27,32 @@ class VoxtaService {
         };
     }
 
-  //AI! je veux deux functions. la mecanique de retry a part
-    async callApi(endpoint, retryCount = 0) {
-        const url = `${this.baseUrl}${endpoint}`;
+    async retryWithDelay(fn, retryCount = 0) {
         const MAX_RETRIES = 2;
         const RETRY_DELAY = 2000; // 2 seconds
 
         try {
-            const response = await fetch(url, { headers: this.headers });
+            const response = await fn();
             
             if (response.status === 502 && retryCount < MAX_RETRIES) {
                 logger.info(`Got 502 error, retrying in ${RETRY_DELAY}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
                 await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-                return this.callApi(endpoint, retryCount + 1);
+                return this.retryWithDelay(fn, retryCount + 1);
             }
+
+            return response;
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    async callApi(endpoint) {
+        const url = `${this.baseUrl}${endpoint}`;
+        
+        try {
+            const response = await this.retryWithDelay(() => 
+                fetch(url, { headers: this.headers })
+            );
 
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);

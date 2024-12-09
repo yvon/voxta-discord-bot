@@ -1,11 +1,9 @@
 import logger from '../utils/logger.js';
-import CONFIG from '../config/config.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoxtaService {
-  //AI! prenons l'url en argument du constructeur comme ca l'env et la config sont juste dans l'index
-    constructor() {
-        const url = new URL(CONFIG.voxta.baseUrl);
+    constructor(baseUrl) {
+        const url = new URL(baseUrl);
 
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.url = url;

@@ -22,14 +22,16 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
-    async callApi(endpoint) {
-        const url = `${this.baseUrl}${endpoint}`;
-      //AI! contruction des headers dans une methode a part
-        const headers = this.authHeader 
+    getHeaders() {
+        return this.authHeader 
             ? { 'Authorization': this.authHeader }
             : {};
+    }
 
+    async callApi(endpoint) {
+        const url = `${this.baseUrl}${endpoint}`;
         try {
+            const response = await fetch(url, { headers: this.getHeaders() });
             const response = await fetch(url, { headers });
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);

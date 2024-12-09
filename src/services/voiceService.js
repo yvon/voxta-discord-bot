@@ -69,6 +69,7 @@ class VoiceService {
             });
 
             audioStream.on('data', (chunk) => {
+              //AI! remplace ca par l'emission d'un event avec le chunk
                 // this.deepgramService.sendAudio(chunk);
             });
         });

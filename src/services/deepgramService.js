@@ -6,8 +6,8 @@ import eventBus from '../utils/eventBus.js';
 class DeepgramService {
     constructor(apiKey) {
         this.deepgram = createClient(apiKey);
-        this.audioBuffer = [];  // New buffer to store audio chunks
-        this.isConnecting = false;  // Flag to prevent simultaneous connection attempts
+        this.audioBuffer = [];  // Buffer to store audio chunks
+        this.connection = null;
         eventBus.on('cleanup', () => this.closeConnection());
         eventBus.on('audioData', (chunk) => {
             logger.info('Received audio chunk of size:', chunk.length);
@@ -15,15 +15,12 @@ class DeepgramService {
     }
 
     setupConnection() {
-        // Check if connection attempt is already in progress
-        if (this.isConnecting) {
-            logger.info("Connection attempt already in progress, skipping setup");
+        if (this.connection) {
             return this.connection;
         }
 
         logger.info("Setting up new Deepgram connection...");
-        this.isConnecting = true;  // Start connection attempt
-
+        
         this.connection = this.deepgram.listen.live({
             model: CONFIG.deepgram.model,
             language: CONFIG.deepgram.language,
@@ -33,18 +30,17 @@ class DeepgramService {
 
         this.connection.on(LiveTranscriptionEvents.Open, () => {
             logger.info("Deepgram connection opened");
-            this.isConnecting = false;  // Connection attempt completed
             this.processAudioBuffer();
         });
 
         this.connection.on(LiveTranscriptionEvents.Close, () => {
-            logger.info("Deepgram connection closed.");
-            this.isConnecting = false;  // Reset connection attempt flag
+            logger.info("Deepgram connection closed");
+            this.connection = null;
         });
 
         this.connection.on(LiveTranscriptionEvents.Error, (error) => {
             logger.error('Deepgram error:', error);
-            this.isConnecting = false;  // Reset flag on error
+            this.connection = null;
         });
 
         this.connection.on(LiveTranscriptionEvents.Transcript, (data) => {
@@ -57,45 +53,35 @@ class DeepgramService {
     }
 
     closeConnection() {
-        if (!this.connection) return;
-
-        this.connection.finish();
-        this.connection = null;
-        this.isConnecting = false;
+        if (this.connection) {
+            this.connection.finish();
+            this.connection = null;
+        }
     }
 
     processAudioBuffer() {
+        if (!this.connection) return;
+
         while (this.audioBuffer.length > 0) {
             const audioChunk = this.audioBuffer.shift();
             try {
                 this.connection.send(audioChunk);
             } catch (error) {
                 logger.error('Error sending audio to Deepgram:', error);
-                // In case of error, put the chunk back in buffer and reinitialize connection
                 this.audioBuffer.unshift(audioChunk);
-                this.setupConnection();
+                this.closeConnection();
                 break;
             }
         }
     }
 
-    async reopenConnection() {
-        if (this.isConnecting) {
-            return;
-        }
-
-        logger.info("Reopening Deepgram connection...");
-        this.closeConnection();
-        this.setupConnection();
-    }
-
     sendAudio(chunk) {
         this.audioBuffer.push(chunk);
         
-        if (this.connection.isConnected()) {
-            this.processAudioBuffer();
+        if (!this.connection) {
+            this.setupConnection();
         } else {
-            this.reopenConnection();
+            this.processAudioBuffer();
         }
     }
 }

@@ -126,6 +126,16 @@ class VoxtaService {
         }
     }
 
+    async handleMessage(message) {
+        logger.info('Received message from Voxta:', message);
+        
+        // Handle chat session started message
+        if (message.$type === 'chatStarted' && message.context?.sessionId) {
+            this.sessionId = message.context.sessionId;
+            logger.info('Chat session started with ID:', this.sessionId);
+        }
+    }
+
     async cleanup() {
         if (this.connection) {
             await this.connection.stop();

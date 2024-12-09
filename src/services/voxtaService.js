@@ -24,6 +24,7 @@ class VoxtaService {
 
     async callApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
+      //AI! contruction des headers dans une methode a part
         const headers = this.authHeader 
             ? { 'Authorization': this.authHeader }
             : {};

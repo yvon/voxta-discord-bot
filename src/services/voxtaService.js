@@ -6,18 +6,10 @@ class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
-        
-      //ai! deplacer tout ca dans la fonction buildHeaders ca sert que la
-        // Extract and decode credentials from URL if present
-        const credentials = url.username && url.password 
-            ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
-            : null;
-        this.authHeader = credentials 
-            ? `Basic ${Buffer.from(credentials).toString('base64')}`
-            : null;
+        this.url = url;
         
         this.headers = this.buildHeaders();
-        this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.authHeader);
+        this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers.Authorization);
     }
 
     async connectWebSocket() {
@@ -25,8 +17,17 @@ class VoxtaService {
     }
 
     buildHeaders() {
-        return this.authHeader 
-            ? { 'Authorization': this.authHeader }
+        // Extract and decode credentials from URL if present
+        const credentials = this.url.username && this.url.password 
+            ? `${decodeURIComponent(this.url.username)}:${decodeURIComponent(this.url.password)}`
+            : null;
+            
+        const authHeader = credentials 
+            ? `Basic ${Buffer.from(credentials).toString('base64')}`
+            : null;
+
+        return authHeader 
+            ? { 'Authorization': authHeader }
             : {};
     }
 

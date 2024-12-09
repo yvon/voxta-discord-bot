@@ -22,28 +22,29 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
-    async getChats() {
-        const url = `${this.baseUrl}/api/chats`;
-        
+    async callApi(endpoint) {
+        const url = `${this.baseUrl}${endpoint}`;
+        const headers = this.authHeader 
+            ? { 'Authorization': this.authHeader }
+            : {};
+
         try {
-          //AI! isole cette partie dans une function on veut pouvoir appeller n'importe quelle url facilement
-            const headers = this.authHeader 
-                ? { 'Authorization': this.authHeader }
-                : {};
-            
             const response = await fetch(url, { headers });
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);
-                return [];
+                return null;
             }
             
-            const data = await response.json();
-            return data.chats || [];
-            return [];
+            return await response.json();
         } catch (error) {
-            logger.error('Network error fetching chats from Voxta:', error);
-            return [];
+            logger.error(`Network error calling Voxta API ${endpoint}:`, error);
+            return null;
         }
+    }
+
+    async getChats() {
+        const data = await this.callApi('/api/chats');
+        return data?.chats || [];
     }
 
     async getLastChatId() {

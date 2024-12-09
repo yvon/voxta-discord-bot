@@ -86,7 +86,7 @@ class DeepgramService {
     }
 
     isConnected() {
-        return this.connection?.isConnected();
+        return this.connection?.isConnected() ?? false;
     }
 }
 

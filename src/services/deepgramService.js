@@ -60,7 +60,7 @@ class DeepgramService {
     }
 
     processAudioBuffer() {
-        if (!this.connection) return;
+        if (!this.isConnected()) return;
 
         while (this.audioBuffer.length > 0) {
             const audioChunk = this.audioBuffer.shift();

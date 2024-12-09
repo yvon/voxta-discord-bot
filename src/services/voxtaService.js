@@ -8,6 +8,7 @@ class VoxtaService {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
         eventBus.on('cleanup', () => this.cleanup());
+        eventBus.on('lastChatId', (chatId) => this.resumeChat(chatId));
         // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
@@ -108,15 +109,8 @@ class VoxtaService {
         const chats = await this.getChats();
         const chatId = chats.length > 0 ? chats[0].id : null;
         
-        //AI! emet plutot un event la avec le lastChatId et souscrit a cet event dans le contructeur. Fais une method qui
-      //resume le chat avec l'argument de l'event.
         if (chatId) {
-            // Send resumeChat message after getting the chat ID
-            await this.connection.invoke('SendMessage', {
-                "$type": "resumeChat",
-                "chatId": chatId
-            });
-            logger.info('Resumed chat with ID:', chatId);
+            eventBus.emit('lastChatId', chatId);
         }
         
         return chatId;
@@ -134,6 +128,16 @@ class VoxtaService {
             doReply: true,
             doCharacterActionInference: true
         });
+    }
+
+    async resumeChat(chatId) {
+        if (!chatId) return;
+        
+        await this.connection.invoke('SendMessage', {
+            "$type": "resumeChat",
+            "chatId": chatId
+        });
+        logger.info('Resumed chat with ID:', chatId);
     }
 
     async cleanup() {

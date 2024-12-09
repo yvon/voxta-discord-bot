@@ -28,13 +28,13 @@ class VoxtaService {
         }
 
         const wsUrl = `${this.baseUrl}/hub`;
-        
         this.connection = this.setupSignalRConnection(wsUrl);
 
         try {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
 
+            //ai! met ca dans une function authenticate ou quelque chose comme ça
             await this.connection.invoke('SendMessage', {
                 "$type": "authenticate",
                 "client": "SimpleClient",

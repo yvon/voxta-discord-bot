@@ -27,11 +27,20 @@ class VoxtaService {
         };
     }
 
-  //AI! si c'est une 502 alors retry 2 fois avec un interval de 2 secondes
-    async callApi(endpoint) {
+    async callApi(endpoint, retryCount = 0) {
         const url = `${this.baseUrl}${endpoint}`;
+        const MAX_RETRIES = 2;
+        const RETRY_DELAY = 2000; // 2 seconds
+
         try {
             const response = await fetch(url, { headers: this.headers });
+            
+            if (response.status === 502 && retryCount < MAX_RETRIES) {
+                logger.info(`Got 502 error, retrying in ${RETRY_DELAY}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                return this.callApi(endpoint, retryCount + 1);
+            }
+
             if (!response.ok) {
                 logger.error('Voxta API error:', response.status);
                 return null;

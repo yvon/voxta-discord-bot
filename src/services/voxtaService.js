@@ -37,16 +37,7 @@ class VoxtaService {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        //AI! met tout ce bloc une methode a part
-        this.connection.on("ReceiveMessage", async (message) => {
-            logger.info('Received message from Voxta:', message);
-            
-            // Handle chat session started message
-            if (message.$type === 'chatStarted' && message.context?.sessionId) {
-                this.sessionId = message.context.sessionId;
-                logger.info('Chat session started with ID:', this.sessionId);
-            }
-        });
+        this.connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
 
         try {
             await this.connection.start();
@@ -123,6 +114,16 @@ class VoxtaService {
             "chatId": chatId
         });
         logger.info('Resumed chat with ID:', chatId);
+    }
+
+    async handleReceiveMessage(message) {
+        logger.info('Received message from Voxta:', message);
+        
+        // Handle chat session started message
+        if (message.$type === 'chatStarted' && message.context?.sessionId) {
+            this.sessionId = message.context.sessionId;
+            logger.info('Chat session started with ID:', this.sessionId);
+        }
     }
 
     async cleanup() {

@@ -1,9 +1,9 @@
-//AI! faut instancier VoxtaService ici
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import eventBus from './utils/eventBus.js';
 import DeepgramService from './services/deepgramService.js';
 import VoiceService from './services/voiceService.js';
+import VoxtaService from './services/voxtaService.js';
 import logger from './utils/logger.js';
 
 const client = new Client({
@@ -15,6 +15,7 @@ const client = new Client({
 
 const deepgramService = new DeepgramService(process.env.DEEPGRAM_API_KEY);
 const voiceService = new VoiceService(client);
+const voxtaService = new VoxtaService();
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);

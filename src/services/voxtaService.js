@@ -16,20 +16,19 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
-  //AI! refactor un peu ca c'est degueu
     buildHeaders() {
-        // Extract and decode credentials from URL if present
-        const credentials = this.url.username && this.url.password 
-            ? `${decodeURIComponent(this.url.username)}:${decodeURIComponent(this.url.password)}`
-            : null;
-            
-        const authHeader = credentials 
-            ? `Basic ${Buffer.from(credentials).toString('base64')}`
-            : null;
+        if (!this.url.username || !this.url.password) {
+            return {};
+        }
 
-        return authHeader 
-            ? { 'Authorization': authHeader }
-            : {};
+        const decodedUsername = decodeURIComponent(this.url.username);
+        const decodedPassword = decodeURIComponent(this.url.password);
+        const basicAuthString = `${decodedUsername}:${decodedPassword}`;
+        const base64Credentials = Buffer.from(basicAuthString).toString('base64');
+
+        return {
+            'Authorization': `Basic ${base64Credentials}`
+        };
     }
 
     async callApi(endpoint) {

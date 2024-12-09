@@ -25,5 +25,5 @@ COPY . .
 # Create and set environment variables file
 RUN touch .env
 
-# Start the bot
-CMD [ "npm", "start" ]
+# Start the bot directly with Node.js to properly handle signals
+CMD [ "node", "src/index.js" ]

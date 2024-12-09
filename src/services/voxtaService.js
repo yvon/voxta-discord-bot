@@ -37,7 +37,7 @@ class VoxtaService {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        // Add message handler
+        //AI! met tout ce bloc une methode a part
         this.connection.on("ReceiveMessage", async (message) => {
             logger.info('Received message from Voxta:', message);
             
@@ -45,14 +45,6 @@ class VoxtaService {
             if (message.$type === 'chatStarted' && message.context?.sessionId) {
                 this.sessionId = message.context.sessionId;
                 logger.info('Chat session started with ID:', this.sessionId);
-                
-                // Send automatic greeting message
-                try {
-                    await this.sendMessage("hello");
-                    logger.info('Sent initial greeting message');
-                } catch (error) {
-                    logger.error('Error sending initial greeting:', error);
-                }
             }
         });
 

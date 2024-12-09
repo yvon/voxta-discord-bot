@@ -26,6 +26,7 @@ class VoxtaService {
         const url = `${this.baseUrl}/api/chats`;
         
         try {
+          //AI! isole cette partie dans une function on veut pouvoir appeller n'importe quelle url facilement
             const headers = this.authHeader 
                 ? { 'Authorization': this.authHeader }
                 : {};

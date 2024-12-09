@@ -1,5 +1,3 @@
-//AI! plutot que d'utiliser dotenv directement je prefere y acceder via la config
-import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import eventBus from './utils/eventBus.js';
 import DeepgramService from './services/deepgramService.js';
@@ -15,7 +13,7 @@ const client = new Client({
     ]
 });
 
-const deepgramService = new DeepgramService(process.env.DEEPGRAM_API_KEY);
+const deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
 const voiceService = new VoiceService(client);
 const voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
 
@@ -33,7 +31,7 @@ process.on('SIGINT', () => {
     process.exit(0);
 });
 
-client.login(process.env.DISCORD_TOKEN).catch(error => {
+client.login(CONFIG.discord.token).catch(error => {
     logger.error('Discord connection error:', error);
     process.exit(1);
 });

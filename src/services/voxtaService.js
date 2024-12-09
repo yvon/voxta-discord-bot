@@ -27,6 +27,7 @@ class VoxtaService {
         };
     }
 
+  //AI! si c'est une 502 alors retry 2 fois avec un interval de 2 secondes
     async callApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         try {
@@ -58,7 +59,6 @@ class VoxtaService {
     }
 
     async joinLastChat() {
-        await this.connectWebSocket();
         const chatId = await this.getLastChatId();
         if (!chatId) return;
         logger.info('Joining chat (not yet implemented):', chatId);

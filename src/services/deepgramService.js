@@ -9,6 +9,7 @@ class DeepgramService {
         this.audioBuffer = [];  // New buffer to store audio chunks
         this.isConnecting = false;  // Flag to prevent simultaneous connection attempts
         eventBus.on('cleanup', () => this.closeConnection());
+        //AI! ecoute les audioData ici mais ne fait rien d'autre qu'un log pour l'instant
     }
 
     setupConnection() {

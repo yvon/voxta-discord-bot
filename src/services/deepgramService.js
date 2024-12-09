@@ -84,6 +84,10 @@ class DeepgramService {
             this.processAudioBuffer();
         }
     }
+
+    isConnected() {
+        return this.connection?.isConnected();
+    }
 }
 
 export default DeepgramService;

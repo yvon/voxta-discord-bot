@@ -1,3 +1,4 @@
+//AI! faut instancier VoxtaService ici
 import 'dotenv/config';
 import { Client, GatewayIntentBits } from 'discord.js';
 import eventBus from './utils/eventBus.js';

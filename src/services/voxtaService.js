@@ -34,18 +34,7 @@ class VoxtaService {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
 
-            //ai! met ca dans une function authenticate ou quelque chose comme ça
-            await this.connection.invoke('SendMessage', {
-                "$type": "authenticate",
-                "client": "SimpleClient",
-                "clientVersion": "1.0",
-                "scope": ["role:app"],
-                "capabilities": {
-                    "audioInput": "None", 
-                    "audioOutput": "Url",
-                    "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
-                }
-            });
+            await this.authenticate();
 
         } catch (error) {
             logger.error('Error connecting to Voxta WebSocket:', error);
@@ -54,6 +43,20 @@ class VoxtaService {
         }
     }
 
+
+    async authenticate() {
+        await this.connection.invoke('SendMessage', {
+            "$type": "authenticate",
+            "client": "SimpleClient",
+            "clientVersion": "1.0",
+            "scope": ["role:app"],
+            "capabilities": {
+                "audioInput": "None", 
+                "audioOutput": "Url",
+                "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
+            }
+        });
+    }
 
     async getChats() {
         const url = `${this.baseUrl}/api/chats`;

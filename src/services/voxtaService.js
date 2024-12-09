@@ -22,6 +22,7 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
+    //ai! buildHeaders non plutot? et je pense que ce serait bien de les mettre en variable d'instance
     getHeaders() {
         return this.authHeader 
             ? { 'Authorization': this.authHeader }

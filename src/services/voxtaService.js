@@ -108,6 +108,8 @@ class VoxtaService {
         const chats = await this.getChats();
         const chatId = chats.length > 0 ? chats[0].id : null;
         
+        //AI! emet plutot un event la avec le lastChatId et souscrit a cet event dans le contructeur. Fais une method qui
+      //resume le chat avec l'argument de l'event.
         if (chatId) {
             // Send resumeChat message after getting the chat ID
             await this.connection.invoke('SendMessage', {

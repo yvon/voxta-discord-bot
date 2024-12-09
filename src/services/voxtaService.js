@@ -1,13 +1,12 @@
 import logger from '../utils/logger.js';
 import CONFIG from '../config/config.js';
-import * as signalR from '@microsoft/signalr';
-import eventBus from '../utils/eventBus.js';
+import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 
 class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
         this.baseUrl = `${url.protocol}//${url.host}`;
-        eventBus.on('cleanup', () => this.cleanup());
+        
         // Extract and decode credentials from URL if present
         const credentials = url.username && url.password 
             ? `${decodeURIComponent(url.username)}:${decodeURIComponent(url.password)}`
@@ -16,46 +15,11 @@ class VoxtaService {
             ? `Basic ${Buffer.from(credentials).toString('base64')}`
             : null;
             
-        // WebSocket connection properties
-        this.connection = null;
-        this.wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
-        this.sessionId = null; // Store the session ID for active chats
+        this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.authHeader);
     }
 
     async connectWebSocket() {
-        if (this.connection) {
-            return;
-        }
-
-        const wsUrl = `${this.baseUrl}/hub`;
-        this.connection = this.setupSignalRConnection(wsUrl);
-
-        try {
-            await this.connection.start();
-            logger.info('Connected to Voxta WebSocket');
-
-            await this.authenticate();
-
-        } catch (error) {
-            logger.error('Error connecting to Voxta WebSocket:', error);
-            this.connection = null;
-            throw error;
-        }
-    }
-
-
-    async authenticate() {
-        await this.connection.invoke('SendMessage', {
-            "$type": "authenticate",
-            "client": "SimpleClient",
-            "clientVersion": "1.0",
-            "scope": ["role:app"],
-            "capabilities": {
-                "audioInput": "None", 
-                "audioOutput": "Url",
-                "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
-            }
-        });
+        await this.wsClient.connect();
     }
 
     async getChats() {
@@ -87,59 +51,14 @@ class VoxtaService {
     }
 
     async sendMessage(text) {
-        if (!this.connection || !this.sessionId) {
-            throw new Error('No active connection or session');
-        }
-
-        await this.connection.invoke('SendMessage', {
-            $type: 'send',
-            sessionId: this.sessionId,
-            text: text,
-            doReply: true,
-            doCharacterActionInference: true
-        });
+        await this.wsClient.sendMessage(text);
     }
 
     async joinLastChat() {
         await this.connectWebSocket();
         const chatId = await this.getLastChatId();
         if (!chatId) return;
-        await this.connection.invoke('SendMessage', {
-            "$type": "resumeChat",
-            "chatId": chatId
-        });
-        logger.info('Resumed chat with ID:', chatId);
-    }
-
-    async handleReceiveMessage(message) {
-        logger.info('Received message from Voxta:', message);
-        
-        // Handle chat session started message
-        if (message.$type === 'chatStarted' && message.context?.sessionId) {
-            this.sessionId = message.context.sessionId;
-            logger.info('Chat session started with ID:', this.sessionId);
-        }
-    }
-
-
-    setupSignalRConnection(wsUrl) {
-        const connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl, {
-                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
-            })
-            .withAutomaticReconnect()
-            .configureLogging(signalR.LogLevel.Information)
-            .build();
-
-        connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
-        return connection;
-    }
-
-    async cleanup() {
-        if (this.connection) {
-            await this.connection.stop();
-            this.connection = null;
-        }
+        await this.wsClient.resumeChat(chatId);
     }
 }
 

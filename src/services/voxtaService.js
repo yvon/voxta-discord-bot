@@ -5,9 +5,9 @@ import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 class VoxtaService {
     constructor() {
         const url = new URL(CONFIG.voxta.baseUrl);
+
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.url = url;
-        
         this.headers = this.buildHeaders();
         this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers.Authorization);
     }
@@ -16,6 +16,7 @@ class VoxtaService {
         await this.wsClient.connect();
     }
 
+  //AI! refactor un peu ca c'est degueu
     buildHeaders() {
         // Extract and decode credentials from URL if present
         const credentials = this.url.username && this.url.password 

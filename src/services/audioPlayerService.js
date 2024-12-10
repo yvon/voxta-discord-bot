@@ -10,13 +10,17 @@ class AudioPlayerService {
     }
 
     async playBuffer() {
-      //AI! shift array plutot
-        for (const response of this.audioBuffer) {
-            const contentLength = response.headers.get('content-length');
-            logger.info('Playing audio file:', 
-                contentLength ? `${(contentLength / 1024).toFixed(2)} KB` : 'unknown');
+        while (this.audioBuffer.length > 0) {
+            const audioUrl = this.audioBuffer.shift();
+            try {
+                const response = await this.voxtaService.fetchResource(audioUrl);
+                const contentLength = response.headers.get('content-length');
+                logger.info('Playing audio file:', 
+                    contentLength ? `${(contentLength / 1024).toFixed(2)} KB` : 'unknown');
+            } catch (error) {
+                logger.error('Failed to fetch audio file:', error);
+            }
         }
-        this.audioBuffer = []; // Clear buffer after playing
     }
 
     handleVoxtaMessage(message) {
@@ -24,13 +28,8 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-          //AI! ne fetch pas ici, fais ca dans playBuffer
-            this.voxtaService.fetchResource(message.audioUrl)
-                .then(response => {
-                    this.audioBuffer.push(response);
-                    this.playBuffer();
-                })
-                .catch(error => logger.error('Failed to fetch audio file:', error));
+            this.audioBuffer.push(message.audioUrl);
+            this.playBuffer();
         }
     }
 

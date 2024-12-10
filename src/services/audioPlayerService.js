@@ -10,6 +10,8 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
+  //AI! log des trucs ici ca marche pas on veut comprendre pourquoi. aussi isole la lecture du fichier dans une methode
+  //dediee. ici on veut boucler et appeller cette methode
     async playBuffer() {
         while (this.audioBuffer.length > 0) {
             const audioUrl = this.audioBuffer.shift();

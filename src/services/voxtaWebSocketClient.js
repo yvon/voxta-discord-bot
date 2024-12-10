@@ -56,9 +56,9 @@ class VoxtaWebSocketClient {
     }
 
     async sendMessage(text) {
-      //AI! remplace ce test par un await connect()
-        if (!this.connection || !this.sessionId) {
-            throw new Error('No active connection or session');
+        await this.connect();
+        if (!this.sessionId) {
+            throw new Error('No active session');
         }
 
         await this.connection.invoke('SendMessage', {

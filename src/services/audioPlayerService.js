@@ -12,6 +12,7 @@ class AudioPlayerService {
     }
 
     cleanup() {
+      //Ai! pas de commentaire en français!
         // Nettoyage des ressources si nécessaire
     }
 }

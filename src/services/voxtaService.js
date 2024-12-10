@@ -85,8 +85,8 @@ class VoxtaService {
     async joinLastChat() {
         const chatId = await this.getLastChatId();
         if (!chatId) return;
+        await this.wsClient.authenticate();
         logger.info('Joining chat (not yet implemented):', chatId);
-      //AI! appelle authenticate sur la ws
     }
 }
 

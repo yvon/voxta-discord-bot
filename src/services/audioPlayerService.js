@@ -12,6 +12,7 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
+  // AI! 
     async playBuffer() {
         if (this.isPlaying) {
             logger.debug('Already playing, skipping');
@@ -78,6 +79,7 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
+          // AI! au lieu de push l'url met une promise dans le tableau qui commence a telecharger
             this.audioBuffer.push(message.audioUrl);
             this.playBuffer();
         }

@@ -42,7 +42,10 @@ class VoxtaWebSocketClient {
         }
     }
 
+  //AI! securise ce code avec un attribut this.authenticated = true. ne fais rien si deja fait.
     async authenticate() {
+        await this.connect();
+
         await this.connection.invoke('SendMessage', {
             "$type": "authenticate",
             "client": "SimpleClient",

@@ -49,6 +49,8 @@ class VoxtaService {
         }
     }
 
+  // AI! fais moi une methode qui appelle un endpoint mais qui soit pas forcement du json. callAPpi va appeller cette methode
+  // et parser apres
     async callApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         

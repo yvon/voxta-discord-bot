@@ -81,6 +81,8 @@ class VoxtaWebSocketClient {
     async processMessageBuffer() {
         if (!this.connection || !this.sessionId) return;
 
+      //AI! log ici la taille du buffer
+
         while (this.messageBuffer.length > 0) {
             const message = this.messageBuffer.shift();
             message.sessionId = this.sessionId;

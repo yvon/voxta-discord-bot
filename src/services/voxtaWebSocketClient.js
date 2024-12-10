@@ -3,7 +3,6 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoxtaWebSocketClient {
-  //AI! prend juste headers en paramètre on va pas les construire ici
     constructor(baseUrl, headers) {
         this.baseUrl = baseUrl;
         this.headers = headers;
@@ -57,6 +56,7 @@ class VoxtaWebSocketClient {
     }
 
     async sendMessage(text) {
+      //AI! remplace ce test par un await connect()
         if (!this.connection || !this.sessionId) {
             throw new Error('No active connection or session');
         }

@@ -11,6 +11,7 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
+  //AI! il lit tous les fichiers en meme temps il attend pas de les jouer un par un
     async playBuffer() {
         logger.info(`Starting playBuffer with ${this.audioBuffer.length} files in queue`);
         

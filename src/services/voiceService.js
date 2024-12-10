@@ -5,22 +5,22 @@ import eventBus from '../utils/eventBus.js';
 class VoiceService {
     constructor(client) {
         this.client = client;
+        this.connection = null;
         eventBus.on('cleanup', () => this.cleanup());
         eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
 
-  //ai! ici on va pas prendre connection en argument. ce sera une variable d'instance. modifie le reste reste du fichier en
-  //consequence
-    cleanupVoiceConnection(connection) {
-        if (!connection) return;
+    cleanupVoiceConnection() {
+        if (!this.connection) return;
         
         // Cleanup existing audio subscriptions
-        connection.receiver?.subscriptions.forEach((subscription) => {
+        this.connection.receiver?.subscriptions.forEach((subscription) => {
             subscription.destroy();
         });
         
         // Destroy the connection itself
-        connection.destroy();
+        this.connection.destroy();
+        this.connection = null;
     }
 
     handleVoiceStateUpdate(oldState, newState) {
@@ -42,8 +42,7 @@ class VoiceService {
 
         // Cleanup old connection if exists
         if (oldState.channelId) {
-            const oldConnection = oldState.guild.voiceStates.cache.get(this.client.user.id)?.connection;
-            this.cleanupVoiceConnection(oldConnection);
+            this.cleanupVoiceConnection();
         }
 
         // User joined a voice channel or switched channels
@@ -53,7 +52,7 @@ class VoiceService {
     }
 
     setupVoiceConnection(state) {
-        const connection = joinVoiceChannel({
+        this.connection = joinVoiceChannel({
             channelId: state.channelId,
             guildId: state.guild.id,
             adapterCreator: state.guild.voiceAdapterCreator,
@@ -63,7 +62,7 @@ class VoiceService {
 
         logger.info(`Joined voice channel ${state.channel.name}`);
         eventBus.emit('voiceChannelJoined', state.channel);
-        const receiver = connection.receiver;
+        const receiver = this.connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {
             const user = this.client.users.cache.get(userId);
@@ -91,13 +90,10 @@ class VoiceService {
             receiver.subscriptions.get(userId)?.destroy();
         });
 
-        return connection;
     }
 
     cleanup() {
-        this.client.voice.adapters.forEach((connection) => {
-            connection.destroy();
-        });
+        this.cleanupVoiceConnection();
     }
 }
 

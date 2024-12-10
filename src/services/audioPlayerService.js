@@ -31,8 +31,6 @@ class AudioPlayerService {
                 const arrayBuffer = await response.arrayBuffer();
                 await this.playAudioFile(arrayBuffer);
             }
-            } catch (error) {
-                logger.error('Failed to process audio file:', error);
         } catch (error) {
             logger.error('Failed to process audio buffer:', error);
         } finally {

@@ -9,6 +9,8 @@ class VoiceService {
         eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
 
+  //ai! ici on va pas prendre connection en argument. ce sera une variable d'instance. modifie le reste reste du fichier en
+  //consequence
     cleanupVoiceConnection(connection) {
         if (!connection) return;
         

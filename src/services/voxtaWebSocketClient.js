@@ -107,8 +107,8 @@ class VoxtaWebSocketClient {
 
     async handleReceiveMessage(message) {
         logger.info('Received message from Voxta:', message);
-
-      //AI! emet un event
+        
+        eventBus.emit('voxtaMessage', message);
         
         // Handle chat session started message
         if (message.$type === 'chatStarted' && message.context?.sessionId) {

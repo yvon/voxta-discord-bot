@@ -12,6 +12,8 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
+          //AI! prend l'instance de voxtaService dans le contructeur (n'oublie de pas la donner en paramètre dans index.js).
+          //Et utilise cette instance pour fetch (fetchResource) l'audioUrl.
             fetch(message.audioUrl)
                 .then(response => {
                     const contentLength = response.headers.get('content-length');

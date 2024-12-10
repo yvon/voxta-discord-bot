@@ -12,7 +12,6 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
-  // AI! 
     async playBuffer() {
         if (this.isPlaying) {
             logger.debug('Already playing, skipping');
@@ -24,12 +23,9 @@ class AudioPlayerService {
         try {
             this.isPlaying = true;
             while (this.audioBuffer.length > 0) {
-                const audioUrl = this.audioBuffer.shift();
-                logger.info('Processing audio URL:', audioUrl);
-                
-                const response = await this.voxtaService.fetchResource(audioUrl);
-                logger.debug('Fetched audio data, status:', response.status);
-                const arrayBuffer = await response.arrayBuffer();
+                const downloadPromise = this.audioBuffer.shift();
+                logger.info('Processing next audio file in queue');
+                const arrayBuffer = await downloadPromise;
                 await this.playAudioFile(arrayBuffer);
             }
         } catch (error) {
@@ -79,8 +75,15 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-          // AI! au lieu de push l'url met une promise dans le tableau qui commence a telecharger
-            this.audioBuffer.push(message.audioUrl);
+            // Start downloading immediately and store the promise
+            const downloadPromise = this.voxtaService.fetchResource(message.audioUrl)
+                .then(response => response.arrayBuffer())
+                .catch(error => {
+                    logger.error('Failed to download audio:', error);
+                    throw error;
+                });
+            
+            this.audioBuffer.push(downloadPromise);
             this.playBuffer();
         }
     }

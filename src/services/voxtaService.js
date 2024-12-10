@@ -86,6 +86,7 @@ class VoxtaService {
         const chatId = await this.getLastChatId();
         if (!chatId) return;
         logger.info('Joining chat (not yet implemented):', chatId);
+      //AI! appelle authenticate sur la ws
     }
 }
 

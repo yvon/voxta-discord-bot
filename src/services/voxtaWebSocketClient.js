@@ -8,6 +8,7 @@ class VoxtaWebSocketClient {
         this.headers = headers;
         this.connection = null;
         this.sessionId = null;
+        this.messageBuffer = [];
         eventBus.on('cleanup', () => this.cleanup());
     }
 
@@ -56,18 +57,35 @@ class VoxtaWebSocketClient {
     }
 
     async sendMessage(text) {
-        await this.connect();
-        if (!this.sessionId) {
-            throw new Error('No active session');
-        }
-
-        await this.connection.invoke('SendMessage', {
+        const message = {
             $type: 'send',
-            sessionId: this.sessionId,
             text: text,
             doReply: true,
             doCharacterActionInference: true
-        });
+        };
+        
+        this.messageBuffer.push(message);
+        
+        if (this.sessionId) {
+            await this.processMessageBuffer();
+        }
+    }
+
+    async processMessageBuffer() {
+        if (!this.connection || !this.sessionId) return;
+
+        while (this.messageBuffer.length > 0) {
+            const message = this.messageBuffer.shift();
+            message.sessionId = this.sessionId;
+            
+            try {
+                await this.connection.invoke('SendMessage', message);
+            } catch (error) {
+                logger.error('Error sending message to Voxta:', error);
+                this.messageBuffer.unshift(message);
+                break;
+            }
+        }
     }
 
     async resumeChat(chatId) {
@@ -85,6 +103,7 @@ class VoxtaWebSocketClient {
         if (message.$type === 'chatStarted' && message.context?.sessionId) {
             this.sessionId = message.context.sessionId;
             logger.info('Chat session started with ID:', this.sessionId);
+            await this.processMessageBuffer();
         }
     }
 

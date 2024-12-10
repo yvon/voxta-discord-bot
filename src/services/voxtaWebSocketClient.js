@@ -9,6 +9,7 @@ class VoxtaWebSocketClient {
         this.connection = null;
         this.sessionId = null;
         this.messageBuffer = [];
+        this.authenticated = false;
         eventBus.on('cleanup', () => this.cleanup());
     }
 
@@ -42,8 +43,9 @@ class VoxtaWebSocketClient {
         }
     }
 
-  //AI! securise ce code avec un attribut this.authenticated = true. ne fais rien si deja fait.
     async authenticate() {
+        if (this.authenticated) return;
+        
         await this.connect();
 
         await this.connection.invoke('SendMessage', {
@@ -57,6 +59,8 @@ class VoxtaWebSocketClient {
                 "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
             }
         });
+        
+        this.authenticated = true;
     }
 
     async sendMessage(text) {

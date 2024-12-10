@@ -23,12 +23,18 @@ class AudioPlayerService {
         try {
             this.isPlaying = true;
             while (this.audioBuffer.length > 0) {
-              //AI! on a une promise dans audioBuffer, je pense que tu la traites mal
-                const response = await this.audioBuffer.shift();
+                const fetchPromise = this.audioBuffer.shift();
                 logger.info('Processing next audio file in queue');
+                
+                // Wait for the fetch to complete
+                const response = await fetchPromise;
+                
+                // Check if the fetch was successful
                 if (!response.ok) {
                     throw new Error(`Failed to download audio: ${response.status}`);
                 }
+                
+                // Get the audio data
                 const arrayBuffer = await response.arrayBuffer();
                 await this.playAudioFile(arrayBuffer);
             }

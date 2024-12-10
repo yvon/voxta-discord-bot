@@ -12,6 +12,7 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
+          //AI! fetch l'url et log la taille du fichier
         }
     }
 

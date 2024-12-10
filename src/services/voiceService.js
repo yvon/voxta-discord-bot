@@ -24,19 +24,6 @@ class VoiceService {
     }
 
     handleVoiceStateUpdate(oldState, newState) {
-        logger.debug('Voice state update:', {
-            oldState: {
-                channelId: oldState.channelId,
-                guild: oldState.guild.id,
-                member: oldState.member?.user.tag
-            },
-            newState: {
-                channelId: newState.channelId,
-                guild: newState.guild.id,
-                member: newState.member?.user.tag
-            }
-        });
-        
         // Ignore bot's own voice state updates
         if (newState.member.user.bot) return;
 

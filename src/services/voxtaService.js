@@ -1,5 +1,6 @@
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
+import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 
 class VoxtaService {
     constructor(baseUrl) {
@@ -8,7 +9,7 @@ class VoxtaService {
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.url = url;
         this.headers = this.buildHeaders();
-      //AI! instantancie la websocket ici
+        this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers);
         
         eventBus.on('voiceChannelJoined', () => this.joinLastChat());
     }
@@ -78,7 +79,7 @@ class VoxtaService {
     }
 
     async sendMessage(text) {
-        logger.info('Sending message to Voxta (not yet implemented):', text);
+        await this.wsClient.sendMessage(text);
     }
 
     async joinLastChat() {

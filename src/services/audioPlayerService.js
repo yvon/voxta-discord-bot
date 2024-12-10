@@ -2,7 +2,8 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class AudioPlayerService {
-    constructor() {
+    constructor(voxtaService) {
+        this.voxtaService = voxtaService;
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
@@ -12,9 +13,7 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-          //AI! prend l'instance de voxtaService dans le contructeur (n'oublie de pas la donner en paramètre dans index.js).
-          //Et utilise cette instance pour fetch (fetchResource) l'audioUrl.
-            fetch(message.audioUrl)
+            this.voxtaService.fetchResource(message.audioUrl)
                 .then(response => {
                     const contentLength = response.headers.get('content-length');
                     logger.info('Audio file size:', 

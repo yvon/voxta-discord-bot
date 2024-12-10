@@ -1,6 +1,7 @@
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
-import player from 'play-sound';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 class AudioPlayerService {
     constructor(voxtaService) {
@@ -42,18 +43,11 @@ class AudioPlayerService {
             await fs.writeFile(tempFile, Buffer.from(arrayBuffer));
             logger.debug('Wrote audio data to temporary file');
             
-            // Play the audio file
-            await new Promise((resolve, reject) => {
-                logger.debug('Starting audio playback');
-                player().play(tempFile, (err) => {
-                    if (err) {
-                        logger.error('Playback error:', err);
-                        reject(err);
-                    }
-                    logger.debug('Playback completed successfully');
-                    resolve();
-                });
-            });
+            // Play the audio file using macOS afplay
+            const execPromise = promisify(exec);
+            logger.debug('Starting audio playback');
+            await execPromise(`afplay "${tempFile}"`);
+            logger.debug('Playback completed successfully');
             
             // Clean up the temporary file
             await fs.unlink(tempFile);

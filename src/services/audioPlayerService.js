@@ -9,6 +9,7 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
+  //AI! joue effectivement le fichier audio au lieu d'afficher sa taille
     async playBuffer() {
         while (this.audioBuffer.length > 0) {
             const audioUrl = this.audioBuffer.shift();

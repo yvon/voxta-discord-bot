@@ -12,7 +12,7 @@ class VoxtaService {
         this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers);
         
         eventBus.on('voiceChannelJoined', () => this.joinLastChat());
-      //AI! ecoute l'evenement de deepgram et envoie le message
+        eventBus.on('transcription', (text) => this.sendMessage(text));
     }
 
     buildHeaders() {

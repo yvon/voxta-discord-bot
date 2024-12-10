@@ -12,7 +12,13 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-          //AI! fetch l'url et log la taille du fichier
+            fetch(message.audioUrl)
+                .then(response => {
+                    const contentLength = response.headers.get('content-length');
+                    logger.info('Audio file size:', 
+                        contentLength ? `${(contentLength / 1024).toFixed(2)} KB` : 'unknown');
+                })
+                .catch(error => logger.error('Failed to fetch audio file:', error));
         }
     }
 

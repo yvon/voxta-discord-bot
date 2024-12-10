@@ -7,29 +7,38 @@ class AudioPlayerService {
     constructor(voxtaService) {
         this.voxtaService = voxtaService;
         this.audioBuffer = [];
+        this.isPlaying = false;
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
-  //AI! il lit tous les fichiers en meme temps il attend pas de les jouer un par un
     async playBuffer() {
+        if (this.isPlaying) {
+            logger.debug('Already playing, skipping');
+            return;
+        }
+
         logger.info(`Starting playBuffer with ${this.audioBuffer.length} files in queue`);
         
-        while (this.audioBuffer.length > 0) {
-            const audioUrl = this.audioBuffer.shift();
-            logger.info('Processing audio URL:', audioUrl);
-            
-            try {
+        try {
+            this.isPlaying = true;
+            while (this.audioBuffer.length > 0) {
+                const audioUrl = this.audioBuffer.shift();
+                logger.info('Processing audio URL:', audioUrl);
+                
                 const response = await this.voxtaService.fetchResource(audioUrl);
                 logger.debug('Fetched audio data, status:', response.status);
                 const arrayBuffer = await response.arrayBuffer();
                 await this.playAudioFile(arrayBuffer);
+            }
             } catch (error) {
                 logger.error('Failed to process audio file:', error);
-            }
+        } catch (error) {
+            logger.error('Failed to process audio buffer:', error);
+        } finally {
+            this.isPlaying = false;
+            logger.info('Finished processing audio buffer');
         }
-        
-        logger.info('Finished processing audio buffer');
     }
 
     async playAudioFile(arrayBuffer) {

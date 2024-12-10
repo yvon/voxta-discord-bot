@@ -12,6 +12,7 @@ class VoxtaService {
         this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers);
         
         eventBus.on('voiceChannelJoined', () => this.joinLastChat());
+      //AI! ecoute l'evenement de deepgram et envoie le message
     }
 
     buildHeaders() {
@@ -86,7 +87,8 @@ class VoxtaService {
         const chatId = await this.getLastChatId();
         if (!chatId) return;
         await this.wsClient.authenticate();
-        logger.info('Joining chat (not yet implemented):', chatId);
+        await this.wsClient.resumeChat(chatId);
+        logger.info('Joining chat:', chatId);
     }
 }
 

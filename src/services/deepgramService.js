@@ -44,6 +44,7 @@ class DeepgramService {
         this.connection.on(LiveTranscriptionEvents.Transcript, (data) => {
             if (data.channel?.alternatives?.[0]?.transcript) {
                 logger.info('Transcription:', data.channel.alternatives[0].transcript);
+              //AI! emet un event ici
             }
         });
 

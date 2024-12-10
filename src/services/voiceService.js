@@ -40,13 +40,10 @@ class VoiceService {
         // Ignore bot's own voice state updates
         if (newState.member.user.bot) return;
 
-        // Cleanup old connection if exists
-        if (oldState.channelId) {
-            this.cleanupVoiceConnection();
-        }
-
         // User joined a voice channel or switched channels
         if (newState.channelId) {
+            // Cleanup old connection if exists
+            this.cleanupVoiceConnection();
             this.setupVoiceConnection(newState);
         }
     }

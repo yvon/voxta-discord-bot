@@ -13,6 +13,9 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
+          // AI! ajoute l'url dans un buffer de fichiers a jouer puis lance la lecture du buffer en appellant une methode.
+          // Pour l'instant la methode ne va rien faire d'autre que de boucler sur les fichiers du buffer et afficher leur
+          // taille.
             this.voxtaService.fetchResource(message.audioUrl)
                 .then(response => {
                     const contentLength = response.headers.get('content-length');

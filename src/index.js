@@ -3,6 +3,7 @@ import eventBus from './utils/eventBus.js';
 import DeepgramService from './services/deepgramService.js';
 import VoiceService from './services/voiceService.js';
 import VoxtaService from './services/voxtaService.js';
+//AI! instancie le audio player
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 

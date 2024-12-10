@@ -41,6 +41,7 @@ class VoiceService {
         // Cleanup old connection if exists
         if (oldState.channelId) {
             const oldConnection = oldState.guild.voiceStates.cache.get(this.client.user.id)?.channel;
+          //AI! hey c'est pas normal de joinVoicechannel ici
             if (oldConnection) {
                 this.cleanupVoiceConnection(joinVoiceChannel({
                     channelId: oldState.channelId,

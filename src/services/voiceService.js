@@ -22,6 +22,8 @@ class VoiceService {
     }
 
     handleVoiceStateUpdate(oldState, newState) {
+      // AI! fais moi un log ici pour voir ce que newState et oldState contiennent
+        
         // Ignore bot's own voice state updates
         if (newState.member.user.bot) return;
 

@@ -40,6 +40,7 @@ class VoiceService {
 
         // Cleanup old connection if exists
         if (oldState.channelId) {
+          //AI! on a pas besoin de tester ca, on appelle juste cleanupVoiceConnection ya un guard dedans
             const oldConnection = oldState.guild.voiceStates.cache.get(this.client.user.id)?.connection;
             if (oldConnection) {
                 this.cleanupVoiceConnection(oldConnection);

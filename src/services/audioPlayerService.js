@@ -1,5 +1,6 @@
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
+import player from 'play-sound';
 
 class AudioPlayerService {
     constructor(voxtaService) {
@@ -16,24 +17,24 @@ class AudioPlayerService {
                 const response = await this.voxtaService.fetchResource(audioUrl);
                 const arrayBuffer = await response.arrayBuffer();
                 
-                // Create audio context
-                const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                // Save the audio buffer to a temporary file
+                const fs = await import('fs/promises');
+                const os = await import('os');
+                const path = await import('path');
                 
-                // Decode the audio data
-                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                const tempFile = path.join(os.tmpdir(), `audio-${Date.now()}.mp3`);
+                await fs.writeFile(tempFile, Buffer.from(arrayBuffer));
                 
-                // Create audio source
-                const source = audioContext.createBufferSource();
-                source.buffer = audioBuffer;
-                source.connect(audioContext.destination);
-                
-                // Play the audio
-                source.start(0);
-                
-                // Wait for the audio to finish playing
-                await new Promise(resolve => {
-                    source.onended = resolve;
+                // Play the audio file
+                await new Promise((resolve, reject) => {
+                    player().play(tempFile, (err) => {
+                        if (err) reject(err);
+                        resolve();
+                    });
                 });
+                
+                // Clean up the temporary file
+                await fs.unlink(tempFile);
                 
                 logger.info('Finished playing audio file');
             } catch (error) {

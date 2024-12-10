@@ -23,6 +23,7 @@ class AudioPlayerService {
         try {
             this.isPlaying = true;
             while (this.audioBuffer.length > 0) {
+              //AI! on a une promise dans audioBuffer, je pense que tu la traites mal
                 const response = await this.audioBuffer.shift();
                 logger.info('Processing next audio file in queue');
                 if (!response.ok) {

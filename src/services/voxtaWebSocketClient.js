@@ -4,9 +4,9 @@ import eventBus from '../utils/eventBus.js';
 
 class VoxtaWebSocketClient {
   //AI! prend juste headers en paramètre on va pas les construire ici
-    constructor(baseUrl, authHeader) {
+    constructor(baseUrl, headers) {
         this.baseUrl = baseUrl;
-        this.authHeader = authHeader;
+        this.headers = headers;
         this.connection = null;
         this.sessionId = null;
         eventBus.on('cleanup', () => this.cleanup());
@@ -14,10 +14,7 @@ class VoxtaWebSocketClient {
 
     setupSignalRConnection(wsUrl) {
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl, {
-              //AI! du coup simplifie ca
-                headers: this.authHeader ? { 'Authorization': this.authHeader } : {}
-            })
+            .withUrl(wsUrl, { headers: this.headers })
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();

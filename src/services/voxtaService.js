@@ -80,7 +80,7 @@ class VoxtaService {
     }
 
     async sendMessage(text) {
-        //AI! log ici
+        logger.info('Sending message to Voxta:', text);
         await this.wsClient.sendMessage(text);
     }
 

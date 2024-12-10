@@ -76,6 +76,7 @@ class AudioPlayerService {
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
             // Start downloading immediately and store the promise
+          // AI! le catch et then je pense que c'est pas la qu'il faut faire, c'est quand on playBuffer
             const downloadPromise = this.voxtaService.fetchResource(message.audioUrl)
                 .then(response => response.arrayBuffer())
                 .catch(error => {

@@ -23,9 +23,12 @@ class AudioPlayerService {
         try {
             this.isPlaying = true;
             while (this.audioBuffer.length > 0) {
-                const downloadPromise = this.audioBuffer.shift();
+                const response = await this.audioBuffer.shift();
                 logger.info('Processing next audio file in queue');
-                const arrayBuffer = await downloadPromise;
+                if (!response.ok) {
+                    throw new Error(`Failed to download audio: ${response.status}`);
+                }
+                const arrayBuffer = await response.arrayBuffer();
                 await this.playAudioFile(arrayBuffer);
             }
         } catch (error) {
@@ -76,14 +79,7 @@ class AudioPlayerService {
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
             // Start downloading immediately and store the promise
-          // AI! le catch et then je pense que c'est pas la qu'il faut faire, c'est quand on playBuffer
-            const downloadPromise = this.voxtaService.fetchResource(message.audioUrl)
-                .then(response => response.arrayBuffer())
-                .catch(error => {
-                    logger.error('Failed to download audio:', error);
-                    throw error;
-                });
-            
+            const downloadPromise = this.voxtaService.fetchResource(message.audioUrl);
             this.audioBuffer.push(downloadPromise);
             this.playBuffer();
         }

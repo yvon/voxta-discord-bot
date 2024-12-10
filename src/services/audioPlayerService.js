@@ -10,6 +10,7 @@ class AudioPlayerService {
     }
 
     async playBuffer() {
+      //AI! shift array plutot
         for (const response of this.audioBuffer) {
             const contentLength = response.headers.get('content-length');
             logger.info('Playing audio file:', 
@@ -23,6 +24,7 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
+          //AI! ne fetch pas ici, fais ca dans playBuffer
             this.voxtaService.fetchResource(message.audioUrl)
                 .then(response => {
                     this.audioBuffer.push(response);

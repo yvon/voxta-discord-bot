@@ -49,9 +49,7 @@ class VoxtaService {
         }
     }
 
-  // AI! fais moi une methode qui appelle un endpoint mais qui soit pas forcement du json. callAPpi va appeller cette methode
-  // et parser apres
-    async callApi(endpoint) {
+    async callRawApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         
         try {
@@ -64,6 +62,18 @@ class VoxtaService {
                 return null;
             }
             
+            return response;
+        } catch (error) {
+            logger.error(`Network error calling Voxta API ${endpoint}:`, error);
+            return null;
+        }
+    }
+
+    async callApi(endpoint) {
+        const response = await this.callRawApi(endpoint);
+        if (!response) return null;
+        
+        try {
             return await response.json();
         } catch (error) {
             logger.error(`Network error calling Voxta API ${endpoint}:`, error);

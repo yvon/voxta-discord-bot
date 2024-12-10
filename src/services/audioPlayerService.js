@@ -10,38 +10,64 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
-  //AI! log des trucs ici ca marche pas on veut comprendre pourquoi. aussi isole la lecture du fichier dans une methode
-  //dediee. ici on veut boucler et appeller cette methode
     async playBuffer() {
+        logger.info(`Starting playBuffer with ${this.audioBuffer.length} files in queue`);
+        
         while (this.audioBuffer.length > 0) {
             const audioUrl = this.audioBuffer.shift();
+            logger.info('Processing audio URL:', audioUrl);
+            
             try {
                 const response = await this.voxtaService.fetchResource(audioUrl);
+                logger.debug('Fetched audio data, status:', response.status);
                 const arrayBuffer = await response.arrayBuffer();
-                
-                // Save the audio buffer to a temporary file
-                const fs = await import('fs/promises');
-                const os = await import('os');
-                const path = await import('path');
-                
-                const tempFile = path.join(os.tmpdir(), `audio-${Date.now()}.mp3`);
-                await fs.writeFile(tempFile, Buffer.from(arrayBuffer));
-                
-                // Play the audio file
-                await new Promise((resolve, reject) => {
-                    player().play(tempFile, (err) => {
-                        if (err) reject(err);
-                        resolve();
-                    });
-                });
-                
-                // Clean up the temporary file
-                await fs.unlink(tempFile);
-                
-                logger.info('Finished playing audio file');
+                await this.playAudioFile(arrayBuffer);
             } catch (error) {
-                logger.error('Failed to play audio file:', error);
+                logger.error('Failed to process audio file:', error);
             }
+        }
+        
+        logger.info('Finished processing audio buffer');
+    }
+
+    async playAudioFile(arrayBuffer) {
+        const fs = await import('fs/promises');
+        const os = await import('os');
+        const path = await import('path');
+        
+        const tempFile = path.join(os.tmpdir(), `audio-${Date.now()}.mp3`);
+        logger.debug('Creating temporary file:', tempFile);
+        
+        try {
+            await fs.writeFile(tempFile, Buffer.from(arrayBuffer));
+            logger.debug('Wrote audio data to temporary file');
+            
+            // Play the audio file
+            await new Promise((resolve, reject) => {
+                logger.debug('Starting audio playback');
+                player().play(tempFile, (err) => {
+                    if (err) {
+                        logger.error('Playback error:', err);
+                        reject(err);
+                    }
+                    logger.debug('Playback completed successfully');
+                    resolve();
+                });
+            });
+            
+            // Clean up the temporary file
+            await fs.unlink(tempFile);
+            logger.debug('Cleaned up temporary file');
+            
+        } catch (error) {
+            logger.error('Error in playAudioFile:', error);
+            // Try to clean up the temp file even if we had an error
+            try {
+                await fs.unlink(tempFile);
+            } catch (cleanupError) {
+                logger.error('Failed to clean up temporary file:', cleanupError);
+            }
+            throw error;
         }
     }
 

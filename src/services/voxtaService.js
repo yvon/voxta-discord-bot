@@ -8,6 +8,7 @@ class VoxtaService {
         this.baseUrl = `${url.protocol}//${url.host}`;
         this.url = url;
         this.headers = this.buildHeaders();
+      //AI! instantancie la websocket ici
         
         eventBus.on('voiceChannelJoined', () => this.joinLastChat());
     }

@@ -49,6 +49,8 @@ class VoxtaService {
         }
     }
 
+  // AI! j'aime pas le nom de cette fonction. elle servira notamment a recuperer des fichiers audios donc faut un nom plus
+  // generique
     async callRawApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         

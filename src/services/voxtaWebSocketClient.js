@@ -103,7 +103,7 @@ class VoxtaWebSocketClient {
         logger.info('Resumed chat with ID:', chatId);
     }
 
-    handleReceiveMessage(message) {
+    async handleReceiveMessage(message) {
         logger.info('Received message from Voxta:', message);
         
         // Handle chat session started message

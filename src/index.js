@@ -3,7 +3,7 @@ import eventBus from './utils/eventBus.js';
 import DeepgramService from './services/deepgramService.js';
 import VoiceService from './services/voiceService.js';
 import VoxtaService from './services/voxtaService.js';
-//AI! instancie le audio player
+import AudioPlayerService from './services/audioPlayerService.js';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 
@@ -17,6 +17,7 @@ const client = new Client({
 const deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
 const voiceService = new VoiceService(client);
 const voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
+const audioPlayerService = new AudioPlayerService();
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);

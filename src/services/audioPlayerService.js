@@ -12,37 +12,37 @@ class AudioPlayerService {
     }
 
     async playBuffer(messageId) {
-        if (this.isPlaying) {
-            logger.debug('Already playing, skipping');
-            return;
-        }
-
-        const messageBuffer = this.audioBuffers[messageId];
-        if (!messageBuffer || messageBuffer.streams.length === 0) {
-            logger.debug(`No audio in buffer for message ${messageId}`);
-            return;
-        }
-
-        logger.info(`Starting playBuffer for message ${messageId}`);
-        this.isPlaying = true;
-        
-        const stream = messageBuffer.streams.shift();
-        logger.debug('Retrieved stream from buffer');
-        
-        try {
-            await this.voiceService.playStream(stream);
-            this.isPlaying = false;
-            
-            // Check if we've finished playing all chunks and the message is complete
-            const buffer = this.audioBuffers[messageId];
-            if (buffer && buffer.isComplete && buffer.streams.length === 0) {
-                await this.sendPlaybackComplete(messageId);
-            } else {
-                this.playBuffer(messageId); // Try to play next item in buffer
+        while (true) {
+            if (this.isPlaying) {
+                logger.debug('Already playing, skipping');
+                return;
             }
-        } catch (error) {
-            logger.error('Error playing audio:', error);
-            this.isPlaying = false;
+
+            const messageBuffer = this.audioBuffers[messageId];
+            if (!messageBuffer || messageBuffer.streams.length === 0) {
+                logger.debug(`No audio in buffer for message ${messageId}`);
+                
+                // Check if we've finished playing all chunks and the message is complete
+                if (messageBuffer?.isComplete) {
+                    await this.sendPlaybackComplete(messageId);
+                }
+                return;
+            }
+
+            logger.info(`Playing next chunk for message ${messageId}`);
+            this.isPlaying = true;
+            
+            const stream = messageBuffer.streams.shift();
+            logger.debug('Retrieved stream from buffer');
+            
+            try {
+                await this.voiceService.playStream(stream);
+                this.isPlaying = false;
+            } catch (error) {
+                logger.error('Error playing audio:', error);
+                this.isPlaying = false;
+                return;
+            }
         }
     }
 

@@ -12,6 +12,12 @@ class AudioPlayerService {
     }
 
     async playBuffer(messageId) {
+        const messageBuffer = this.audioBuffers[messageId];
+        if (!messageBuffer) {
+            logger.debug(`No buffer found for message ${messageId}`);
+            return;
+        }
+
         if (this.isPlaying) {
             logger.debug('Already playing, skipping');
             return;

@@ -23,20 +23,15 @@ class AudioPlayerService {
         try {
             this.isPlaying = true;
             while (this.audioBuffer.length > 0) {
-                const fetchPromise = this.audioBuffer.shift();
-                logger.info('Processing next audio file in queue');
+                const audioUrl = this.audioBuffer.shift();
+                logger.info('Processing next audio URL in queue:', audioUrl);
                 
-                // Wait for the fetch to complete
-                const response = await fetchPromise;
-                
-                // Check if the fetch was successful
-                if (!response.ok) {
-                    throw new Error(`Failed to download audio: ${response.status}`);
+                const stream = await this.voxtaService.getAudioStream(audioUrl);
+                if (!stream) {
+                    throw new Error('Failed to get audio stream');
                 }
                 
-                // Get the audio data
-                const arrayBuffer = await response.arrayBuffer();
-                await this.playAudioFile(arrayBuffer);
+                logger.debug('Successfully retrieved audio stream');
             }
         } catch (error) {
             logger.error('Failed to process audio buffer:', error);
@@ -85,9 +80,7 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-            // Start downloading immediately and store the promise
-            const downloadPromise = this.voxtaService.fetchResource(message.audioUrl);
-            this.audioBuffer.push(downloadPromise);
+            this.audioBuffer.push(message.audioUrl);
             this.playBuffer();
         }
     }

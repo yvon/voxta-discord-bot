@@ -14,7 +14,7 @@ class AudioPlayerService {
         const buffer = this.audioBuffers[messageId];
         if (!buffer) return;
 
-        // Si le buffer est marqué comme complet et qu'il n'y a plus de streams en attente
+        // If buffer is marked as complete and there are no pending streams
         if (buffer.isComplete && buffer.streams.length === 0) {
             await this.sendPlaybackComplete(messageId);
             delete this.audioBuffers[messageId];

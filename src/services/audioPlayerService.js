@@ -64,6 +64,8 @@ class AudioPlayerService {
 
         await this.voxtaService.sendMessage(message);
         logger.info(`Sent playback complete for message ${messageId}`);
+        delete this.audioBuffers[messageId];
+        logger.debug(`Cleaned up buffer for message ${messageId}`);
     }
 
     async handleReplyChunk(message) {

@@ -92,8 +92,13 @@ class VoxtaService {
         return passThrough;
     }
 
+    async sendWebSocketMessage(message) {
+        logger.info('Sending WebSocket message to Voxta:', message);
+        await this.wsClient.sendWebSocketMessage(message);
+    }
+
     async sendMessage(text) {
-        logger.info('Sending message to Voxta:', text);
+        logger.info('Sending text message to Voxta:', text);
         await this.wsClient.sendMessage(text);
     }
 

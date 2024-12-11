@@ -63,19 +63,21 @@ class VoxtaWebSocketClient {
         this.authenticated = true;
     }
 
-    async sendMessage(text) {
-        const message = {
-            $type: 'send',
-            text: text,
-            doReply: true,
-            doCharacterActionInference: true
-        };
-        
+    async sendWebSocketMessage(message) {
         this.messageBuffer.push(message);
         
         if (this.sessionId) {
             await this.processMessageBuffer();
         }
+    }
+
+    async sendMessage(text) {
+        await this.sendWebSocketMessage({
+            $type: 'send',
+            text: text,
+            doReply: true,
+            doCharacterActionInference: true
+        });
     }
 
     async processMessageBuffer() {

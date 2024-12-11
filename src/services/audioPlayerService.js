@@ -2,8 +2,9 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class AudioPlayerService {
-    constructor(voxtaService) {
+    constructor(voxtaService, voiceService) {
         this.voxtaService = voxtaService;
+        this.voiceService = voiceService;
         this.audioBuffer = [];
         this.isPlaying = false;
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));

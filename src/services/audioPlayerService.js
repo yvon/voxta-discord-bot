@@ -5,7 +5,7 @@ class AudioPlayerService {
     constructor(voxtaService, voiceService) {
         this.voxtaService = voxtaService;
         this.voiceService = voiceService;
-        this.audioBuffers = {};  // { messageId: { streams: [], isComplete: false } }
+        this.audioBuffers = {};  // { messageId: { streams: [], isComplete: false, sessionId: string } }
         this.isPlaying = false;
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
@@ -32,7 +32,14 @@ class AudioPlayerService {
         try {
             await this.voiceService.playStream(stream);
             this.isPlaying = false;
-            this.playBuffer(messageId); // Try to play next item in buffer
+            
+            // Check if we've finished playing all chunks and the message is complete
+            const buffer = this.audioBuffers[messageId];
+            if (buffer && buffer.isComplete && buffer.streams.length === 0) {
+                await this.sendPlaybackComplete(messageId);
+            } else {
+                this.playBuffer(messageId); // Try to play next item in buffer
+            }
         } catch (error) {
             logger.error('Error playing audio:', error);
             this.isPlaying = false;
@@ -41,11 +48,27 @@ class AudioPlayerService {
 
     handleReplyStart(message) {
         const messageId = message.messageId;
+        const sessionId = message.sessionId;
         logger.info(`Initializing buffer for message ${messageId}`);
         this.audioBuffers[messageId] = {
             streams: [],
-            isComplete: false
+            isComplete: false,
+            sessionId: sessionId
         };
+    }
+
+    async sendPlaybackComplete(messageId) {
+        const buffer = this.audioBuffers[messageId];
+        if (!buffer) return;
+
+        const message = {
+            $type: "speechPlaybackComplete",
+            sessionId: buffer.sessionId,
+            messageId: messageId
+        };
+
+        await this.voxtaService.sendMessage(message);
+        logger.info(`Sent playback complete for message ${messageId}`);
     }
 
     async handleReplyChunk(message) {

@@ -39,30 +39,41 @@ class AudioPlayerService {
     }
 
 
+    handleReplyStart(message) {
+        const messageId = message.messageId;
+        logger.info(`Initializing buffer for message ${messageId}`);
+        this.audioBuffers[messageId] = [];
+    }
+
+    async handleReplyChunk(message) {
+        if (!message.audioUrl) return;
+
+        const messageId = message.messageId;
+        logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
+        
+        try {
+            const stream = await this.voxtaService.getAudioStream(message.audioUrl);
+            if (stream) {
+                this.audioBuffers[messageId].push(stream);
+                this.playBuffer(messageId);
+            } else {
+                logger.error('Failed to get audio stream');
+            }
+        } catch (error) {
+            logger.error('Error getting audio stream:', error);
+        }
+    }
+
     handleVoxtaMessage(message) {
         logger.info('AudioPlayer received message:', message.$type);
 
-        if (message.$type === 'replyStart') {
-            const messageId = message.messageId;
-            logger.info(`Initializing buffer for message ${messageId}`);
-            this.audioBuffers[messageId] = [];
-        }
-        else if (message.$type === 'replyChunk' && message.audioUrl) {
-            const messageId = message.messageId;
-            logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
-            
-            this.voxtaService.getAudioStream(message.audioUrl)
-                .then(stream => {
-                    if (stream) {
-                        this.audioBuffers[messageId].push(stream);
-                        this.playBuffer(messageId);
-                    } else {
-                        logger.error('Failed to get audio stream');
-                    }
-                })
-                .catch(error => {
-                    logger.error('Error getting audio stream:', error);
-                });
+        switch (message.$type) {
+            case 'replyStart':
+                this.handleReplyStart(message);
+                break;
+            case 'replyChunk':
+                this.handleReplyChunk(message);
+                break;
         }
     }
 

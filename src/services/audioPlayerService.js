@@ -10,6 +10,18 @@ class AudioPlayerService {
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
+    async checkAndSendPlaybackComplete(messageId) {
+        const buffer = this.audioBuffers[messageId];
+        if (!buffer) return;
+
+        // Si le buffer est marqué comme complet et qu'il n'y a plus de streams en attente
+        if (buffer.isComplete && buffer.streams.length === 0) {
+            await this.sendPlaybackComplete(messageId);
+            delete this.audioBuffers[messageId];
+            logger.debug(`Cleaned up buffer for message ${messageId}`);
+        }
+    }
+
     async playBuffer(messageId) {
         const messageBuffer = this.audioBuffers[messageId];
         if (!messageBuffer) {
@@ -38,13 +50,7 @@ class AudioPlayerService {
             }
         }
         
-        // Check completion after playing all streams
-        if (messageBuffer.isComplete) {
-            await this.sendPlaybackComplete(messageId);
-            delete this.audioBuffers[messageId];
-            logger.debug(`Cleaned up buffer for message ${messageId}`);
-        }
-
+        await this.checkAndSendPlaybackComplete(messageId);
         messageBuffer.isPlaying = false;
     }
 
@@ -90,11 +96,12 @@ class AudioPlayerService {
         }
     }
 
-    handleReplyEnd(message) {
+    async handleReplyEnd(message) {
         const messageId = message.messageId;
         logger.info(`Marking message ${messageId} as complete`);
         if (this.audioBuffers[messageId]) {
             this.audioBuffers[messageId].isComplete = true;
+            await this.checkAndSendPlaybackComplete(messageId);
         }
     }
 

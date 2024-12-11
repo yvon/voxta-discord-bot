@@ -118,6 +118,7 @@ class AudioPlayerService {
         logger.info('AudioPlayer received message:', message.$type);
 
         switch (message.$type) {
+            //AI! replyGenerating plutot
             case 'replyStart':
                 this.handleReplyStart(message);
                 break;

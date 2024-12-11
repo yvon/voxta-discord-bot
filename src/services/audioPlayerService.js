@@ -5,9 +5,16 @@ class AudioPlayerService {
     constructor(voxtaService, voiceService) {
         this.voxtaService = voxtaService;
         this.voiceService = voiceService;
-      //AI! sur plusieures lignes
-        // { messageId: { streams: [], isComplete: false, sessionId: string, isPlaying: false } }
-        this.audioBuffers = {};  
+        // Audio buffers structure:
+        // {
+        //   messageId: {
+        //     streams: [],           // Array of audio streams
+        //     isComplete: false,     // Whether the message is complete
+        //     sessionId: string,     // Session ID for the message
+        //     isPlaying: false       // Whether currently playing
+        //   }
+        // }
+        this.audioBuffers = {};
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
     }

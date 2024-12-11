@@ -2,7 +2,7 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 import axios from 'axios';
-import { Readable } from 'stream';
+import { Readable, PassThrough } from 'stream';
 
 class VoxtaService {
     constructor(baseUrl) {
@@ -75,19 +75,21 @@ class VoxtaService {
 
     async getAudioStream(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
+        const passThrough = new PassThrough();
         
-        try {
-            const response = await this.retryWithDelay(() => 
-                axios.get(url, { 
-                    headers: this.headers,
-                    responseType: 'stream'
-                })
-            );
-            return response.data;
-        } catch (error) {
+        this.retryWithDelay(() => 
+            axios.get(url, { 
+                headers: this.headers,
+                responseType: 'stream'
+            })
+        ).then(response => {
+            response.data.pipe(passThrough);
+        }).catch(error => {
             logger.error(`Network error getting audio stream from ${endpoint}:`, error);
-            return null;
-        }
+            passThrough.end();
+        });
+
+        return passThrough;
     }
 
     async sendMessage(text) {

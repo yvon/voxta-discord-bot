@@ -20,11 +20,6 @@ class AudioPlayerService {
         const messageBuffer = this.audioBuffers[messageId];
         if (!messageBuffer || messageBuffer.streams.length === 0) {
             logger.debug(`No audio in buffer for message ${messageId}`);
-            
-            // Check if we've finished playing all chunks and the message is complete
-            if (messageBuffer?.isComplete) {
-                await this.sendPlaybackComplete(messageId);
-            }
             return;
         }
 

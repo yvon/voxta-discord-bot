@@ -16,27 +16,24 @@ class AudioPlayerService {
             return;
         }
 
-        logger.info(`Starting playBuffer with ${this.audioBuffer.length} files in queue`);
-        
-        try {
-            this.isPlaying = true;
-            while (this.audioBuffer.length > 0) {
-                const audioUrl = this.audioBuffer.shift();
-                logger.info('Processing next audio URL in queue:', audioUrl);
-                
-                const stream = await this.voxtaService.getAudioStream(audioUrl);
-                if (!stream) {
-                    throw new Error('Failed to get audio stream');
-                }
-                
-                logger.debug('Successfully retrieved audio stream');
-            }
-        } catch (error) {
-            logger.error('Failed to process audio buffer:', error);
-        } finally {
-            this.isPlaying = false;
-            logger.info('Finished processing audio buffer');
+        if (this.audioBuffer.length === 0) {
+            logger.debug('No audio in buffer');
+            return;
         }
+
+        logger.info('Starting playBuffer');
+        this.isPlaying = true;
+        
+        const audioUrl = this.audioBuffer.shift();
+        logger.info('Processing audio URL:', audioUrl);
+        
+        const stream = await this.voxtaService.getAudioStream(audioUrl);
+        if (!stream) {
+            logger.error('Failed to get audio stream');
+            return;
+        }
+        
+        logger.debug('Successfully retrieved audio stream');
     }
 
 

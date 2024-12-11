@@ -63,7 +63,7 @@ class AudioPlayerService {
         messageBuffer.isPlaying = false;
     }
 
-    handleReplyStart(message) {
+    handleReplyGenerating(message) {
         const messageId = message.messageId;
         const sessionId = message.sessionId;
         logger.info(`Initializing buffer for message ${messageId}`);
@@ -119,7 +119,7 @@ class AudioPlayerService {
 
         switch (message.$type) {
             case 'replyGenerating':
-                this.handleReplyStart(message);
+                this.handleReplyGenerating(message);
                 break;
             case 'replyChunk':
                 this.handleReplyChunk(message);

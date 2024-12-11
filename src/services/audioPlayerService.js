@@ -12,37 +12,43 @@ class AudioPlayerService {
     }
 
     async playBuffer(messageId) {
-        while (true) {
-            if (this.isPlaying) {
-                logger.debug('Already playing, skipping');
-                return;
-            }
+        if (this.isPlaying) {
+            logger.debug('Already playing, skipping');
+            return;
+        }
 
-            const messageBuffer = this.audioBuffers[messageId];
-            if (!messageBuffer || messageBuffer.streams.length === 0) {
-                logger.debug(`No audio in buffer for message ${messageId}`);
-                
-                // Check if we've finished playing all chunks and the message is complete
-                if (messageBuffer?.isComplete) {
-                    await this.sendPlaybackComplete(messageId);
-                }
-                return;
-            }
-
-            logger.info(`Playing next chunk for message ${messageId}`);
-            this.isPlaying = true;
+        const messageBuffer = this.audioBuffers[messageId];
+        if (!messageBuffer || messageBuffer.streams.length === 0) {
+            logger.debug(`No audio in buffer for message ${messageId}`);
             
+            // Check if we've finished playing all chunks and the message is complete
+            if (messageBuffer?.isComplete) {
+                await this.sendPlaybackComplete(messageId);
+            }
+            return;
+        }
+
+        this.isPlaying = true;
+        
+        // Play all available streams sequentially
+        while (messageBuffer.streams.length > 0) {
             const stream = messageBuffer.streams.shift();
-            logger.debug('Retrieved stream from buffer');
+            logger.debug('Playing next stream from buffer');
             
             try {
                 await this.voiceService.playStream(stream);
-                this.isPlaying = false;
             } catch (error) {
                 logger.error('Error playing audio:', error);
                 this.isPlaying = false;
                 return;
             }
+        }
+
+        this.isPlaying = false;
+        
+        // Check completion after playing all streams
+        if (messageBuffer.isComplete) {
+            await this.sendPlaybackComplete(messageId);
         }
     }
 

@@ -5,8 +5,7 @@ class AudioPlayerService {
     constructor(voxtaService, voiceService) {
         this.voxtaService = voxtaService;
         this.voiceService = voiceService;
-        this.audioBuffers = {};  // { messageId: { streams: [], isComplete: false, sessionId: string } }
-        this.isPlaying = false;
+        this.audioBuffers = {};  // { messageId: { streams: [], isComplete: false, sessionId: string, isPlaying: false } }
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
     }
@@ -18,12 +17,12 @@ class AudioPlayerService {
             return;
         }
 
-        if (this.isPlaying) {
+        if (messageBuffer.isPlaying) {
             logger.debug('Already playing, skipping');
             return;
         }
 
-        this.isPlaying = true;
+        messageBuffer.isPlaying = true;
         
         // Play all available streams sequentially
         while (messageBuffer.streams.length > 0) {
@@ -34,7 +33,7 @@ class AudioPlayerService {
                 await this.voiceService.playStream(stream);
             } catch (error) {
                 logger.error('Error playing audio:', error);
-                this.isPlaying = false;
+                messageBuffer.isPlaying = false;
                 return;
             }
         }
@@ -46,7 +45,7 @@ class AudioPlayerService {
             logger.debug(`Cleaned up buffer for message ${messageId}`);
         }
 
-        this.isPlaying = false;
+        messageBuffer.isPlaying = false;
     }
 
     handleReplyStart(message) {
@@ -56,7 +55,8 @@ class AudioPlayerService {
         this.audioBuffers[messageId] = {
             streams: [],
             isComplete: false,
-            sessionId: sessionId
+            sessionId: sessionId,
+            isPlaying: false
         };
     }
 
@@ -119,7 +119,6 @@ class AudioPlayerService {
 
     cleanup() {
         this.audioBuffers = {};
-        this.isPlaying = false;
     }
 }
 

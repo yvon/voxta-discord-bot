@@ -36,6 +36,8 @@ class AudioPlayerService {
         // Check completion after playing all streams
         if (messageBuffer.isComplete) {
             await this.sendPlaybackComplete(messageId);
+            delete this.audioBuffers[messageId];
+            logger.debug(`Cleaned up buffer for message ${messageId}`);
         }
 
         this.isPlaying = false;
@@ -64,8 +66,6 @@ class AudioPlayerService {
 
         await this.voxtaService.sendMessage(message);
         logger.info(`Sent playback complete for message ${messageId}`);
-        delete this.audioBuffers[messageId];
-        logger.debug(`Cleaned up buffer for message ${messageId}`);
     }
 
     async handleReplyChunk(message) {

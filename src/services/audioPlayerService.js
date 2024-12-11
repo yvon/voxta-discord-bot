@@ -35,6 +35,15 @@ class AudioPlayerService {
         }
         
         logger.debug('Successfully retrieved audio stream');
+        
+        try {
+            await this.voiceService.playStream(stream);
+            this.isPlaying = false;
+            this.playBuffer(); // Try to play next item in buffer
+        } catch (error) {
+            logger.error('Error playing audio:', error);
+            this.isPlaying = false;
+        }
     }
 
 

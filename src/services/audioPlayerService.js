@@ -64,8 +64,7 @@ class AudioPlayerService {
         const buffer = this.audioBuffers[messageId];
         if (!buffer) return;
 
-        await this.voxtaService.sendWebSocketMessage({
-            $type: "speechPlaybackComplete",
+        await this.voxtaService.sendWebSocketMessage("speechPlaybackComplete", {
             sessionId: buffer.sessionId,
             messageId: messageId
         });

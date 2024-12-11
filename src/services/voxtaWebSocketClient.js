@@ -63,7 +63,12 @@ class VoxtaWebSocketClient {
         this.authenticated = true;
     }
 
-    async sendWebSocketMessage(message) {
+    async sendWebSocketMessage(type, payload = {}) {
+        const message = {
+            $type: type,
+            ...payload
+        };
+        
         this.messageBuffer.push(message);
         
         if (this.sessionId) {
@@ -72,8 +77,7 @@ class VoxtaWebSocketClient {
     }
 
     async sendMessage(text) {
-        await this.sendWebSocketMessage({
-            $type: 'send',
+        await this.sendWebSocketMessage('send', {
             text: text,
             doReply: true,
             doCharacterActionInference: true

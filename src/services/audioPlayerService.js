@@ -42,15 +42,15 @@ class AudioPlayerService {
     handleVoxtaMessage(message) {
         logger.info('AudioPlayer received message:', message.$type);
 
-        if (message.$type === 'replyChunk' && message.audioUrl) {
+        if (message.$type === 'replyStart') {
+            const messageId = message.messageId;
+            logger.info(`Initializing buffer for message ${messageId}`);
+            this.audioBuffers[messageId] = [];
+        }
+        else if (message.$type === 'replyChunk' && message.audioUrl) {
             const messageId = message.messageId;
             logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
             
-            // Initialize buffer array for this messageId if it doesn't exist
-            if (!this.audioBuffers[messageId]) {
-                this.audioBuffers[messageId] = [];
-            }
-
             this.voxtaService.getAudioStream(message.audioUrl)
                 .then(stream => {
                     if (stream) {

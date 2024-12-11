@@ -17,12 +17,6 @@ class AudioPlayerService {
             return;
         }
 
-        const messageBuffer = this.audioBuffers[messageId];
-        if (!messageBuffer || messageBuffer.streams.length === 0) {
-            logger.debug(`No audio in buffer for message ${messageId}`);
-            return;
-        }
-
         this.isPlaying = true;
         
         // Play all available streams sequentially
@@ -38,13 +32,13 @@ class AudioPlayerService {
                 return;
             }
         }
-
-        this.isPlaying = false;
         
         // Check completion after playing all streams
         if (messageBuffer.isComplete) {
             await this.sendPlaybackComplete(messageId);
         }
+
+        this.isPlaying = false;
     }
 
     handleReplyStart(message) {

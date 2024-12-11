@@ -25,16 +25,8 @@ class AudioPlayerService {
         logger.info('Starting playBuffer');
         this.isPlaying = true;
         
-        const audioUrl = this.audioBuffer.shift();
-        logger.info('Processing audio URL:', audioUrl);
-        
-        const stream = await this.voxtaService.getAudioStream(audioUrl);
-        if (!stream) {
-            logger.error('Failed to get audio stream');
-            return;
-        }
-        
-        logger.debug('Successfully retrieved audio stream');
+        const stream = this.audioBuffer.shift();
+        logger.debug('Retrieved stream from buffer');
         
         try {
             await this.voiceService.playStream(stream);
@@ -52,8 +44,18 @@ class AudioPlayerService {
 
         if (message.$type === 'replyChunk' && message.audioUrl) {
             logger.info('Audio URL:', message.audioUrl);
-            this.audioBuffer.push(message.audioUrl);
-            this.playBuffer();
+            this.voxtaService.getAudioStream(message.audioUrl)
+                .then(stream => {
+                    if (stream) {
+                        this.audioBuffer.push(stream);
+                        this.playBuffer();
+                    } else {
+                        logger.error('Failed to get audio stream');
+                    }
+                })
+                .catch(error => {
+                    logger.error('Error getting audio stream:', error);
+                });
         }
     }
 

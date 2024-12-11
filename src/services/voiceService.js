@@ -1,4 +1,4 @@
-import { joinVoiceChannel, EndBehaviorType } from '@discordjs/voice';
+import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
@@ -6,6 +6,7 @@ class VoiceService {
     constructor(client) {
         this.client = client;
         this.connection = null;
+        this.player = createAudioPlayer();
         eventBus.on('cleanup', () => this.cleanup());
         eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
@@ -78,6 +79,38 @@ class VoiceService {
 
     cleanup() {
         this.cleanupVoiceConnection();
+        if (this.player) {
+            this.player.stop();
+        }
+    }
+
+    async playStream(stream) {
+        if (!this.connection) {
+            logger.error('No voice connection available');
+            return;
+        }
+
+        try {
+            const resource = createAudioResource(stream);
+            this.connection.subscribe(this.player);
+            this.player.play(resource);
+
+            return new Promise((resolve, reject) => {
+                this.player.on('stateChange', (oldState, newState) => {
+                    if (newState.status === 'idle') {
+                        resolve();
+                    }
+                });
+                
+                this.player.on('error', (error) => {
+                    logger.error('Error playing audio:', error);
+                    reject(error);
+                });
+            });
+        } catch (error) {
+            logger.error('Error creating audio resource:', error);
+            throw error;
+        }
     }
 }
 

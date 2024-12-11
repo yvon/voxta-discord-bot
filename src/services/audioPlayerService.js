@@ -38,7 +38,6 @@ class AudioPlayerService {
         }
     }
 
-
     handleReplyStart(message) {
         const messageId = message.messageId;
         logger.info(`Initializing buffer for message ${messageId}`);

@@ -37,6 +37,11 @@ class VoiceService {
     }
 
     setupVoiceConnection(state) {
+        if (this.connection) {
+            logger.debug('Voice connection already exists, skipping setup');
+            return;
+        }
+
         this.connection = joinVoiceChannel({
             channelId: state.channelId,
             guildId: state.guild.id,

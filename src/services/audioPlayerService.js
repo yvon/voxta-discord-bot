@@ -5,7 +5,7 @@ class AudioPlayerService {
     constructor(voxtaService, voiceService) {
         this.voxtaService = voxtaService;
         this.voiceService = voiceService;
-        this.audioBuffers = {};  // { messageId: [streams] }
+        this.audioBuffers = {};  // { messageId: { streams: [], isComplete: false } }
         this.isPlaying = false;
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
         eventBus.on('cleanup', this.cleanup.bind(this));
@@ -17,7 +17,8 @@ class AudioPlayerService {
             return;
         }
 
-        if (!this.audioBuffers[messageId] || this.audioBuffers[messageId].length === 0) {
+        const messageBuffer = this.audioBuffers[messageId];
+        if (!messageBuffer || messageBuffer.streams.length === 0) {
             logger.debug(`No audio in buffer for message ${messageId}`);
             return;
         }
@@ -25,7 +26,7 @@ class AudioPlayerService {
         logger.info(`Starting playBuffer for message ${messageId}`);
         this.isPlaying = true;
         
-        const stream = this.audioBuffers[messageId].shift();
+        const stream = messageBuffer.streams.shift();
         logger.debug('Retrieved stream from buffer');
         
         try {
@@ -41,7 +42,10 @@ class AudioPlayerService {
     handleReplyStart(message) {
         const messageId = message.messageId;
         logger.info(`Initializing buffer for message ${messageId}`);
-        this.audioBuffers[messageId] = [];
+        this.audioBuffers[messageId] = {
+            streams: [],
+            isComplete: false
+        };
     }
 
     async handleReplyChunk(message) {
@@ -53,13 +57,21 @@ class AudioPlayerService {
         try {
             const stream = await this.voxtaService.getAudioStream(message.audioUrl);
             if (stream) {
-                this.audioBuffers[messageId].push(stream);
+                this.audioBuffers[messageId].streams.push(stream);
                 this.playBuffer(messageId);
             } else {
                 logger.error('Failed to get audio stream');
             }
         } catch (error) {
             logger.error('Error getting audio stream:', error);
+        }
+    }
+
+    handleReplyEnd(message) {
+        const messageId = message.messageId;
+        logger.info(`Marking message ${messageId} as complete`);
+        if (this.audioBuffers[messageId]) {
+            this.audioBuffers[messageId].isComplete = true;
         }
     }
 
@@ -72,6 +84,9 @@ class AudioPlayerService {
                 break;
             case 'replyChunk':
                 this.handleReplyChunk(message);
+                break;
+            case 'replyEnd':
+                this.handleReplyEnd(message);
                 break;
         }
     }

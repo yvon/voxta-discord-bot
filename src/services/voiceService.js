@@ -43,33 +43,34 @@ class VoiceService {
 
     setupVoiceReceiver() {
         const receiver = this.connection.receiver;
+        receiver.speaking.on('start', this.handleSpeakingStart.bind(this));
+        receiver.speaking.on('end', this.handleSpeakingEnd.bind(this));
+    }
+
+    async handleSpeakingStart(userId) {
+        const user = this.client.users.cache.get(userId);
+        if (!user) return;
         
-        //AI! fais des fonctions pour les events
-        receiver.speaking.on('start', async (userId) => {
-            const user = this.client.users.cache.get(userId);
-            if (!user) return;
-            
-            logger.info(`User ${user.tag} started speaking`);
-            
-            const audioStream = receiver.subscribe(userId, {
-                end: {
-                    behavior: EndBehaviorType.AfterInactivity,
-                    duration: 1000
-                }
-            });
-
-            audioStream.on('data', (chunk) => {
-                eventBus.emit('audioData', chunk);
-            });
+        logger.info(`User ${user.tag} started speaking`);
+        
+        const audioStream = this.connection.receiver.subscribe(userId, {
+            end: {
+                behavior: EndBehaviorType.AfterInactivity,
+                duration: 1000
+            }
         });
 
-        receiver.speaking.on('end', (userId) => {
-            const user = this.client.users.cache.get(userId);
-            if (!user) return;
-            
-            logger.info(`User ${user.tag} stopped speaking`);
-            receiver.subscriptions.get(userId)?.destroy();
+        audioStream.on('data', (chunk) => {
+            eventBus.emit('audioData', chunk);
         });
+    }
+
+    handleSpeakingEnd(userId) {
+        const user = this.client.users.cache.get(userId);
+        if (!user) return;
+        
+        logger.info(`User ${user.tag} stopped speaking`);
+        this.connection.receiver.subscriptions.get(userId)?.destroy();
     }
 
     async playStream(stream) {

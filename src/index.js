@@ -26,7 +26,6 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     // Ignore bot's own voice state updates
     if (newState.member.user.bot) return;
 
-    // User joined a voice channel or switched channels
     if (newState.channelId) {
         VoiceService.joinVoiceChannel(client, newState);
     }

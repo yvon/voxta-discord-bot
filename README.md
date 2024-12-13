@@ -2,7 +2,7 @@
 
 A Discord bot that transcribes voice to text and interacts via Voxta to generate voice responses.
 
-//AI! precise que je suis pas associé à Voxta
+> Note: This is an independent project and is not affiliated with or endorsed by Voxta.
 
 ## Features
 

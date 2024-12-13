@@ -32,7 +32,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         if (voiceService) {
             voiceService.cleanup();
         }
-        voiceService = VoiceService.getInstance(client, newState);
+        voiceService = VoiceService.connectToChannel(client, newState);
     }
 });
 

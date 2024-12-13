@@ -5,7 +5,7 @@ import eventBus from '../utils/eventBus.js';
 class VoiceService {
     static instance = null;
 
-    static getInstance(client, state) {
+    static connectToChannel(client, state) {
         const currentInstance = VoiceService.instance;
         if (currentInstance) {
             currentInstance.cleanup();

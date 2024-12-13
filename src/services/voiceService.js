@@ -44,6 +44,7 @@ class VoiceService {
     setupVoiceReceiver() {
         const receiver = this.connection.receiver;
         
+        //AI! fais des fonctions pour les events
         receiver.speaking.on('start', async (userId) => {
             const user = this.client.users.cache.get(userId);
             if (!user) return;

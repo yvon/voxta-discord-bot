@@ -3,9 +3,14 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoiceService {
-    //AI! l'idee c'est que c'un singleton donc cette methode c'est pour remplacer l'instance actuelle
+    static instance = null;
+
     static create(client, state) {
-        return new VoiceService(client, state);
+        if (VoiceService.instance) {
+            VoiceService.instance.cleanup();
+        }
+        VoiceService.instance = new VoiceService(client, state);
+        return VoiceService.instance;
     }
 
     constructor(client, state) {

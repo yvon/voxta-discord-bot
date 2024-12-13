@@ -26,6 +26,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     // Ignore bot's own voice state updates
     if (newState.member.user.bot) return;
 
+    //AI! fais plutot une guard
     if (newState.channelId) {
         VoiceService.joinVoiceChannel(client, newState);
     }

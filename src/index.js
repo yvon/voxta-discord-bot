@@ -28,15 +28,9 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
 
     if (oldState.channelId) {
-        // AI! en fait ici on va simplement kill tout process exit
         logger.info(`User left voice channel ${oldState.channel.name}`);
         eventBus.emit('cleanup');
-        
-        // Clean up services
-        deepgramService = null;
-        voxtaService = null;
-        audioPlayerService = null;
-        voiceService = null;
+        process.exit(0);
     }
 
     if (newState.channelId) {

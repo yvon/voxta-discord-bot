@@ -30,7 +30,12 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (oldState.channelId) {
         logger.info(`User left voice channel ${oldState.channel.name}`);
         eventBus.emit('cleanup');
-        //AI! detruit les services
+        
+        // Clean up services
+        deepgramService = null;
+        voxtaService = null;
+        audioPlayerService = null;
+        voiceService = null;
     }
 
     if (newState.channelId) {

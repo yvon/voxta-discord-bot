@@ -1,76 +1,76 @@
-# Bot Discord de Transcription Vocale
+# Discord Voice Transcription Bot
 
-Un bot Discord qui transcrit la voix en texte et interagit via Voxta pour générer des réponses vocales.
+A Discord bot that transcribes voice to text and interacts via Voxta to generate voice responses.
 
-## Fonctionnalités
+## Features
 
-- Transcription vocale en temps réel via Deepgram
-- Génération de réponses via Voxta
-- Lecture audio des réponses dans le canal vocal
-- Gestion automatique des sessions de chat
-- Redémarrage automatique en cas d'erreur
+- Real-time voice transcription using Deepgram
+- Response generation via Voxta
+- Audio playback of responses in voice channel
+- Automatic chat session management
+- Automatic restart on error
 
-## Prérequis
+## Prerequisites
 
-- Node.js 20 ou supérieur
-- Docker (optionnel)
-- Une clé API Deepgram
-- Un token Discord Bot
-- Un serveur Voxta
+- Node.js 20 or higher
+- Docker (optional)
+- Deepgram API key
+- Discord Bot token
+- Voxta server
 
 ## Configuration
 
-1. Copiez le fichier `.env.example` en `.env`
-2. Configurez les variables d'environnement :
+1. Copy the `.env.example` file to `.env`
+2. Configure the environment variables:
    ```
-   DISCORD_TOKEN=votre_token_discord
-   DEEPGRAM_API_KEY=votre_clé_api_deepgram
-   VOXTA_URL=url_de_votre_serveur_voxta
-   LANGUAGE=fr-FR  # ou en-US, etc.
+   DISCORD_TOKEN=your_discord_token
+   DEEPGRAM_API_KEY=your_deepgram_api_key
+   VOXTA_URL=your_voxta_server_url
+   LANGUAGE=en-US  # or fr-FR, etc.
    ```
 
 ## Installation
 
-### Sans Docker
+### Without Docker
 
 ```bash
 npm install
 node src/daemon.js
 ```
 
-### Avec Docker
+### With Docker
 
 ```bash
-make build  # Construit l'image
-make run    # Lance le conteneur
-# ou
-make dev    # Construit et lance en une commande
+make build  # Build the image
+make run    # Run the container
+# or
+make dev    # Build and run in one command
 ```
 
-## Utilisation
+## Usage
 
-1. Invitez le bot sur votre serveur Discord
-2. Rejoignez un canal vocal
-3. Le bot rejoindra automatiquement le canal
-4. Parlez normalement, le bot transcrira votre voix
-5. Les réponses seront générées et lues automatiquement
+1. Invite the bot to your Discord server
+2. Join a voice channel
+3. The bot will automatically join the channel
+4. Speak normally, the bot will transcribe your voice
+5. Responses will be automatically generated and played
 
-## Structure du Projet
+## Project Structure
 
 - `src/`
-  - `services/` : Services principaux (Deepgram, Voxta, Audio, etc.)
-  - `utils/` : Utilitaires (logger, eventBus)
+  - `services/` : Main services (Deepgram, Voxta, Audio, etc.)
+  - `utils/` : Utilities (logger, eventBus)
   - `config/` : Configuration
-  - `daemon.js` : Gestionnaire de processus
-  - `index.js` : Point d'entrée principal
+  - `daemon.js` : Process manager
+  - `index.js` : Main entry point
 
-## Développement
+## Development
 
-Le code suit une architecture orientée événements avec les composants suivants :
-- EventBus pour la communication inter-services
-- Services modulaires pour chaque fonctionnalité
-- Gestion robuste des erreurs et reconnexions
+The code follows an event-driven architecture with the following components:
+- EventBus for inter-service communication
+- Modular services for each functionality
+- Robust error handling and reconnection
 
-## Licence
+## License
 
 MIT

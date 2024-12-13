@@ -6,11 +6,13 @@ class VoiceService {
     static instance = null;
 
     static create(client, state) {
-        if (VoiceService.instance) {
-            VoiceService.instance.cleanup();
+        const currentInstance = VoiceService.instance;
+        if (currentInstance) {
+            currentInstance.cleanup();
         }
-        VoiceService.instance = new VoiceService(client, state);
-        return VoiceService.instance;
+        const newInstance = new VoiceService(client, state);
+        VoiceService.instance = newInstance;
+        return newInstance;
     }
 
     constructor(client, state) {

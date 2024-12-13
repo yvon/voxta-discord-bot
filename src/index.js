@@ -28,7 +28,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
 
     if (oldState.channelId) {
-        // AI! add log
+        logger.info(`User left voice channel ${oldState.channel.name}`);
         eventBus.emit('cleanup');
     }
 

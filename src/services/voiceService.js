@@ -9,7 +9,6 @@ class VoiceService {
         this.state = state;
         
         eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
-        //AI! du coup met des guards ou il faut pour t'assurer que t'es connecte
         this.connection = null;
     }
 
@@ -34,6 +33,7 @@ class VoiceService {
     }
 
     async handleSpeakingStart(userId) {
+        if (!this.connection) return;
         const user = this.client.users.cache.get(userId);
         if (!user) return;
         
@@ -52,6 +52,7 @@ class VoiceService {
     }
 
     handleSpeakingEnd(userId) {
+        if (!this.connection) return;
         const user = this.client.users.cache.get(userId);
         if (!user) return;
         
@@ -60,6 +61,10 @@ class VoiceService {
     }
 
     async handlePlayAudioStream(stream) {
+        if (!this.connection) {
+            logger.error('Cannot play audio: No voice connection');
+            return;
+        }
         try {
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);

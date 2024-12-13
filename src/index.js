@@ -7,6 +7,10 @@ import AudioPlayerService from './services/audioPlayerService.js';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 
+let deepgramService;
+let voxtaService;
+let audioPlayerService;
+
 const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
@@ -14,9 +18,6 @@ const client = new Client({
     ]
 });
 
-const deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
-const voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
-const audioPlayerService = new AudioPlayerService(voxtaService);
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);
@@ -25,6 +26,12 @@ client.on('ready', () => {
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
     if (!newState.channelId) return;
+
+    // AI! emit cleanup here
+
+    deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
+    voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
+    audioPlayerService = new AudioPlayerService(voxtaService);
 
     VoiceService.joinVoiceChannel(client, newState);
 });

@@ -92,10 +92,13 @@ class VoiceService {
     }
 
     cleanup() {
-        //AI! manque une guard ici sur connection
-        this.connection.receiver?.subscriptions.forEach((subscription) => {
-            subscription.destroy();
-        });
+        if (this.connection) {
+            this.connection.receiver?.subscriptions.forEach((subscription) => {
+                subscription.destroy();
+            });
+            this.connection.destroy();
+            this.connection = null;
+        }
 
         if (this.player) {
             this.player.stop();

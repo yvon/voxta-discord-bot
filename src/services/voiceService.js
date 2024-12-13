@@ -5,6 +5,7 @@ import eventBus from '../utils/eventBus.js';
 class VoiceService {
     static instance = null;
 
+    //AI! je propose joinVoiceChannel(client, state) pour remplacer connectToChannel(client, state)
     static connectToChannel(client, state) {
         const currentInstance = VoiceService.instance;
         if (currentInstance) {
@@ -24,7 +25,6 @@ class VoiceService {
         eventBus.on('cleanup', () => this.cleanup());
         this.joinVoiceChannel();
     }
-
 
     joinVoiceChannel() {
         this.connection = joinVoiceChannel({

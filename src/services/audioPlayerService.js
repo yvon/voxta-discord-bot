@@ -51,6 +51,7 @@ class AudioPlayerService {
             logger.debug('Playing next stream from buffer');
             
             try {
+              // AI! publie plutot un event, ca reduira la dependance de cette classe sur voiceService
                 await this.voiceService.playStream(stream);
             } catch (error) {
                 logger.error('Error playing audio:', error);

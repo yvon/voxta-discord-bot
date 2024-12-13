@@ -70,25 +70,27 @@ class VoiceService {
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
             this.player.play(resource);
-
-            // AI! met ca dans une methode dediee genre qui git quelque chose comme attendre que la lecture se termien
-            return new Promise((resolve, reject) => {
-                this.player.on('stateChange', (oldState, newState) => {
-                    if (newState.status === 'idle') {
-                        resolve();
-                    }
-                });
-                
-                this.player.on('error', (error) => {
-                    logger.error('Error playing audio:', error);
-                    reject(error);
-                });
-            });
+            return this.waitForPlaybackToEnd();
         } catch (error) {
             logger.error('Error creating audio resource:', error);
             throw error;
         }
     }
+    waitForPlaybackToEnd() {
+        return new Promise((resolve, reject) => {
+            this.player.on('stateChange', (oldState, newState) => {
+                if (newState.status === 'idle') {
+                    resolve();
+                }
+            });
+            
+            this.player.on('error', (error) => {
+                logger.error('Error playing audio:', error);
+                reject(error);
+            });
+        });
+    }
+
     cleanup() {
         // Cleanup existing audio subscriptions
         this.connection.receiver?.subscriptions.forEach((subscription) => {

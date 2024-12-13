@@ -16,7 +16,6 @@ const client = new Client({
 
 const deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
 const voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
-let voiceService;
 const audioPlayerService = new AudioPlayerService(voxtaService);
 
 client.on('ready', () => {
@@ -29,10 +28,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
 
     // User joined a voice channel or switched channels
     if (newState.channelId) {
-        if (voiceService) {
-            voiceService.cleanup();
-        }
-        voiceService = VoiceService.joinVoiceChannel(client, newState);
+        VoiceService.joinVoiceChannel(client, newState);
     }
 });
 

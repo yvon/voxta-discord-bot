@@ -22,12 +22,10 @@ A Discord bot that transcribes voice to text and interacts via Voxta to generate
 1. Copy the `.env.example` file to `.env`
 2. Configure the environment variables:
 
-//AI! default to localhost for Voxta server
-//AI! j'ai pas de .env.example fais le pour moi stp
    ```
    DISCORD_TOKEN=your_discord_token
    DEEPGRAM_API_KEY=your_deepgram_api_key
-   VOXTA_URL=your_voxta_server_url  # Optional, defaults to official Voxta server
+   VOXTA_URL=your_voxta_server_url  # Optional, defaults to http://localhost:5000
    LANGUAGE=en-US  # Optional, defaults to en-US
    ```
 
@@ -49,8 +47,8 @@ make run    # Run the container
 
 ## Usage
 
-//AI! precise qu'il faut lancer le serveur Voxta aussi
-1. Invite the bot to your Discord server
+1. Make sure your Voxta server is running
+2. Invite the bot to your Discord server
 2. Join a voice channel
 3. The bot will automatically join the channel
 4. Speak normally, the bot will transcribe your voice

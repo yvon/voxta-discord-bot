@@ -11,10 +11,11 @@ class VoiceService {
         this.client = client;
         this.connection = null;
         this.player = createAudioPlayer();
+        this.state = state;
         eventBus.on('cleanup', () => this.cleanup());
         
-        if (state) {
-            this.setupVoiceConnection(state);
+        if (this.state) {
+            this.setupVoiceConnection();
         }
     }
 
@@ -32,23 +33,22 @@ class VoiceService {
     }
 
 
-    //AI! state ca va etre une variable d'instance
-    setupVoiceConnection(state) {
+    setupVoiceConnection() {
         if (this.connection) {
             logger.debug('Voice connection already exists, skipping setup');
             return;
         }
 
         this.connection = joinVoiceChannel({
-            channelId: state.channelId,
-            guildId: state.guild.id,
-            adapterCreator: state.guild.voiceAdapterCreator,
+            channelId: this.state.channelId,
+            guildId: this.state.guild.id,
+            adapterCreator: this.state.guild.voiceAdapterCreator,
             selfDeaf: false,
             selfMute: false
         });
 
-        logger.info(`Joined voice channel ${state.channel.name}`);
-        eventBus.emit('voiceChannelJoined', state.channel);
+        logger.info(`Joined voice channel ${this.state.channel.name}`);
+        eventBus.emit('voiceChannelJoined', this.state.channel);
         const receiver = this.connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {

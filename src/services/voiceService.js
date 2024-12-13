@@ -20,13 +20,13 @@ class VoiceService {
         this.connection = null;
         this.player = createAudioPlayer();
         this.state = state;
+
         eventBus.on('cleanup', () => this.cleanup());
-        
-        if (this.state) {
-            this.setupVoiceConnection();
-        }
+        this.setupVoiceConnection();
     }
 
+    //AI! autant tout mettre dans cleanup c'est bizarre d'avoir deux functions. profite en pour deplacer la methode cleanup a
+    //la fin de la classe
     cleanupVoiceConnection() {
         if (!this.connection) return;
         

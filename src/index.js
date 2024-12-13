@@ -27,7 +27,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
     if (!newState.channelId) return;
 
-    // AI! emit cleanup here
+    eventBus.emit('cleanup');
 
     deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
     voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);

@@ -7,9 +7,10 @@ class VoiceService {
         this.client = client;
         this.player = createAudioPlayer();
         this.state = state;
+        this.connection = null;
         
         eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
-        this.connection = null;
+        eventBus.on('cleanup', () => this.cleanup());
     }
 
     joinChannel() {
@@ -28,8 +29,6 @@ class VoiceService {
 
         receiver.speaking.on('start', this.handleSpeakingStart.bind(this));
         receiver.speaking.on('end', this.handleSpeakingEnd.bind(this));
-
-        eventBus.on('cleanup', () => this.cleanup());
     }
 
     async handleSpeakingStart(userId) {
@@ -93,6 +92,7 @@ class VoiceService {
     }
 
     cleanup() {
+        //AI! manque une guard ici sur connection
         this.connection.receiver?.subscriptions.forEach((subscription) => {
             subscription.destroy();
         });

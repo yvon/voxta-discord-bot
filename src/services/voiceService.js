@@ -70,15 +70,14 @@ class VoiceService {
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
             this.player.play(resource);
-            return this.waitForPlaybackToEnd();
+            return this.awaitPlaybackCompletion();
         } catch (error) {
             logger.error('Error creating audio resource:', error);
             throw error;
         }
     }
 
-    //AI! t'as un pas meilleur nom?
-    waitForPlaybackToEnd() {
+    awaitPlaybackCompletion() {
         return new Promise((resolve, reject) => {
             this.player.on('stateChange', (oldState, newState) => {
                 if (newState.status === 'idle') {

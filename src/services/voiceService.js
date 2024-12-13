@@ -76,6 +76,7 @@ class VoiceService {
             throw error;
         }
     }
+
     waitForPlaybackToEnd() {
         return new Promise((resolve, reject) => {
             this.player.on('stateChange', (oldState, newState) => {
@@ -92,7 +93,6 @@ class VoiceService {
     }
 
     cleanup() {
-        // Cleanup existing audio subscriptions
         this.connection.receiver?.subscriptions.forEach((subscription) => {
             subscription.destroy();
         });

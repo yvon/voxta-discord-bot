@@ -24,6 +24,8 @@ class VoiceService {
     }
 
 
+    //AI! on va prendre le state dans le constructeur et faire le setupVoiceConnection a l'initialisation. Du coup il faut une
+    //methode static pour creer une instance de VoiceService. Que index.js va appeler
     setupVoiceConnection(state) {
         if (this.connection) {
             logger.debug('Voice connection already exists, skipping setup');

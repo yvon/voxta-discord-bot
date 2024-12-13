@@ -4,8 +4,9 @@ A Discord bot that transcribes voice to text and interacts via Voxta to generate
 
 ## Features
 
+//AI! reformule un peu cette phrase
+- Automatically connect to the last created chat on Voxta when an user joins a voice channel
 - Real-time voice transcription using Deepgram
-- Automatically joins the last created chat on Voxta
 - Response generation via Voxta
 - Audio playback of responses in voice channel
 

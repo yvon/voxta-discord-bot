@@ -17,15 +17,9 @@ class VoiceService {
 
     constructor(client, state) {
         this.client = client;
-        this.connection = null;
         this.player = createAudioPlayer();
         this.state = state;
 
-        eventBus.on('cleanup', () => this.cleanup());
-        this.joinVoiceChannel();
-    }
-
-    joinVoiceChannel() {
         this.connection = joinVoiceChannel({
             channelId: this.state.channelId,
             guildId: this.state.guild.id,
@@ -37,14 +31,12 @@ class VoiceService {
         logger.info(`Joined voice channel ${this.state.channel.name}`);
         eventBus.emit('voiceChannelJoined', this.state.channel);
 
-        this.setupVoiceReceiver();
-
-    }
-
-    setupVoiceReceiver() {
         const receiver = this.connection.receiver;
+
         receiver.speaking.on('start', this.handleSpeakingStart.bind(this));
         receiver.speaking.on('end', this.handleSpeakingEnd.bind(this));
+
+        eventBus.on('cleanup', () => this.cleanup());
     }
 
     async handleSpeakingStart(userId) {
@@ -74,11 +66,6 @@ class VoiceService {
     }
 
     async playStream(stream) {
-        if (!this.connection) {
-            logger.error('No voice connection available');
-            return;
-        }
-
         try {
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
@@ -102,16 +89,10 @@ class VoiceService {
         }
     }
     cleanup() {
-        if (this.connection) {
-            // Cleanup existing audio subscriptions
-            this.connection.receiver?.subscriptions.forEach((subscription) => {
-                subscription.destroy();
-            });
-            
-            // Destroy the connection itself
-            this.connection.destroy();
-            this.connection = null;
-        }
+        // Cleanup existing audio subscriptions
+        this.connection.receiver?.subscriptions.forEach((subscription) => {
+            subscription.destroy();
+        });
 
         if (this.player) {
             this.player.stop();

@@ -71,6 +71,7 @@ class VoiceService {
             this.connection.subscribe(this.player);
             this.player.play(resource);
 
+            // AI! met ca dans une methode dediee genre qui git quelque chose comme attendre que la lecture se termien
             return new Promise((resolve, reject) => {
                 this.player.on('stateChange', (oldState, newState) => {
                     if (newState.status === 'idle') {

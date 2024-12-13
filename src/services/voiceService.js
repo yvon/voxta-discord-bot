@@ -25,20 +25,6 @@ class VoiceService {
         this.setupVoiceConnection();
     }
 
-    //AI! autant tout mettre dans cleanup c'est bizarre d'avoir deux functions. profite en pour deplacer la methode cleanup a
-    //la fin de la classe
-    cleanupVoiceConnection() {
-        if (!this.connection) return;
-        
-        // Cleanup existing audio subscriptions
-        this.connection.receiver?.subscriptions.forEach((subscription) => {
-            subscription.destroy();
-        });
-        
-        // Destroy the connection itself
-        this.connection.destroy();
-        this.connection = null;
-    }
 
     setupVoiceConnection() {
         if (this.connection) {
@@ -86,13 +72,6 @@ class VoiceService {
 
     }
 
-    cleanup() {
-        this.cleanupVoiceConnection();
-        if (this.player) {
-            this.player.stop();
-        }
-    }
-
     async playStream(stream) {
         if (!this.connection) {
             logger.error('No voice connection available');
@@ -119,6 +98,22 @@ class VoiceService {
         } catch (error) {
             logger.error('Error creating audio resource:', error);
             throw error;
+        }
+    }
+    cleanup() {
+        if (this.connection) {
+            // Cleanup existing audio subscriptions
+            this.connection.receiver?.subscriptions.forEach((subscription) => {
+                subscription.destroy();
+            });
+            
+            // Destroy the connection itself
+            this.connection.destroy();
+            this.connection = null;
+        }
+
+        if (this.player) {
+            this.player.stop();
         }
     }
 }

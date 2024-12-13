@@ -2,9 +2,8 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class AudioPlayerService {
-    constructor(voxtaService, voiceService) {
+    constructor(voxtaService) {
         this.voxtaService = voxtaService;
-        this.voiceService = voiceService;
         // Audio buffers structure:
         // {
         //   messageId: {
@@ -51,8 +50,16 @@ class AudioPlayerService {
             logger.debug('Playing next stream from buffer');
             
             try {
-              // AI! publie plutot un event, ca reduira la dependance de cette classe sur voiceService
-                await this.voiceService.playStream(stream);
+                const playbackPromise = new Promise((resolve, reject) => {
+                    const cleanup = eventBus.once('audioPlaybackComplete', resolve);
+                    eventBus.once('audioPlaybackError', (error) => {
+                        cleanup();
+                        reject(error);
+                    });
+                });
+                
+                eventBus.emit('playAudioStream', stream);
+                await playbackPromise;
             } catch (error) {
                 logger.error('Error playing audio:', error);
                 messageBuffer.isPlaying = false;

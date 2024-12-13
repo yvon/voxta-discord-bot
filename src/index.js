@@ -17,7 +17,7 @@ const client = new Client({
 const deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
 const voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
 let voiceService;
-const audioPlayerService = new AudioPlayerService(voxtaService, voiceService);
+const audioPlayerService = new AudioPlayerService(voxtaService);
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);

@@ -19,6 +19,8 @@ class VoiceService {
         this.client = client;
         this.player = createAudioPlayer();
         this.state = state;
+        
+        eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
 
         this.connection = joinVoiceChannel({
             channelId: this.state.channelId,
@@ -65,15 +67,16 @@ class VoiceService {
         this.connection.receiver.subscriptions.get(userId)?.destroy();
     }
 
-    async playStream(stream) {
+    async handlePlayAudioStream(stream) {
         try {
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
             this.player.play(resource);
-            return this.awaitPlaybackCompletion();
+            await this.awaitPlaybackCompletion();
+            eventBus.emit('audioPlaybackComplete');
         } catch (error) {
-            logger.error('Error creating audio resource:', error);
-            throw error;
+            logger.error('Error playing audio stream:', error);
+            eventBus.emit('audioPlaybackError', error);
         }
     }
 

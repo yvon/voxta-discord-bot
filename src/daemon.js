@@ -20,9 +20,11 @@ function startBot() {
         }
     });
 
-    // Faire suivre SIGINT au processus fils
+    // Intercepter SIGINT (CTRL+C)
     process.on('SIGINT', () => {
+        logger.info('Arrêt du bot...');
         bot.kill('SIGINT');
+        process.exit(0);
     });
 }
 

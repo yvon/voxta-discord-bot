@@ -3,7 +3,7 @@ import 'dotenv/config';
 const CONFIG = {
     deepgram: {
         model: "nova-2",
-        language: "en-US",
+        language: process.env.LANGUAGE || "en-US",
         encoding: "opus",
         sampleRate: 48000,
         apiKey: process.env.DEEPGRAM_API_KEY

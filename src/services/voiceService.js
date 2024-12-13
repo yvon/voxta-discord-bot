@@ -3,18 +3,6 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoiceService {
-    static instance = null;
-
-    static joinVoiceChannel(client, state) {
-        const currentInstance = VoiceService.instance;
-        if (currentInstance) {
-            currentInstance.cleanup();
-        }
-        const newInstance = new VoiceService(client, state);
-        VoiceService.instance = newInstance;
-        return newInstance;
-    }
-
     constructor(client, state) {
         this.client = client;
         this.player = createAudioPlayer();

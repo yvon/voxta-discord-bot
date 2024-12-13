@@ -10,6 +10,7 @@ import logger from './utils/logger.js';
 let deepgramService;
 let voxtaService;
 let audioPlayerService;
+let voiceService;
 
 const client = new Client({
     intents: [
@@ -32,8 +33,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
     voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
     audioPlayerService = new AudioPlayerService(voxtaService);
-
-    VoiceService.joinVoiceChannel(client, newState);
+    voiceService = new VoiceService(client, newState);
 });
 
 process.on('SIGINT', () => {

@@ -32,6 +32,7 @@ class VoiceService {
     }
 
 
+    //AI! state ca va etre une variable d'instance
     setupVoiceConnection(state) {
         if (this.connection) {
             logger.debug('Voice connection already exists, skipping setup');

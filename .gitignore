@@ -1,4 +1,4 @@
 .aider*
-.env*
+.env
 node_modules
 *.sw[a-p]

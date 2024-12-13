@@ -9,6 +9,7 @@ class VoiceService {
         this.state = state;
         
         eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
+        //AI! du coup met des guards ou il faut pour t'assurer que t'es connecte
         this.connection = null;
     }
 

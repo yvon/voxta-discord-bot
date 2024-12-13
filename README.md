@@ -47,9 +47,9 @@ make run    # Run the container
 
 ## Usage
 
-//AI! precise qu'il faut s'assurer qu'au moins un chat est créé sur voxta : le bot rejoindra le dernier en date
 1. Make sure your Voxta server is running
-2. Invite the bot to your Discord server
+2. Create at least one chat on Voxta (the bot will join the most recently created chat)
+3. Invite the bot to your Discord server
 2. Join a voice channel
 3. The bot will automatically join the channel
 4. Speak normally, the bot will transcribe your voice

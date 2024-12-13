@@ -25,11 +25,9 @@ client.on('ready', () => {
 client.on('voiceStateUpdate', (oldState, newState) => {
     // Ignore bot's own voice state updates
     if (newState.member.user.bot) return;
+    if (!newState.channelId) return;
 
-    //AI! fais plutot une guard
-    if (newState.channelId) {
-        VoiceService.joinVoiceChannel(client, newState);
-    }
+    VoiceService.joinVoiceChannel(client, newState);
 });
 
 process.on('SIGINT', () => {

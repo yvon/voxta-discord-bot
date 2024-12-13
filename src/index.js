@@ -23,7 +23,6 @@ client.on('ready', () => {
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-    // Ignore bot's own voice state updates
     if (newState.member.user.bot) return;
     if (!newState.channelId) return;
 

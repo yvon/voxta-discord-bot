@@ -24,6 +24,7 @@ class VoiceService {
         this.connection = null;
     }
 
+    // AI! passe cette partie dans index.js
     handleVoiceStateUpdate(oldState, newState) {
         // Ignore bot's own voice state updates
         if (newState.member.user.bot) return;

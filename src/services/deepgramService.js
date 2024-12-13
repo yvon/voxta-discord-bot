@@ -8,7 +8,6 @@ class DeepgramService {
         this.deepgram = createClient(apiKey);
         this.audioBuffer = [];  // Buffer to store audio chunks
         this.connection = null;
-        eventBus.on('cleanup', () => this.closeConnection());
         eventBus.on('audioData', (chunk) => this.sendAudio(chunk));
     }
 
@@ -52,13 +51,6 @@ class DeepgramService {
         return this.connection;
     }
 
-    closeConnection() {
-        if (this.connection) {
-            this.connection.finish();
-            this.connection = null;
-        }
-    }
-
     processAudioBuffer() {
         if (!this.isConnected()) return;
 
@@ -69,7 +61,6 @@ class DeepgramService {
             } catch (error) {
                 logger.error('Error sending audio to Deepgram:', error);
                 this.audioBuffer.unshift(audioChunk);
-                this.closeConnection();
                 break;
             }
         }

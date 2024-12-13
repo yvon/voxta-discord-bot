@@ -15,7 +15,6 @@ class AudioPlayerService {
         // }
         this.audioBuffers = {};
         eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
-        eventBus.on('cleanup', this.cleanup.bind(this));
     }
 
     async checkAndSendPlaybackComplete(messageId) {
@@ -133,10 +132,6 @@ class AudioPlayerService {
                 this.handleReplyEnd(message);
                 break;
         }
-    }
-
-    cleanup() {
-        this.audioBuffers = {};
     }
 }
 

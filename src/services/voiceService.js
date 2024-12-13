@@ -10,7 +10,6 @@ class VoiceService {
         this.connection = null;
         
         eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
-        eventBus.on('cleanup', () => this.cleanup());
     }
 
     joinChannel() {
@@ -89,20 +88,6 @@ class VoiceService {
                 reject(error);
             });
         });
-    }
-
-    cleanup() {
-        if (this.connection) {
-            this.connection.receiver?.subscriptions.forEach((subscription) => {
-                subscription.destroy();
-            });
-            this.connection.destroy();
-            this.connection = null;
-        }
-
-        if (this.player) {
-            this.player.stop();
-        }
     }
 }
 

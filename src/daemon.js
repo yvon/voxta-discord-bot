@@ -20,7 +20,7 @@ function startBot() {
         }
     });
 
-    // Intercepter SIGINT (CTRL+C)
+    // Intercept SIGINT (CTRL+C)
     process.on('SIGINT', () => {
         logger.info('Arrêt du bot...');
         bot.kill('SIGINT');

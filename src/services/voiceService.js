@@ -3,11 +3,19 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoiceService {
-    constructor(client) {
+    static create(client, state) {
+        return new VoiceService(client, state);
+    }
+
+    constructor(client, state) {
         this.client = client;
         this.connection = null;
         this.player = createAudioPlayer();
         eventBus.on('cleanup', () => this.cleanup());
+        
+        if (state) {
+            this.setupVoiceConnection(state);
+        }
     }
 
     cleanupVoiceConnection() {
@@ -24,8 +32,6 @@ class VoiceService {
     }
 
 
-    //AI! on va prendre le state dans le constructeur et faire le setupVoiceConnection a l'initialisation. Du coup il faut une
-    //methode static pour creer une instance de VoiceService. Que index.js va appeler
     setupVoiceConnection(state) {
         if (this.connection) {
             logger.debug('Voice connection already exists, skipping setup');

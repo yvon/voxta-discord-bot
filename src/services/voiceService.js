@@ -22,12 +22,11 @@ class VoiceService {
         this.state = state;
 
         eventBus.on('cleanup', () => this.cleanup());
-        this.setupVoiceConnection();
+        this.joinVoiceChannel();
     }
 
 
-    //A! plutot join voice channel non?
-    setupVoiceConnection() {
+    joinVoiceChannel() {
         this.connection = joinVoiceChannel({
             channelId: this.state.channelId,
             guildId: this.state.guild.id,
@@ -39,8 +38,11 @@ class VoiceService {
         logger.info(`Joined voice channel ${this.state.channel.name}`);
         eventBus.emit('voiceChannelJoined', this.state.channel);
 
+        this.setupVoiceReceiver();
 
-        //AI! met tout ca dans une methide a part
+    }
+
+    setupVoiceReceiver() {
         const receiver = this.connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {
@@ -68,7 +70,6 @@ class VoiceService {
             logger.info(`User ${user.tag} stopped speaking`);
             receiver.subscriptions.get(userId)?.destroy();
         });
-
     }
 
     async playStream(stream) {

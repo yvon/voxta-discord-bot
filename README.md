@@ -1,6 +1,8 @@
-# Discord Voice Transcription Bot
+# Voxta Discord Bot
 
 A Discord bot that transcribes voice to text and interacts via Voxta to generate voice responses.
+
+//AI! precise que je suis pas associé à Voxta
 
 ## Features
 

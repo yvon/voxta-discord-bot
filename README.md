@@ -22,11 +22,10 @@ A Discord bot that transcribes voice to text and interacts via Voxta to generate
 1. Copy the `.env.example` file to `.env`
 2. Configure the environment variables:
 
-//AI! change le default voxta url. va lire le fichier de config.js
    ```
    DISCORD_TOKEN=your_discord_token
    DEEPGRAM_API_KEY=your_deepgram_api_key
-   VOXTA_URL=your_voxta_server_url  # Optional, defaults to http://localhost:5000
+   VOXTA_URL=your_voxta_server_url  # Optional, defaults to http://localhost:5384
    LANGUAGE=en-US  # Optional, defaults to en-US
    ```
 

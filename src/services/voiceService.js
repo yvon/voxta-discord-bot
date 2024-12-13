@@ -10,6 +10,8 @@ class VoiceService {
         
         eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
 
+
+        //AI! fais une methode joinChannel et appelle la dans index.js
         this.connection = joinVoiceChannel({
             channelId: this.state.channelId,
             guildId: this.state.guild.id,

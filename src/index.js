@@ -26,14 +26,18 @@ client.on('ready', () => {
 
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
-    if (!newState.channelId) return;
 
-    eventBus.emit('cleanup');
+    if (oldState.channelId) {
+        // AI! add log
+        eventBus.emit('cleanup');
+    }
 
-    deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
-    voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
-    audioPlayerService = new AudioPlayerService(voxtaService);
-    voiceService = new VoiceService(client, newState);
+    if (newState.channelId) {
+        deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
+        voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
+        audioPlayerService = new AudioPlayerService(voxtaService);
+        voiceService = new VoiceService(client, newState);
+    }
 });
 
 process.on('SIGINT', () => {

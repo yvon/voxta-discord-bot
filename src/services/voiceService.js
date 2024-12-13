@@ -26,12 +26,8 @@ class VoiceService {
     }
 
 
+    //A! plutot join voice channel non?
     setupVoiceConnection() {
-        if (this.connection) {
-            logger.debug('Voice connection already exists, skipping setup');
-            return;
-        }
-
         this.connection = joinVoiceChannel({
             channelId: this.state.channelId,
             guildId: this.state.guild.id,
@@ -42,6 +38,9 @@ class VoiceService {
 
         logger.info(`Joined voice channel ${this.state.channel.name}`);
         eventBus.emit('voiceChannelJoined', this.state.channel);
+
+
+        //AI! met tout ca dans une methide a part
         const receiver = this.connection.receiver;
         
         receiver.speaking.on('start', async (userId) => {

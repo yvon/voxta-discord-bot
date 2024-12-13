@@ -37,6 +37,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
         voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
         audioPlayerService = new AudioPlayerService(voxtaService);
         voiceService = new VoiceService(client, newState);
+        voiceService.joinChannel();
     }
 });
 

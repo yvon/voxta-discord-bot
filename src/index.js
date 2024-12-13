@@ -24,7 +24,15 @@ client.on('ready', () => {
 });
 
 client.on('voiceStateUpdate', (oldState, newState) => {
-    eventBus.emit('voiceStateUpdate', oldState, newState);
+    // Ignore bot's own voice state updates
+    if (newState.member.user.bot) return;
+
+    // User joined a voice channel or switched channels
+    if (newState.channelId) {
+        // Cleanup old connection if exists
+        voiceService.cleanupVoiceConnection();
+        voiceService.setupVoiceConnection(newState);
+    }
 });
 
 process.on('SIGINT', () => {

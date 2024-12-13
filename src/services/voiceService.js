@@ -8,7 +8,6 @@ class VoiceService {
         this.connection = null;
         this.player = createAudioPlayer();
         eventBus.on('cleanup', () => this.cleanup());
-        eventBus.on('voiceStateUpdate', (oldState, newState) => this.handleVoiceStateUpdate(oldState, newState));
     }
 
     cleanupVoiceConnection() {
@@ -24,18 +23,6 @@ class VoiceService {
         this.connection = null;
     }
 
-    // AI! passe cette partie dans index.js
-    handleVoiceStateUpdate(oldState, newState) {
-        // Ignore bot's own voice state updates
-        if (newState.member.user.bot) return;
-
-        // User joined a voice channel or switched channels
-        if (newState.channelId) {
-            // Cleanup old connection if exists
-            this.cleanupVoiceConnection();
-            this.setupVoiceConnection(newState);
-        }
-    }
 
     setupVoiceConnection(state) {
         if (this.connection) {

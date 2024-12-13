@@ -4,11 +4,10 @@ A Discord bot that transcribes voice to text and interacts via Voxta to generate
 
 ## Features
 
+//AI! precise ici que ca rejoint le dernier chat créé sur Voxta
 - Real-time voice transcription using Deepgram
 - Response generation via Voxta
 - Audio playback of responses in voice channel
-- Automatic chat session management
-- Automatic restart on error
 
 ## Prerequisites
 
@@ -22,6 +21,8 @@ A Discord bot that transcribes voice to text and interacts via Voxta to generate
 
 1. Copy the `.env.example` file to `.env`
 2. Configure the environment variables:
+
+//AI! precise que VOXTA_URL et LANGUAGE sont optionnels
    ```
    DISCORD_TOKEN=your_discord_token
    DEEPGRAM_API_KEY=your_deepgram_api_key
@@ -43,8 +44,6 @@ node src/daemon.js
 ```bash
 make build  # Build the image
 make run    # Run the container
-# or
-make dev    # Build and run in one command
 ```
 
 ## Usage
@@ -63,14 +62,3 @@ make dev    # Build and run in one command
   - `config/` : Configuration
   - `daemon.js` : Process manager
   - `index.js` : Main entry point
-
-## Development
-
-The code follows an event-driven architecture with the following components:
-- EventBus for inter-service communication
-- Modular services for each functionality
-- Robust error handling and reconnection
-
-## License
-
-MIT

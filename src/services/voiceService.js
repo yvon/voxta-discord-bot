@@ -77,6 +77,7 @@ class VoiceService {
         }
     }
 
+    //AI! t'as un pas meilleur nom?
     waitForPlaybackToEnd() {
         return new Promise((resolve, reject) => {
             this.player.on('stateChange', (oldState, newState) => {

@@ -53,6 +53,7 @@ class AudioPlayerService {
                 const playbackPromise = new Promise((resolve, reject) => {
                     const cleanup = eventBus.once('audioPlaybackComplete', resolve);
                     eventBus.once('audioPlaybackError', (error) => {
+                      //AI! je pense pas que le cleanup soit nécessaire ici
                         cleanup();
                         reject(error);
                     });

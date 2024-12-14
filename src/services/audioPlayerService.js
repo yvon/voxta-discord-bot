@@ -43,31 +43,22 @@ class AudioPlayerService {
 
         messageBuffer.isPlaying = true;
         
-        // Play all available audio chunks sequentially with preloading
-        let nextChunk = null;
-        
         while (messageBuffer.audioData.length > 0) {
-            // 1. Get current audio URL and prepare next chunk loading
             const currentUrl = messageBuffer.audioData.shift();
             const nextUrl = messageBuffer.audioData[0];
+
+            // 1. Charger le chunk actuel
+            const currentChunkPromise = this.voxtaService.getAudioResponse(currentUrl);
             
-            // 2. Use preloaded chunk or load current chunk
-            const currentChunk = nextChunk || await this.voxtaService.getAudioResponse(currentUrl);
+            // 2. Démarrer le chargement du prochain chunk en parallèle
+            const nextChunkPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
+            
+            // 3. Attendre que le chunk actuel soit chargé
+            const currentChunk = await currentChunkPromise;
             logger.debug(`Got current audio chunk, size: ${currentChunk.byteLength} bytes`);
             
-            // 3. Start loading next chunk if available
-            nextChunk = null;
-            if (nextUrl) {
-                this.voxtaService.getAudioResponse(nextUrl)
-                    .then(chunk => {
-                        nextChunk = chunk;
-                        logger.debug('Next chunk preloading complete');
-                    })
-                    .catch(error => logger.error('Error preloading next chunk:', error));
-            }
-            
             try {
-                // 4. Play current chunk
+                // 4. Jouer le chunk actuel
                 const playbackPromise = new Promise((resolve, reject) => {
                     eventBus.once('audioPlaybackComplete', resolve);
                     eventBus.once('audioPlaybackError', reject);

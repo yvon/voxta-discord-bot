@@ -9,7 +9,7 @@
   },
   "dependencies": {
     "@deepgram/sdk": "^3.9.0",
-    "@discordjs/voice": "^0.16.1",
+    "@discordjs/voice": "^0.18.0",
     "@microsoft/signalr": "^8.0.7",
     "axios": "^1.7.9",
     "discord.js": "^14.14.1",

@@ -42,31 +42,36 @@ class AudioPlayerService {
         }
 
         messageBuffer.isPlaying = true;
-        
-        while (messageBuffer.audioData.length > 0) {
-            const currentUrl = messageBuffer.audioData.shift();
-            const nextUrl = messageBuffer.audioData[0];
-            const currentChunk = await this.voxtaService.getAudioResponse(currentUrl);
-            //AI! ca sert a rien ce que tu fais la tu l'utilises pas dans la boucle suivante 
-            const nextChunkPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
-            
-            logger.debug(`Got current audio chunk, size: ${currentChunk.byteLength} bytes`);
-            
-            try {
-                const playbackPromise = new Promise((resolve, reject) => {
-                    eventBus.once('audioPlaybackComplete', resolve);
-                    eventBus.once('audioPlaybackError', reject);
-                });
-                
-                eventBus.emit('playAudio', currentChunk);
-                await playbackPromise;
-            } catch (error) {
-                logger.error('Error playing audio:', error);
-                messageBuffer.isPlaying = false;
-                return;
+        const url = messageBuffer.audioData.shift();
+
+        if (url) {
+            let promise = this.voxtaService.getAudioResponse(url);
+
+            while (promise) {
+                const chunk = await promise;
+
+                // Download next audio chunk while we play it
+                const nextUrl = messageBuffer.audioData.shift();
+                const nextPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
+
+                try {
+                    const playbackPromise = new Promise((resolve, reject) => {
+                        eventBus.once('audioPlaybackComplete', resolve);
+                        eventBus.once('audioPlaybackError', reject);
+                    });
+
+                    eventBus.emit('playAudio', chunk);
+                    await playbackPromise;
+                } catch (error) {
+                    logger.error('Error playing audio:', error);
+                    messageBuffer.isPlaying = false;
+                    return;
+                }
+
+                promise = nextPromise;
             }
         }
-        
+
         await this.checkAndSendPlaybackComplete(messageId);
         messageBuffer.isPlaying = false;
     }

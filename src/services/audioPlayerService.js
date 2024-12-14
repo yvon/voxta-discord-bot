@@ -1,5 +1,8 @@
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
+import fs from 'fs';
+import path from 'path';
+import os from 'os';
 
 class AudioPlayerService {
     constructor(voxtaService) {
@@ -55,12 +58,26 @@ class AudioPlayerService {
                 const nextPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
 
                 try {
+                    // Create temp file
+                    const tempFile = path.join(os.tmpdir(), `voxta-${messageId}-${Date.now()}.mp3`);
+                    await fs.promises.writeFile(tempFile, Buffer.from(chunk));
+                    
                     const playbackPromise = new Promise((resolve, reject) => {
-                        eventBus.once('audioPlaybackComplete', resolve);
-                        eventBus.once('audioPlaybackError', reject);
+                        eventBus.once('audioPlaybackComplete', () => {
+                            // Clean up temp file after playback
+                            fs.promises.unlink(tempFile)
+                                .catch(err => logger.error('Error deleting temp file:', err))
+                                .finally(resolve);
+                        });
+                        eventBus.once('audioPlaybackError', (error) => {
+                            // Clean up temp file on error
+                            fs.promises.unlink(tempFile)
+                                .catch(err => logger.error('Error deleting temp file:', err))
+                                .finally(() => reject(error));
+                        });
                     });
 
-                    eventBus.emit('playAudio', chunk);
+                    eventBus.emit('playAudio', tempFile);
                     await playbackPromise;
                 } catch (error) {
                     logger.error('Error playing audio:', error);

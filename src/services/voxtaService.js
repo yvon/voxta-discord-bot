@@ -79,8 +79,7 @@ class VoxtaService {
 
     async getAudioResponse(endpoint) {
         return await this.makeRequest(endpoint, {
-            responseType: 'arraybuffer',
-            fullResponse: true
+            responseType: 'arraybuffer'
         });
     }
 

@@ -97,9 +97,9 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
-            const response = await this.voxtaService.getAudioResponse(message.audioUrl);
-            if (response?.data) {
-                this.audioBuffers[messageId].streams.push(response.data);
+            const audioData = await this.voxtaService.getAudioResponse(message.audioUrl);
+            if (audioData) {
+                this.audioBuffers[messageId].streams.push(audioData);
                 this.playBuffer(messageId);
             } else {
                 logger.error('Failed to get audio stream');

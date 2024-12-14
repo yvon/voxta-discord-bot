@@ -7,7 +7,7 @@ class AudioPlayerService {
         // Audio buffers structure:
         // {
         //   messageId: {
-        //     streams: [],           // Array of audio streams
+        //     audioData: [],         // Array of audio data chunks
         //     isComplete: false,     // Whether the message is complete
         //     sessionId: string,     // Session ID for the message
         //     isPlaying: false       // Whether currently playing
@@ -21,8 +21,8 @@ class AudioPlayerService {
         const buffer = this.audioBuffers[messageId];
         if (!buffer) return;
 
-        // If buffer is marked as complete and there are no pending streams
-        if (buffer.isComplete && buffer.streams.length === 0) {
+        // If buffer is marked as complete and there are no pending audio chunks
+        if (buffer.isComplete && buffer.audioData.length === 0) {
             await this.sendPlaybackComplete(messageId);
             delete this.audioBuffers[messageId];
             logger.debug(`Cleaned up buffer for message ${messageId}`);
@@ -43,10 +43,10 @@ class AudioPlayerService {
 
         messageBuffer.isPlaying = true;
         
-        // Play all available streams sequentially
-        while (messageBuffer.streams.length > 0) {
-            const stream = messageBuffer.streams.shift();
-            logger.debug('Playing next stream from buffer');
+        // Play all available audio chunks sequentially
+        while (messageBuffer.audioData.length > 0) {
+            const audioChunk = messageBuffer.audioData.shift();
+            logger.debug('Playing next audio chunk from buffer');
             
             try {
                 const playbackPromise = new Promise((resolve, reject) => {
@@ -54,7 +54,7 @@ class AudioPlayerService {
                     eventBus.once('audioPlaybackError', reject);
                 });
                 
-                eventBus.emit('playAudioStream', stream);
+                eventBus.emit('playAudio', audioChunk);
                 await playbackPromise;
             } catch (error) {
                 logger.error('Error playing audio:', error);
@@ -72,7 +72,7 @@ class AudioPlayerService {
         const sessionId = message.sessionId;
         logger.info(`Initializing buffer for message ${messageId}`);
         this.audioBuffers[messageId] = {
-            streams: [],
+            audioData: [],
             isComplete: false,
             sessionId: sessionId,
             isPlaying: false
@@ -99,7 +99,7 @@ class AudioPlayerService {
         try {
             const audioData = await this.voxtaService.getAudioResponse(message.audioUrl);
             if (audioData) {
-                this.audioBuffers[messageId].streams.push(audioData);
+                this.audioBuffers[messageId].audioData.push(audioData);
                 this.playBuffer(messageId);
             } else {
                 logger.error('Failed to get audio stream');

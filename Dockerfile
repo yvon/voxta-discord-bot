@@ -19,11 +19,12 @@ COPY package*.json ./
 
 # Install libsodium system package first
 RUN apt-get update && apt-get install -y \
-    libsodium-dev
+    libsodium-dev \
+    build-essential
 
-# Set npm to use more memory and install dependencies
-ENV NODE_OPTIONS="--max_old_space_size=4096"
-RUN npm install --build-from-source
+# Set npm to use more memory and install dependencies with increased memory limits
+ENV NODE_OPTIONS="--max_old_space_size=8192"
+RUN npm install --build-from-source --unsafe-perm
 
 # Copy app source
 COPY . .

@@ -47,7 +47,7 @@ class AudioPlayerService {
         while (messageBuffer.audioData.length > 0) {
             const audioUrl = messageBuffer.audioData.shift();
             const audioChunk = await this.voxtaService.getAudioResponse(audioUrl);
-            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.data.byteLength} bytes`);
+            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.byteLength} bytes`);
             
             try {
                 const playbackPromise = new Promise((resolve, reject) => {
@@ -55,8 +55,7 @@ class AudioPlayerService {
                     eventBus.once('audioPlaybackError', reject);
                 });
                 
-                const chunk = Buffer.from(audioChunk);
-                eventBus.emit('playAudio', chunk);
+                eventBus.emit('playAudio', audioChunk);
                 await playbackPromise;
             } catch (error) {
                 logger.error('Error playing audio:', error);

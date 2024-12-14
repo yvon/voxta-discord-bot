@@ -7,7 +7,7 @@ class AudioPlayerService {
         // Audio buffers structure:
         // {
         //   messageId: {
-        //     audioData: [],         // Array of audio data chunks
+        //     audioUrls: [],         // Array of audio URLs to fetch
         //     isComplete: false,     // Whether the message is complete
         //     sessionId: string,     // Session ID for the message
         //     isPlaying: false       // Whether currently playing
@@ -22,7 +22,7 @@ class AudioPlayerService {
         if (!buffer) return;
 
         // If buffer is marked as complete and there are no pending audio chunks
-        if (buffer.isComplete && buffer.audioData.length === 0) {
+        if (buffer.isComplete && buffer.audioUrls.length === 0) {
             await this.sendPlaybackComplete(messageId);
             delete this.audioBuffers[messageId];
             logger.debug(`Cleaned up buffer for message ${messageId}`);
@@ -42,7 +42,7 @@ class AudioPlayerService {
         }
 
         messageBuffer.isPlaying = true;
-        const url = messageBuffer.audioData.shift();
+        const url = messageBuffer.audioUrls.shift();
 
         if (url) {
             let promise = this.voxtaService.getAudioResponse(url);
@@ -51,7 +51,7 @@ class AudioPlayerService {
                 const chunk = await promise;
 
                 // Download next audio chunk while we play it
-                const nextUrl = messageBuffer.audioData.shift();
+                const nextUrl = messageBuffer.audioUrls.shift();
                 const nextPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
 
                 try {
@@ -81,7 +81,7 @@ class AudioPlayerService {
         const sessionId = message.sessionId;
         logger.info(`Initializing buffer for message ${messageId}`);
         this.audioBuffers[messageId] = {
-            audioData: [],
+            audioUrls: [],
             isComplete: false,
             sessionId: sessionId,
             isPlaying: false
@@ -106,7 +106,7 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
-            this.audioBuffers[messageId].audioData.push(message.audioUrl);
+            this.audioBuffers[messageId].audioUrls.push(message.audioUrl);
             this.playBuffer(messageId);
         } catch (error) {
             logger.error('Error getting audio stream:', error);

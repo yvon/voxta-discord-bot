@@ -65,6 +65,7 @@ class VoiceService {
             return;
         }
         try {
+            //AI! commentaires en anglais!
             // Convertir l'ArrayBuffer en Buffer puis en Readable stream
             const buffer = Buffer.from(audioData);
             const stream = new Readable();

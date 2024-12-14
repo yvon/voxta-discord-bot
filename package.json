@@ -9,11 +9,13 @@
   },
   "dependencies": {
     "@deepgram/sdk": "^3.9.0",
+    "@discordjs/opus": "^0.9.0",
     "@discordjs/voice": "^0.16.1",
     "@microsoft/signalr": "^8.0.7",
     "axios": "^1.7.9",
     "discord.js": "^14.14.1",
     "dotenv": "^16.3.1",
-    "libsodium-wrappers": "^0.7.15"
+    "libsodium-wrappers": "^0.7.15",
+    "sodium": "^3.0.2"
   }
 }

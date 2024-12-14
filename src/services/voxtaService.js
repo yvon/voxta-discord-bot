@@ -32,33 +32,37 @@ class VoxtaService {
         };
     }
 
+    async retryRequest(requestFn, maxRetries = 2, retryDelay = 2000) {
+        let retryCount = 0;
+        
+        while (true) {
+            try {
+                return await requestFn();
+            } catch (error) {
+                if (error.response?.status === 502 && retryCount < maxRetries) {
+                    logger.info(`Got 502 error, retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    await new Promise(resolve => setTimeout(resolve, retryDelay));
+                    retryCount++;
+                    continue;
+                }
+                throw error;
+            }
+        }
+    }
+
     async makeRequest(endpoint, options = {}) {
-        const MAX_RETRIES = 2;
-        const RETRY_DELAY = 2000; // 2 seconds
         const url = `${this.baseUrl}${endpoint}`;
         
-        const makeAttempt = async (retryCount = 0) => {
-            try {
-                const response = await axios({
+        try {
+            const response = await this.retryRequest(async () => {
+                return await axios({
                     url,
                     method: options.method || 'GET',
                     headers: this.headers,
                     responseType: options.responseType || 'json',
                     ...options
                 });
-                return response;
-            } catch (error) {
-                if (error.response?.status === 502 && retryCount < MAX_RETRIES) {
-                    logger.info(`Got 502 error, retrying in ${RETRY_DELAY}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
-                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-                    return makeAttempt(retryCount + 1);
-                }
-                throw error;
-            }
-        };
-
-        try {
-            const response = await makeAttempt();
+            });
             return response.data;
         } catch (error) {
             const errorContext = options.responseType === 'arraybuffer' ? 'getting audio from' : 'calling Voxta API';

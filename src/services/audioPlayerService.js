@@ -45,7 +45,8 @@ class AudioPlayerService {
         
         // Play all available audio chunks sequentially
         while (messageBuffer.audioData.length > 0) {
-            const audioChunk = messageBuffer.audioData.shift();
+            const audioChunk = await messageBuffer.audioData.shift();
+            //AI! affiche en debug la taille du chunk
             logger.debug('Playing next audio chunk from buffer');
             
             try {
@@ -97,13 +98,9 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
-            const audioData = await this.voxtaService.getAudioResponse(message.audioUrl);
-            if (audioData) {
-                this.audioBuffers[messageId].audioData.push(audioData);
-                this.playBuffer(messageId);
-            } else {
-                logger.error('Failed to get audio stream');
-            }
+            const promise = await this.voxtaService.getAudioResponse(message.audioUrl);
+            this.audioBuffers[messageId].audioData.push(promise);
+            this.playBuffer(messageId);
         } catch (error) {
             logger.error('Error getting audio stream:', error);
         }

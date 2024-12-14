@@ -48,6 +48,7 @@ class AudioPlayerService {
             const nextUrl = messageBuffer.audioData[0];
 
             // 1. Charger le chunk actuel
+            // AI! je veux l'await aussitot celui la! et commentaires en anglais non de dieu!:w
             const currentChunkPromise = this.voxtaService.getAudioResponse(currentUrl);
             
             // 2. Démarrer le chargement du prochain chunk en parallèle

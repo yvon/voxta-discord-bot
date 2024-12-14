@@ -1,4 +1,5 @@
 import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource } from '@discordjs/voice';
+import { Readable } from 'stream';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
@@ -9,7 +10,7 @@ class VoiceService {
         this.state = state;
         this.connection = null;
         
-        eventBus.on('playAudioStream', this.handlePlayAudioStream.bind(this));
+        eventBus.on('playAudio', this.handlePlayAudio.bind(this));
     }
 
     joinChannel() {
@@ -58,12 +59,17 @@ class VoiceService {
         this.connection.receiver.subscriptions.get(userId)?.destroy();
     }
 
-    async handlePlayAudioStream(stream) {
+    async handlePlayAudio(audioData) {
         if (!this.connection) {
             logger.error('Cannot play audio: No voice connection');
             return;
         }
         try {
+            // Convert audio buffer to stream
+            const stream = new Readable();
+            stream.push(audioData);
+            stream.push(null);
+            
             const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
             this.player.play(resource);

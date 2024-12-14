@@ -45,9 +45,9 @@ class AudioPlayerService {
         
         // Play all available audio chunks sequentially
         while (messageBuffer.audioData.length > 0) {
-            const audioChunkPromise = messageBuffer.audioData.shift();
-            const audioChunk = await audioChunkPromise;
-            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.byteLength} bytes`);
+            const audioUrl = messageBuffer.audioData.shift();
+            const audioChunk = await this.voxtaService.getAudioResponse(audioUrl);
+            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.data.byteLength} bytes`);
             
             try {
                 const playbackPromise = new Promise((resolve, reject) => {
@@ -99,9 +99,7 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
-            //AI! je voudrais qu'on push l'audio url dans le buffer et non une promise
-            const promise = this.voxtaService.getAudioResponse(message.audioUrl);
-            this.audioBuffers[messageId].audioData.push(promise);
+            this.audioBuffers[messageId].audioData.push(message.audioUrl);
             this.playBuffer(messageId);
         } catch (error) {
             logger.error('Error getting audio stream:', error);

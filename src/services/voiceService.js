@@ -1,4 +1,5 @@
 import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource } from '@discordjs/voice';
+import { Readable } from 'stream';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
@@ -64,7 +65,13 @@ class VoiceService {
             return;
         }
         try {
-            const resource = createAudioResource(audioData);
+            // Convertir l'ArrayBuffer en Buffer puis en Readable stream
+            const buffer = Buffer.from(audioData);
+            const stream = new Readable();
+            stream.push(buffer);
+            stream.push(null);
+
+            const resource = createAudioResource(stream);
             this.connection.subscribe(this.player);
             this.player.play(resource);
             await this.awaitPlaybackCompletion();

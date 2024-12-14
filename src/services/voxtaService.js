@@ -59,7 +59,7 @@ class VoxtaService {
 
         try {
             const response = await makeAttempt();
-            return options.fullResponse ? response : response.data;
+            return response.data;
         } catch (error) {
             const errorContext = options.responseType === 'arraybuffer' ? 'getting audio from' : 'calling Voxta API';
             logger.error(`Network error ${errorContext} ${endpoint}:`, error);

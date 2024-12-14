@@ -99,6 +99,7 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
+            //AI! je voudrais qu'on push l'audio url dans le buffer et non une promise
             const promise = this.voxtaService.getAudioResponse(message.audioUrl);
             this.audioBuffers[messageId].audioData.push(promise);
             this.playBuffer(messageId);

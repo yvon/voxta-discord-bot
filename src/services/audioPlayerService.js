@@ -46,18 +46,13 @@ class AudioPlayerService {
         while (messageBuffer.audioData.length > 0) {
             const currentUrl = messageBuffer.audioData.shift();
             const nextUrl = messageBuffer.audioData[0];
-
-            // 1. Load current chunk
             const currentChunk = await this.voxtaService.getAudioResponse(currentUrl);
-            
-            // 2. Start loading next chunk in parallel
+            //AI! ca sert a rien ce que tu fais la tu l'utilises pas dans la boucle suivante 
             const nextChunkPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
             
-            // 3. Current chunk is already loaded, ready to play
             logger.debug(`Got current audio chunk, size: ${currentChunk.byteLength} bytes`);
             
             try {
-                // 4. Jouer le chunk actuel
                 const playbackPromise = new Promise((resolve, reject) => {
                     eventBus.once('audioPlaybackComplete', resolve);
                     eventBus.once('audioPlaybackError', reject);

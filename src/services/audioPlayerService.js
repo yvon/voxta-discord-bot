@@ -54,6 +54,7 @@ class AudioPlayerService {
                     eventBus.once('audioPlaybackError', reject);
                 });
                 
+                //AI! ca me fait une erreur Error playing audio: TypeError [ERR_INVALID_ARG_TYPE]: The "chunk" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received type number (255)
                 eventBus.emit('playAudio', audioChunk);
                 await playbackPromise;
             } catch (error) {

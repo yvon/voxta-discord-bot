@@ -32,39 +32,43 @@ class VoxtaService {
         };
     }
 
-    async retryWithDelay(fn, retryCount = 0) {
+    async makeRequest(endpoint, options = {}) {
         const MAX_RETRIES = 2;
         const RETRY_DELAY = 2000; // 2 seconds
-
-        try {
-            const response = await fn();
-            return response;
-        } catch (error) {
-            if (error.response?.status === 502 && retryCount < MAX_RETRIES) {
-                logger.info(`Got 502 error, retrying in ${RETRY_DELAY}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
-                await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
-                return this.retryWithDelay(fn, retryCount + 1);
-            }
-            throw error;
-        }
-    }
-
-    async callApi(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
         
+        const makeAttempt = async (retryCount = 0) => {
+            try {
+                const response = await axios({
+                    url,
+                    method: options.method || 'GET',
+                    headers: this.headers,
+                    responseType: options.responseType || 'json',
+                    ...options
+                });
+                return response;
+            } catch (error) {
+                if (error.response?.status === 502 && retryCount < MAX_RETRIES) {
+                    logger.info(`Got 502 error, retrying in ${RETRY_DELAY}ms... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
+                    await new Promise(resolve => setTimeout(resolve, RETRY_DELAY));
+                    return makeAttempt(retryCount + 1);
+                }
+                throw error;
+            }
+        };
+
         try {
-            const response = await this.retryWithDelay(() => 
-                axios.get(url, { headers: this.headers })
-            );
-            return response.data;
+            const response = await makeAttempt();
+            return options.fullResponse ? response : response.data;
         } catch (error) {
-            logger.error(`Network error calling Voxta API ${endpoint}:`, error);
+            const errorContext = options.responseType === 'arraybuffer' ? 'getting audio from' : 'calling Voxta API';
+            logger.error(`Network error ${errorContext} ${endpoint}:`, error);
             return null;
         }
     }
 
     async getChats() {
-        const data = await this.callApi('/api/chats');
+        const data = await this.makeRequest('/api/chats');
         return data?.chats || [];
     }
 
@@ -74,20 +78,10 @@ class VoxtaService {
     }
 
     async getAudioResponse(endpoint) {
-        const url = `${this.baseUrl}${endpoint}`;
-        
-        try {
-            const response = await this.retryWithDelay(() => 
-                axios.get(url, { 
-                    headers: this.headers,
-                    responseType: 'arraybuffer'
-                })
-            );
-            return response;
-        } catch (error) {
-            logger.error(`Network error getting audio from ${endpoint}:`, error);
-            return null;
-        }
+        return await this.makeRequest(endpoint, {
+            responseType: 'arraybuffer',
+            fullResponse: true
+        });
     }
 
     async sendWebSocketMessage(type, payload = {}) {

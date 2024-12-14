@@ -63,17 +63,14 @@ class AudioPlayerService {
                     await fs.promises.writeFile(tempFile, Buffer.from(chunk));
                     
                     const playbackPromise = new Promise((resolve, reject) => {
+                        logger.info('Fichier temporaire créé:', tempFile);
                         eventBus.once('audioPlaybackComplete', () => {
-                            // Clean up temp file after playback
-                            fs.promises.unlink(tempFile)
-                                .catch(err => logger.error('Error deleting temp file:', err))
-                                .finally(resolve);
+                            logger.info('Lecture terminée pour le fichier:', tempFile);
+                            resolve();
                         });
                         eventBus.once('audioPlaybackError', (error) => {
-                            // Clean up temp file on error
-                            fs.promises.unlink(tempFile)
-                                .catch(err => logger.error('Error deleting temp file:', err))
-                                .finally(() => reject(error));
+                            logger.error('Erreur de lecture pour le fichier:', tempFile);
+                            reject(error);
                         });
                     });
 

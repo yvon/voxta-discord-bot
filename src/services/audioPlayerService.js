@@ -97,7 +97,7 @@ class AudioPlayerService {
         logger.info(`Audio URL for message ${messageId}:`, message.audioUrl);
         
         try {
-            const promise = await this.voxtaService.getAudioResponse(message.audioUrl);
+            const promise = this.voxtaService.getAudioResponse(message.audioUrl);
             this.audioBuffers[messageId].audioData.push(promise);
             this.playBuffer(messageId);
         } catch (error) {

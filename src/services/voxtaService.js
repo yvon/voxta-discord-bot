@@ -81,8 +81,8 @@ class VoxtaService {
         return chats.length > 0 ? chats[0].id : null;
     }
 
-    async getAudioResponse(endpoint) {
-        return await this.makeRequest(endpoint, {
+    getAudioResponse(endpoint) {
+        return this.makeRequest(endpoint, {
             responseType: 'arraybuffer'
         });
     }

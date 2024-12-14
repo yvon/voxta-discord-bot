@@ -43,20 +43,38 @@ class AudioPlayerService {
 
         messageBuffer.isPlaying = true;
         
-        // Play all available audio chunks sequentially
+        // Play all available audio chunks sequentially with preloading
         while (messageBuffer.audioData.length > 0) {
-            const audioUrl = messageBuffer.audioData.shift();
-            const audioChunk = await this.voxtaService.getAudioResponse(audioUrl);
-            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.byteLength} bytes`);
+            // 1. Get current audio URL and prepare next chunk loading
+            const currentUrl = messageBuffer.audioData.shift();
+            const nextUrl = messageBuffer.audioData[0];
+            
+            // 2. Load current chunk
+            const currentChunk = await this.voxtaService.getAudioResponse(currentUrl);
+            logger.debug(`Loaded current audio chunk, size: ${currentChunk.byteLength} bytes`);
+            
+            // 3. Start loading next chunk if available
+            let nextChunkPromise = null;
+            if (nextUrl) {
+                nextChunkPromise = this.voxtaService.getAudioResponse(nextUrl);
+                logger.debug('Started preloading next audio chunk');
+            }
             
             try {
+                // 4. Play current chunk
                 const playbackPromise = new Promise((resolve, reject) => {
                     eventBus.once('audioPlaybackComplete', resolve);
                     eventBus.once('audioPlaybackError', reject);
                 });
                 
-                eventBus.emit('playAudio', audioChunk);
+                eventBus.emit('playAudio', currentChunk);
                 await playbackPromise;
+                
+                // 5. Ensure next chunk is fully loaded
+                if (nextChunkPromise) {
+                    await nextChunkPromise;
+                    logger.debug('Next chunk preloading complete');
+                }
             } catch (error) {
                 logger.error('Error playing audio:', error);
                 messageBuffer.isPlaying = false;

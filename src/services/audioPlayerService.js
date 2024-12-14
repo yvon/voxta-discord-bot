@@ -46,8 +46,7 @@ class AudioPlayerService {
         // Play all available audio chunks sequentially
         while (messageBuffer.audioData.length > 0) {
             const audioChunk = await messageBuffer.audioData.shift();
-            //AI! affiche en debug la taille du chunk
-            logger.debug('Playing next audio chunk from buffer');
+            logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.byteLength} bytes`);
             
             try {
                 const playbackPromise = new Promise((resolve, reject) => {

@@ -1,2 +1,2 @@
-const { generateDependencyReport } = require('@discordjs/voice');
+import { generateDependencyReport } from '@discordjs/voice';
 console.log(generateDependencyReport());

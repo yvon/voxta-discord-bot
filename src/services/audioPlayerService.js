@@ -45,7 +45,8 @@ class AudioPlayerService {
         
         // Play all available audio chunks sequentially
         while (messageBuffer.audioData.length > 0) {
-            const audioChunk = await messageBuffer.audioData.shift();
+            const audioChunkPromise = messageBuffer.audioData.shift();
+            const audioChunk = await audioChunkPromise;
             logger.debug(`Playing next audio chunk from buffer, size: ${audioChunk.byteLength} bytes`);
             
             try {
@@ -54,8 +55,8 @@ class AudioPlayerService {
                     eventBus.once('audioPlaybackError', reject);
                 });
                 
-                //AI! ca me fait une erreur Error playing audio: TypeError [ERR_INVALID_ARG_TYPE]: The "chunk" argument must be of type string or an instance of Buffer, TypedArray, or DataView. Received type number (255)
-                eventBus.emit('playAudio', audioChunk);
+                const chunk = Buffer.from(audioChunk);
+                eventBus.emit('playAudio', chunk);
                 await playbackPromise;
             } catch (error) {
                 logger.error('Error playing audio:', error);

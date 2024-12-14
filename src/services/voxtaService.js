@@ -65,8 +65,7 @@ class VoxtaService {
             });
             return response.data;
         } catch (error) {
-            const errorContext = options.responseType === 'arraybuffer' ? 'getting audio from' : 'calling Voxta API';
-            logger.error(`Network error ${errorContext} ${endpoint}:`, error);
+            logger.error(`Network error calling Voxta API ${endpoint}:`, error);
             return null;
         }
     }

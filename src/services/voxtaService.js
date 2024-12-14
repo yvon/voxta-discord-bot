@@ -73,23 +73,21 @@ class VoxtaService {
         return chats.length > 0 ? chats[0].id : null;
     }
 
-    async getAudioStream(endpoint) {
+    async getAudioResponse(endpoint) {
         const url = `${this.baseUrl}${endpoint}`;
-        const passThrough = new PassThrough();
         
-        this.retryWithDelay(() => 
-            axios.get(url, { 
-                headers: this.headers,
-                responseType: 'stream'
-            })
-        ).then(response => {
-            response.data.pipe(passThrough);
-        }).catch(error => {
-            logger.error(`Network error getting audio stream from ${endpoint}:`, error);
-            passThrough.end();
-        });
-
-        return passThrough;
+        try {
+            const response = await this.retryWithDelay(() => 
+                axios.get(url, { 
+                    headers: this.headers,
+                    responseType: 'arraybuffer'
+                })
+            );
+            return response;
+        } catch (error) {
+            logger.error(`Network error getting audio from ${endpoint}:`, error);
+            return null;
+        }
     }
 
     async sendWebSocketMessage(type, payload = {}) {

@@ -11,7 +11,11 @@ build:
 
 # Run the container
 run:
-	docker run --rm --env-file .env $(IMAGE_NAME)
+	docker run --rm --name $(IMAGE_NAME) --env-file .env $(IMAGE_NAME)
+
+# Run the container in daemon mode
+run-daemon:
+	docker run -d --name $(IMAGE_NAME) --env-file .env $(IMAGE_NAME)
 
 # Build and run in one command
 dev: build run

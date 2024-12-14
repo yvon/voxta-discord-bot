@@ -40,8 +40,8 @@ class VoxtaService {
                 return await requestFn();
             } catch (error) {
                 if (error.response?.status === 502 && retryCount < maxRetries) {
-                    //AI! ligne un peu longue
-                    logger.info(`Got 502 error, retrying in ${retryDelay}ms... (attempt ${retryCount + 1}/${maxRetries})`);
+                    const attemptMsg = `attempt ${retryCount + 1}/${maxRetries}`;
+                    logger.info(`Got 502 error, retrying in ${retryDelay}ms... (${attemptMsg})`);
                     await new Promise(resolve => setTimeout(resolve, retryDelay));
                     retryCount++;
                     continue;

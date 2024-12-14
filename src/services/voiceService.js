@@ -59,19 +59,13 @@ class VoiceService {
         this.connection.receiver.subscriptions.get(userId)?.destroy();
     }
 
-    async handlePlayAudio(audioData) {
+    async handlePlayAudio(audioFilePath) {
         if (!this.connection) {
             logger.error('Cannot play audio: No voice connection');
             return;
         }
         try {
-            // Convert ArrayBuffer to Buffer then to Readable stream
-            const buffer = Buffer.from(audioData);
-            const stream = new Readable();
-            stream.push(buffer);
-            stream.push(null);
-
-            const resource = createAudioResource(stream);
+            const resource = createAudioResource(audioFilePath);
             this.connection.subscribe(this.player);
             this.player.play(resource);
             await this.awaitPlaybackCompletion();

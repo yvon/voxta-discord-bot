@@ -5,6 +5,9 @@ import eventBus from '../utils/eventBus.js';
 class ChannelManager {
     constructor() {
         this.currentChannel = null;
+        eventBus.on('shutdown', async () => {
+            await this.leaveChannel();
+        });
     }
 
     getCurrentConnection() {

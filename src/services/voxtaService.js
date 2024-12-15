@@ -1,5 +1,4 @@
 import logger from '../utils/logger.js';
-import eventBus from '../utils/eventBus.js';
 import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 import axios from 'axios';
 import { Readable, PassThrough } from 'stream';
@@ -12,9 +11,6 @@ class VoxtaService {
         this.url = url;
         this.headers = this.buildHeaders();
         this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers);
-        
-        eventBus.on('voiceChannelJoined', () => this.joinLastChat());
-        eventBus.on('transcription', (text) => this.sendMessage(text));
     }
 
     buildHeaders() {

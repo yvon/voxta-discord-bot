@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
+import Chat from './chat.js';
 import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
@@ -11,6 +12,7 @@ const client = new Client({
 });
 
 let channel = null;
+let chat = null;
 
 function connection() {
     return getVoiceConnection(channel.guild.id);
@@ -21,17 +23,22 @@ function countMembersInChannel() {
     return channel.members.filter(member => !member.user.bot).size;
 }
 
-function leaveChannel() {
+async function leaveChannel() {
     if (!channel) return;
 
     logger.info('Leaving voice channel');
+
+    if (chat) {
+        await chat.stop();
+        chat = null;
+    }
 
     connection().destroy();
     channel = null;
 }
 
-function joinChannel(newChannel) {
-    leaveChannel();
+async function joinChannel(newChannel) {
+    await leaveChannel();
     logger.info(`Joining voice channel ${newChannel.name}`);
 
     joinVoiceChannel({
@@ -40,23 +47,26 @@ function joinChannel(newChannel) {
         adapterCreator: newChannel.guild.voiceAdapterCreator,
     });
     channel = newChannel;
+    
+    chat = new Chat(newChannel.id);
+    await chat.start();
 }
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('voiceStateUpdate', (oldState, newState) => {
+client.on('voiceStateUpdate', async (oldState, newState) => {
     if (newState.member.user.bot) return;
 
     if (channel && countMembersInChannel() < 1) {
-        leaveChannel();
+        await leaveChannel();
     }
 
     const newChannel = newState.channel;
     if (channel === newChannel) return;
 
-    joinChannel(newChannel);
+    await joinChannel(newChannel);
 });
 
 process.on('SIGINT', () => {

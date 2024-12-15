@@ -9,6 +9,38 @@ class VoxtaWebSocketClient {
         this.connection = null;
         this.authenticated = false;
         eventBus.on('cleanup', () => this.cleanup());
+        
+        // Connect and authenticate immediately
+        this.initialize();
+    }
+
+    async initialize() {
+        const wsUrl = `${this.baseUrl}/hub`;
+        this.connection = this.setupSignalRConnection(wsUrl);
+
+        try {
+            await this.connection.start();
+            logger.info('Connected to Voxta WebSocket');
+            
+            await this.connection.invoke('SendMessage', {
+                "$type": "authenticate",
+                "client": "SimpleClient",
+                "clientVersion": "1.0",
+                "scope": ["role:app"],
+                "capabilities": {
+                    "audioInput": "None", 
+                    "audioOutput": "Url",
+                    "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
+                }
+            });
+            
+            this.authenticated = true;
+            logger.info('Authenticated with Voxta WebSocket');
+        } catch (error) {
+            logger.error('Error initializing Voxta WebSocket:', error);
+            this.connection = null;
+            throw error;
+        }
     }
 
     setupSignalRConnection(wsUrl) {
@@ -22,48 +54,10 @@ class VoxtaWebSocketClient {
         return connection;
     }
 
-    async connect() {
-        if (this.connection) {
-            return;
-        }
-
-        const wsUrl = `${this.baseUrl}/hub`;
-        this.connection = this.setupSignalRConnection(wsUrl);
-
-        try {
-            await this.connection.start();
-            logger.info('Connected to Voxta WebSocket');
-            await this.authenticate();
-        } catch (error) {
-            logger.error('Error connecting to Voxta WebSocket:', error);
-            this.connection = null;
-            throw error;
-        }
-    }
-
-    async authenticate() {
-        if (this.authenticated) return;
-        
-        await this.connect();
-
-        await this.connection.invoke('SendMessage', {
-            "$type": "authenticate",
-            "client": "SimpleClient",
-            "clientVersion": "1.0",
-            "scope": ["role:app"],
-            "capabilities": {
-                "audioInput": "None", 
-                "audioOutput": "Url",
-                "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
-            }
-        });
-        
-        this.authenticated = true;
-    }
 
     async sendWebSocketMessage(type, payload = {}) {
-        if (!this.connection) {
-            logger.error('Cannot send message: no connection');
+        if (!this.connection || !this.authenticated) {
+            logger.error('Cannot send message: no connection or not authenticated');
             return;
         }
 

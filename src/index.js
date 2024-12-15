@@ -1,16 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import eventBus from './utils/eventBus.js';
-import DeepgramService from './services/deepgramService.js';
-import VoiceService from './services/voiceService.js';
-import VoxtaService from './services/voxtaService.js';
-import AudioPlayerService from './services/audioPlayerService.js';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
-
-let deepgramService;
-let voxtaService;
-let audioPlayerService;
-let voiceService;
 
 const client = new Client({
     intents: [

@@ -3,9 +3,9 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/eventBus.js';
 
 class VoxtaWebSocketClient {
-    constructor(baseUrl, headers) {
-        this.baseUrl = baseUrl;
-        this.headers = headers;
+    constructor(connectionConfig) {
+        this.baseUrl = connectionConfig.getBaseUrl();
+        this.headers = connectionConfig.getHeaders();
         this.connection = null;
         this.sessionId = null;
         this.messageBuffer = [];

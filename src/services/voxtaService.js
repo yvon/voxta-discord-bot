@@ -1,31 +1,12 @@
 import logger from '../utils/logger.js';
-import VoxtaWebSocketClient from './voxtaWebSocketClient.js';
 import axios from 'axios';
 import { Readable, PassThrough } from 'stream';
 
 class VoxtaService {
-    constructor(baseUrl) {
-        const url = new URL(baseUrl);
-
-        this.baseUrl = `${url.protocol}//${url.host}`;
-        this.url = url;
-        this.headers = this.buildHeaders();
-        this.wsClient = new VoxtaWebSocketClient(this.baseUrl, this.headers);
-    }
-
-    buildHeaders() {
-        if (!this.url.username || !this.url.password) {
-            return {};
-        }
-
-        const decodedUsername = decodeURIComponent(this.url.username);
-        const decodedPassword = decodeURIComponent(this.url.password);
-        const basicAuthString = `${decodedUsername}:${decodedPassword}`;
-        const base64Credentials = Buffer.from(basicAuthString).toString('base64');
-
-        return {
-            'Authorization': `Basic ${base64Credentials}`
-        };
+    constructor(connectionConfig, wsClient) {
+        this.baseUrl = connectionConfig.getBaseUrl();
+        this.headers = connectionConfig.getHeaders();
+        this.wsClient = wsClient;
     }
 
     async retryRequest(requestFn, maxRetries = 2, retryDelay = 2000) {

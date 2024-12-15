@@ -8,7 +8,7 @@ class PromiseEventEmitter extends EventEmitter {
     }
 
     // Override emit to handle promises
-    async emitAsync(eventName, ...args) {
+    emit(eventName, ...args) {
         // Get all listeners for this event
         const listeners = this.listeners(eventName);
         
@@ -23,7 +23,10 @@ class PromiseEventEmitter extends EventEmitter {
         });
 
         // Wait for all promises to resolve
-        return Promise.all(promises);
+        return Promise.all(promises).catch(error => {
+            // Re-throw any errors that occurred during promise execution
+            throw error;
+        });
     }
 }
 

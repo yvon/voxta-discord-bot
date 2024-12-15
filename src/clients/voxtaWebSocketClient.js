@@ -7,7 +7,6 @@ class VoxtaWebSocketClient {
         this.baseUrl = connectionConfig.getBaseUrl();
         this.headers = connectionConfig.getHeaders();
         this.connection = null;
-        this.sessionId = null;
         this.authenticated = false;
         eventBus.on('cleanup', () => this.cleanup());
     }
@@ -63,14 +62,13 @@ class VoxtaWebSocketClient {
     }
 
     async sendWebSocketMessage(type, payload = {}) {
-        if (!this.connection || !this.sessionId) {
-            logger.error('Cannot send message: no connection or session');
+        if (!this.connection) {
+            logger.error('Cannot send message: no connection');
             return;
         }
 
         const message = {
             $type: type,
-            sessionId: this.sessionId,
             ...payload
         };
 
@@ -98,22 +96,9 @@ class VoxtaWebSocketClient {
         logger.info('Resumed chat with ID:', chatId);
     }
 
-    async handleChatStarted(message) {
-        if (message.context?.sessionId) {
-            this.sessionId = message.context.sessionId;
-            logger.info('Chat session started with ID:', this.sessionId);
-        }
-    }
-
     async handleReceiveMessage(message) {
         logger.info('Received message from Voxta:', message);
-        
         eventBus.emit('voxtaMessage', message);
-        
-        // Handle specific message types
-        if (message.$type === 'chatStarted') {
-            await this.handleChatStarted(message);
-        }
     }
 
     async cleanup() {

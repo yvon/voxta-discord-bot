@@ -1,10 +1,9 @@
 import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
-import { EventEmitter } from 'events';
 import logger from '../utils/logger.js';
+import eventBus from '../utils/eventBus.js';
 
-class ChannelManager extends EventEmitter {
+class ChannelManager {
     constructor() {
-        super();
         this.currentChannel = null;
     }
 
@@ -29,7 +28,7 @@ class ChannelManager extends EventEmitter {
         }
 
         this.currentChannel = null;
-        this.emit('channelLeft');
+        eventBus.emit('channelLeft');
     }
 
     async joinChannel(newChannel) {
@@ -43,7 +42,7 @@ class ChannelManager extends EventEmitter {
         });
         
         this.currentChannel = newChannel;
-        this.emit('channelJoined');
+        eventBus.emit('channelJoined');
     }
 }
 

@@ -2,11 +2,10 @@ import logger from '../utils/logger.js';
 import axios from 'axios';
 import { Readable, PassThrough } from 'stream';
 
-class VoxtaService {
-    constructor(connectionConfig, wsClient) {
+class VoxtaApiClient {
+    constructor(connectionConfig) {
         this.baseUrl = connectionConfig.getBaseUrl();
         this.headers = connectionConfig.getHeaders();
-        this.wsClient = wsClient;
     }
 
     async retryRequest(requestFn, maxRetries = 2, retryDelay = 2000) {
@@ -63,24 +62,6 @@ class VoxtaService {
             responseType: 'arraybuffer'
         });
     }
-
-    async sendWebSocketMessage(type, payload = {}) {
-        logger.info(`Sending WebSocket message to Voxta type=${type}:`, payload);
-        await this.wsClient.sendWebSocketMessage(type, payload);
-    }
-
-    async sendMessage(text) {
-        logger.info('Sending text message to Voxta:', text);
-        await this.wsClient.sendMessage(text);
-    }
-
-    async joinLastChat() {
-        const chatId = await this.getLastChatId();
-        if (!chatId) return;
-        await this.wsClient.authenticate();
-        await this.wsClient.resumeChat(chatId);
-        logger.info('Joining chat:', chatId);
-    }
 }
 
-export default VoxtaService;
+export default VoxtaApiClient;

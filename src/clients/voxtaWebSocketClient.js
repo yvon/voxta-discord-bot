@@ -8,7 +8,6 @@ class VoxtaWebSocketClient {
         this.headers = connectionConfig.getHeaders();
         this.connection = null;
         this.sessionId = null;
-        this.messageBuffer = [];
         this.authenticated = false;
         eventBus.on('cleanup', () => this.cleanup());
     }
@@ -64,15 +63,22 @@ class VoxtaWebSocketClient {
     }
 
     async sendWebSocketMessage(type, payload = {}) {
+        if (!this.connection || !this.sessionId) {
+            logger.error('Cannot send message: no connection or session');
+            return;
+        }
+
         const message = {
             $type: type,
+            sessionId: this.sessionId,
             ...payload
         };
-        
-        this.messageBuffer.push(message);
-        
-        if (this.sessionId) {
-            await this.processMessageBuffer();
+
+        try {
+            await this.connection.invoke('SendMessage', message);
+        } catch (error) {
+            logger.error('Error sending message to Voxta:', error);
+            throw error;
         }
     }
 
@@ -82,25 +88,6 @@ class VoxtaWebSocketClient {
             doReply: true,
             doCharacterActionInference: true
         });
-    }
-
-    async processMessageBuffer() {
-        if (!this.connection || !this.sessionId) return;
-
-        logger.info('Processing message buffer, size:', this.messageBuffer.length);
-
-        while (this.messageBuffer.length > 0) {
-            const message = this.messageBuffer.shift();
-            message.sessionId = this.sessionId;
-            
-            try {
-                await this.connection.invoke('SendMessage', message);
-            } catch (error) {
-                logger.error('Error sending message to Voxta:', error);
-                this.messageBuffer.unshift(message);
-                break;
-            }
-        }
     }
 
     async resumeChat(chatId) {
@@ -115,7 +102,6 @@ class VoxtaWebSocketClient {
         if (message.context?.sessionId) {
             this.sessionId = message.context.sessionId;
             logger.info('Chat session started with ID:', this.sessionId);
-            await this.processMessageBuffer();
         }
     }
 

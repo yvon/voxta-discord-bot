@@ -1,5 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import Chat from './chat.js';
+import { fork } from 'child_process';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
@@ -12,7 +14,7 @@ const client = new Client({
 });
 
 let channel = null;
-let chat = null;
+let chatProcess = null;
 
 function connection() {
     return getVoiceConnection(channel.guild.id);
@@ -28,9 +30,9 @@ async function leaveChannel() {
 
     logger.info('Leaving voice channel');
 
-    if (chat) {
-        await chat.stop();
-        chat = null;
+    if (chatProcess) {
+        chatProcess.kill();
+        chatProcess = null;
     }
 
     connection().destroy();
@@ -48,8 +50,9 @@ async function joinChannel(newChannel) {
     });
     channel = newChannel;
     
-    chat = new Chat(newChannel.id);
-    await chat.start();
+    const __dirname = dirname(fileURLToPath(import.meta.url));
+    chatProcess = fork(join(__dirname, 'chat.js'));
+    chatProcess.send({ channelId: newChannel.id });
 }
 
 client.on('ready', () => {

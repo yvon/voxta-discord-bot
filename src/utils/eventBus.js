@@ -3,16 +3,16 @@ import { EventEmitter } from 'events';
 class PromiseEventEmitter extends EventEmitter {
     constructor() {
         super();
-        // Garder une trace des listeners qui retournent des promesses
+        // Keep track of listeners that return promises
         this.promiseListeners = new Map();
     }
 
-    // Surcharge de emit pour gérer les promesses
+    // Override emit to handle promises
     async emitAsync(eventName, ...args) {
-        // Récupérer tous les listeners pour cet événement
+        // Get all listeners for this event
         const listeners = this.listeners(eventName);
         
-        // Exécuter tous les listeners et collecter leurs promesses
+        // Execute all listeners and collect their promises
         const promises = listeners.map(listener => {
             try {
                 const result = listener(...args);
@@ -22,7 +22,7 @@ class PromiseEventEmitter extends EventEmitter {
             }
         });
 
-        // Attendre que toutes les promesses soient résolues
+        // Wait for all promises to resolve
         return Promise.all(promises);
     }
 }

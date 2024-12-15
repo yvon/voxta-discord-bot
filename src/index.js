@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import eventBus from './utils/eventBus.js';
+import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 
@@ -10,29 +10,36 @@ const client = new Client({
     ]
 });
 
-let currentChannelId = null;
-let connection = null;
+let channel = null;
 
-function leaveChannel() {
-    logger.info('Leaving voice channel');
-    eventBus.emit('cleanup');
-
-    if (connection) {
-        connection.destroy();
-        connection = null;
-    }
+function connection() {
+    return getVoiceConnection(channel.guild.id);
 }
 
-function joinChannel(channel) {
-    if (connection) {
-        leaveChannel();
-    }
+function countMembersInChannel() {
+    if (!channel) return 0;
+    return channel.members.filter(member => !member.user.bot).size;
+}
 
-    connection = joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator,
+function leaveChannel() {
+    if (!channel) return;
+
+    logger.info('Leaving voice channel');
+
+    connection().destroy();
+    channel = null;
+}
+
+function joinChannel(newChannel) {
+    leaveChannel();
+    logger.info(`Joining voice channel ${newChannel.name}`);
+
+    joinVoiceChannel({
+        channelId: newChannel.id,
+        guildId: newChannel.guild.id,
+        adapterCreator: newChannel.guild.voiceAdapterCreator,
     });
+    channel = newChannel;
 }
 
 client.on('ready', () => {
@@ -42,14 +49,14 @@ client.on('ready', () => {
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
 
-    const channel = newState.channel;
-    if (!channel) return;
-
-    const channelConnection = getVoiceConnection(newState.channel.guild.id);
-
-    if (!channelConnection) {
-        joinChannel(channel);
+    if (channel && countMembersInChannel() < 1) {
+        leaveChannel();
     }
+
+    const newChannel = newState.channel;
+    if (channel === newChannel) return;
+
+    joinChannel(newChannel);
 });
 
 process.on('SIGINT', () => {

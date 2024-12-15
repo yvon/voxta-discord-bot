@@ -111,16 +111,22 @@ class VoxtaWebSocketClient {
         logger.info('Resumed chat with ID:', chatId);
     }
 
+    async handleChatStarted(message) {
+        if (message.context?.sessionId) {
+            this.sessionId = message.context.sessionId;
+            logger.info('Chat session started with ID:', this.sessionId);
+            await this.processMessageBuffer();
+        }
+    }
+
     async handleReceiveMessage(message) {
         logger.info('Received message from Voxta:', message);
         
         eventBus.emit('voxtaMessage', message);
         
-        // Handle chat session started message
-        if (message.$type === 'chatStarted' && message.context?.sessionId) {
-            this.sessionId = message.context.sessionId;
-            logger.info('Chat session started with ID:', this.sessionId);
-            await this.processMessageBuffer();
+        // Handle specific message types
+        if (message.$type === 'chatStarted') {
+            await this.handleChatStarted(message);
         }
     }
 

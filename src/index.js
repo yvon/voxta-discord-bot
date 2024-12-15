@@ -16,7 +16,8 @@ const client = new Client({
 let channel = null;
 let chatProcess = null;
 
-function connection() {
+function currentConnection() {
+    if (!channel) return null;
     return getVoiceConnection(channel.guild.id);
 }
 
@@ -35,7 +36,12 @@ async function leaveChannel() {
         chatProcess = null;
     }
 
-    connection().destroy();
+    const connection = currentConnection();
+
+    if (connection) {
+        connection.destroy();
+    }
+
     channel = null;
 }
 
@@ -73,9 +79,11 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 });
 
 process.on('SIGINT', () => {
-    logger.info('Closing connections...');
-    leaveChannel();
-    process.exit(0);
+    logger.info("\nClosing connections...");
+
+    client.destroy().then(() => {
+        process.exit(0);
+    });
 });
 
 client.login(CONFIG.discord.token).catch(error => {

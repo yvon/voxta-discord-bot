@@ -19,6 +19,30 @@ const client = new Client({
     ]
 });
 
+let currentChannelId = null;
+let connection = null;
+
+function leaveChannel() {
+    logger.info('Leaving voice channel');
+    eventBus.emit('cleanup');
+
+    if (connection) {
+        connection.destroy();
+        connection = null;
+    }
+}
+
+function joinChannel(channel) {
+    if (connection) {
+        leaveChannel();
+    }
+
+    connection = joinVoiceChannel({
+        channelId: channel.id,
+        guildId: channel.guild.id,
+        adapterCreator: channel.guild.voiceAdapterCreator,
+    });
+}
 
 client.on('ready', () => {
     logger.info(`Logged in as ${client.user.tag}!`);
@@ -27,24 +51,19 @@ client.on('ready', () => {
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
 
-    if (oldState.channelId) {
-        logger.info(`User left voice channel ${oldState.channel.name}`);
-        eventBus.emit('cleanup');
-        process.exit(0);
-    }
+    const channel = newState.channel;
+    if (!channel) return;
 
-    if (newState.channelId) {
-        deepgramService = new DeepgramService(CONFIG.deepgram.apiKey);
-        voxtaService = new VoxtaService(CONFIG.voxta.baseUrl);
-        audioPlayerService = new AudioPlayerService(voxtaService);
-        voiceService = new VoiceService(client, newState);
-        voiceService.joinChannel();
+    const channelConnection = getVoiceConnection(newState.channel.guild.id);
+
+    if (!channelConnection) {
+        joinChannel(channel);
     }
 });
 
 process.on('SIGINT', () => {
-    logger.info('\nClosing connections...');
-    eventBus.emit('cleanup');
+    logger.info('Closing connections...');
+    leaveChannel();
     process.exit(0);
 });
 

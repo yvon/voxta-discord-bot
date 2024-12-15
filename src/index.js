@@ -2,6 +2,7 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 import channelManager from './managers/channelManager.js';
+import eventBus from './utils/eventBus.js';
 
 const client = new Client({
     intents: [
@@ -31,6 +32,7 @@ process.on('SIGINT', async () => {
     logger.info("\nClosing connections...");
     await channelManager.leaveChannel();
     await client.destroy();
+    await eventBus.emit('shutdown');
     process.exit(0);
 });
 

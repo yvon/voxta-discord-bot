@@ -70,7 +70,7 @@ export class Bot extends Client {
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        await this.voxtaWebSocketClient.start();
+        await this.voxtaHubWebSocketClient.start();
         await this.wsMessageService.authenticate();
         await this.wsMessageService.resumeChat(lastChatId);
     }

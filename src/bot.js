@@ -65,6 +65,7 @@ export class Bot extends Client {
         const voiceService = new VoiceService(connection, this.userId);
 
         setTimeout(() => {
+            // AI! faut qu'on construise le chemin absolu du fichier. La c'est relatif au fichier bot.js
             voiceService.playMp3File('./assets/connected.mp3');
         }, 5000);
 

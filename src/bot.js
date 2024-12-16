@@ -3,7 +3,7 @@ import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
-import VoxtaHubWebSocketClient from './clients/voxta-web-socket-client.js';
+import VoxtaHubWebSocketClient from './clients/voxta-hub-web-socket-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
 import VoiceService from './services/voiceService.js';

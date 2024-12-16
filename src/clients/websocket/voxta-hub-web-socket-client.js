@@ -1,6 +1,6 @@
 import VoxtaWebSocketClient from './voxta-web-socket-client.js';
-import logger from '../../utils/logger.js';
-import eventBus from '../../utils/event-bus.js';
+import logger from '../utils/logger.js';
+import eventBus from '../utils/event-bus.js';
 
 class VoxtaHubWebSocketClient extends VoxtaWebSocketClient {
     constructor(connectionConfig) {

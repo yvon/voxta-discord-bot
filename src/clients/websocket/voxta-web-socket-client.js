@@ -1,5 +1,5 @@
 import * as signalR from '@microsoft/signalr';
-import logger from '../../utils/logger.js';
+import logger from '../utils/logger.js';
 
 class VoxtaWebSocketClient {
     constructor(connectionConfig) {

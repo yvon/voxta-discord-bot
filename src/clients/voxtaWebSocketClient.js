@@ -13,8 +13,8 @@ class VoxtaWebSocketClient {
     }
 
     async initialize() {
-        if (this.connection) {
-            return;
+        if (this.initPromise) {
+            return this.initPromise;
         }
         const wsUrl = `${this.baseUrl}/hub`;
         this.connection = this.setupSignalRConnection(wsUrl);

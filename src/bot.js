@@ -5,6 +5,7 @@ import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
 import VoxtaWebSocketClient from './clients/voxta-web-socket-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
+import WSMessageService from './services/ws-message-service.js';
 import CONFIG from './config/config.js';
 
 export class Bot extends Client {
@@ -21,6 +22,7 @@ export class Bot extends Client {
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
         this.voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
+        this.wsMessageService = new WSMessageService(this.voxtaWebSocketClient.sendMessage.bind(this.voxtaWebSocketClient));
         this.setupEventListeners();
     }
 
@@ -58,7 +60,8 @@ export class Bot extends Client {
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        this.voxtaWebSocketClient.start();
+        await this.voxtaWebSocketClient.start();
+        await this.wsMessageService.authenticate();
     }
 
     async stopChat() {

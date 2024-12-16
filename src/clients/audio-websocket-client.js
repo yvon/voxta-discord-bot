@@ -17,15 +17,15 @@ class AudioWebSocketClient {
         });
 
         this.ws.on('open', () => {
-            logger.info('WebSocket connection established');
+            logger.info('Audio input WebSocket connection established');
         });
 
         this.ws.on('error', (error) => {
-            logger.error('WebSocket error:', error);
+            logger.error('Audio input WebSocket error:', error);
         });
 
         this.ws.on('close', () => {
-            logger.info('WebSocket connection closed');
+            logger.info('Audio input WebSocket connection closed');
         });
     }
 
@@ -33,7 +33,7 @@ class AudioWebSocketClient {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
             this.ws.send(data);
         } else {
-            logger.error('WebSocket is not connected');
+            logger.error('Audio input WebSocket is not connected');
         }
     }
 

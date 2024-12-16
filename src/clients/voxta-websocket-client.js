@@ -1,7 +1,7 @@
 import WebSocket from 'ws';
 import logger from '../utils/logger.js';
 
-class VoxtaWebSocketClient {
+class AudioWebSocketClient {
     constructor(connectionConfig, sessionId) {
         this.baseUrl = connectionConfig.getBaseUrl().replace('http', 'ws');
         this.headers = connectionConfig.getHeaders();

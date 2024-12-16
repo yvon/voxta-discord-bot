@@ -1,7 +1,7 @@
 import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource } from '@discordjs/voice';
 import { Readable } from 'stream';
 import logger from '../utils/logger.js';
-import eventBus from '../utils/eventBus.js';
+import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
     constructor(client, connection) {

@@ -1,7 +1,7 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import logger from './utils/logger.js';
-import channelManager from './managers/channelManager.js';
-import eventBus from './utils/eventBus.js';
+import channelManager from './managers/channel-manager.js';
+import eventBus from './utils/event-bus.js';
 
 export class Bot extends Client {
     constructor(token) {

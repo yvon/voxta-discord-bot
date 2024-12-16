@@ -1,6 +1,6 @@
 import { joinVoiceChannel, getVoiceConnection } from '@discordjs/voice';
 import logger from '../utils/logger.js';
-import eventBus from '../utils/eventBus.js';
+import eventBus from '../utils/event-bus.js';
 
 class ChannelManager {
     constructor() {

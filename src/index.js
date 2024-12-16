@@ -1,7 +1,7 @@
 import { Bot } from './bot.js';
 import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
-import eventBus from './utils/eventBus.js';
+import eventBus from './utils/event-bus.js';
 
 const bot = new Bot(CONFIG.discord.token);
 

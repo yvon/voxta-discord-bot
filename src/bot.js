@@ -30,7 +30,6 @@ export class Bot extends Client {
         this.userId = null;
         this.sessionId = null;
         this.setupEventListeners();
-        this.setupAudioProcessing();
         
         eventBus.on('voxtaMessage', (message) => {
             if (message.$type === 'chatStarting') {
@@ -86,36 +85,6 @@ export class Bot extends Client {
         this.hubClient.stop();
     }
 
-    setupAudioProcessing() {
-        eventBus.on('audioData', (chunk) => {
-            const decoder = new prism.opus.Decoder({
-                rate: 48000,
-                channels: 1,
-            });
-            
-            const pcmTransformer = new prism.FFmpeg({
-                args: [
-                    '-f', 's16le',
-                    '-ar', '48000',
-                    '-ac', '1',
-                    '-i', '-',
-                    '-f', 's16le',
-                    '-ar', '16000',
-                    '-ac', '1',
-                    '-'
-                ]
-            });
-
-            decoder.pipe(pcmTransformer);
-            
-            pcmTransformer.on('data', (data) => {
-                this.audioWebSocketClient.send(data);
-            });
-            
-            decoder.write(chunk);
-        });
-    }
-
     onChatStarted() {
         logger.info('Chat started');
 
@@ -123,6 +92,30 @@ export class Bot extends Client {
 
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);
+
         voiceService.playMp3File('assets/connected.mp3');
+
+        const transcoder = new prism.FFmpeg({
+            args: [
+                '-i', '-',
+                '-ar', '16000',    // Nouveau sample rate
+                '-ac', '1',        // Mono
+                '-f', 's16le',     // Format 16-bit PCM
+                '-'
+            ]
+        });
+
+        voiceService
+            .audioStream
+            .on('data', (chunk) => {
+                logger.debug('data on audioStream');
+            })
+            .pipe(transcoder)
+            .on('error', (error) => {
+                logger.debug('error on transcoder');
+            })
+            .on('data', (data) => {
+                logger.debug('data on transcoder');
+            });
     }
 }

@@ -18,24 +18,27 @@ class VoxtaWebSocketClient {
         try {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
-            
-            await this.connection.invoke('SendMessage', {
-                "$type": "authenticate",
-                "client": "SimpleClient",
-                "clientVersion": "1.0",
-                "scope": ["role:app"],
-                "capabilities": {
-                    "audioInput": "None", 
-                    "audioOutput": "Url",
-                    "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
-                }
-            });
-            
-            logger.info('Authenticated with Voxta WebSocket');
+            await this.authenticate();
         } catch (error) {
             logger.error('Error initializing Voxta WebSocket:', error);
             throw error;
         }
+    }
+
+    async authenticate() {
+        await this.connection.invoke('SendMessage', {
+            "$type": "authenticate",
+            "client": "SimpleClient",
+            "clientVersion": "1.0",
+            "scope": ["role:app"],
+            "capabilities": {
+                "audioInput": "None", 
+                "audioOutput": "Url",
+                "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
+            }
+        });
+        
+        logger.info('Authenticated with Voxta WebSocket');
     }
 
     setupSignalRConnection(wsUrl) {

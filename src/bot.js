@@ -25,12 +25,13 @@ export class Bot extends Client {
         this.hubClient = new HubClient(voxtaConnectionConfig);
         this.wsMessageService = new WSMessageService(this.hubClient);
         this.userId = null;
+        this.sessionId = null;
         this.setupEventListeners();
         
         eventBus.on('voxtaMessage', (message) => {
-            //AI! intercepte le message chatStarting et recupère sessionId dans le payload. met sessionId en variable
-            //d'instance
-            if (message.$type === 'chatStarted') {
+            if (message.$type === 'chatStarting') {
+                this.sessionId = message.sessionId;
+            } else if (message.$type === 'chatStarted') {
                 this.onChatStarted();
             }
         });

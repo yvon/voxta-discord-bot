@@ -62,6 +62,7 @@ export class Bot extends Client {
 
         await this.voxtaWebSocketClient.start();
         await this.wsMessageService.authenticate();
+        await this.wsMessageService.resumeChat(lastChatId);
     }
 
     async stopChat() {

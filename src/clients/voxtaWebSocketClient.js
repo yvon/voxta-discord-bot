@@ -8,7 +8,6 @@ class VoxtaWebSocketClient {
         this.headers = connectionConfig.getHeaders();
         this.connection = null;
         this.initPromise = this.initialize();
-        eventBus.on('cleanup', () => this.cleanup());
     }
 
     async initialize() {
@@ -18,27 +17,10 @@ class VoxtaWebSocketClient {
         try {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
-            await this.authenticate();
         } catch (error) {
             logger.error('Error initializing Voxta WebSocket:', error);
             throw error;
         }
-    }
-
-    async authenticate() {
-        await this.connection.invoke('SendMessage', {
-            "$type": "authenticate",
-            "client": "SimpleClient",
-            "clientVersion": "1.0",
-            "scope": ["role:app"],
-            "capabilities": {
-                "audioInput": "None", 
-                "audioOutput": "Url",
-                "acceptedAudioContentTypes": ["audio/x-wav", "audio/mpeg"]
-            }
-        });
-        
-        logger.info('Authenticated with Voxta WebSocket');
     }
 
     setupSignalRConnection(wsUrl) {
@@ -52,8 +34,7 @@ class VoxtaWebSocketClient {
         return connection;
     }
 
-
-    async sendWebSocketMessage(type, payload = {}) {
+    async sendMessage(type, payload = {}) {
         await this.initPromise;
 
         const message = {
@@ -67,14 +48,6 @@ class VoxtaWebSocketClient {
             logger.error('Error sending message to Voxta:', error);
             throw error;
         }
-    }
-
-    async sendMessage(text) {
-        await this.sendWebSocketMessage('send', {
-            text: text,
-            doReply: true,
-            doCharacterActionInference: true
-        });
     }
 
     async handleReceiveMessage(message) {

@@ -45,4 +45,4 @@ class AudioWebSocketClient {
     }
 }
 
-export default VoxtaWebSocketClient;
+export default AudioWebSocketClient;

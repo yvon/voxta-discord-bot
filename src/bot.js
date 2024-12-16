@@ -3,6 +3,7 @@ import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
+import AudioWebSocketClient from './clients/audio-websocket-client.js';
 import HubClient from './clients/websockets/hub-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
@@ -85,7 +86,8 @@ export class Bot extends Client {
     onChatStarted() {
         logger.info('Chat started');
 
-        //AI! fais une instance de la websocket audio ici, connecte toi
+        const audioWsClient = new AudioWebSocketClient(this.voxtaConnectionConfig, this.sessionId);
+        audioWsClient.connect();
 
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);

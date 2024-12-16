@@ -8,13 +8,14 @@ class VoxtaWebSocketClient {
         this.headers = connectionConfig.getHeaders();
         this.connection = null;
         this.authenticated = false;
+        this.initPromise = this.initialize();
         eventBus.on('cleanup', () => this.cleanup());
-        
-        // Connect and authenticate immediately
-        this.initialize();
     }
 
     async initialize() {
+        if (this.connection) {
+            return;
+        }
         const wsUrl = `${this.baseUrl}/hub`;
         this.connection = this.setupSignalRConnection(wsUrl);
 
@@ -36,6 +37,7 @@ class VoxtaWebSocketClient {
             
             this.authenticated = true;
             logger.info('Authenticated with Voxta WebSocket');
+            return this.connection;
         } catch (error) {
             logger.error('Error initializing Voxta WebSocket:', error);
             this.connection = null;
@@ -56,6 +58,7 @@ class VoxtaWebSocketClient {
 
 
     async sendWebSocketMessage(type, payload = {}) {
+        await this.initPromise;
         if (!this.connection || !this.authenticated) {
             logger.error('Cannot send message: no connection or not authenticated');
             return;

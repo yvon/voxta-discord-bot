@@ -1,7 +1,6 @@
 import WebSocket from 'ws';
 import logger from '../utils/logger.js';
 
-//AI! envoie le message {"contentType":"audio/wav","sampleRate":16000,"channels":1,"bitsPerSample":16,"bufferMilliseconds":30}  apres t'etre connecté
 class AudioWebSocketClient {
     constructor(connectionConfig) {
         this.baseUrl = connectionConfig.getBaseUrl().replace('http', 'ws');
@@ -18,6 +17,16 @@ class AudioWebSocketClient {
 
         this.ws.on('open', () => {
             logger.info('Audio input WebSocket connection established');
+            
+            // Send audio configuration message
+            const audioConfig = {
+                contentType: "audio/wav",
+                sampleRate: 16000,
+                channels: 1,
+                bitsPerSample: 16,
+                bufferMilliseconds: 30
+            };
+            this.ws.send(JSON.stringify(audioConfig));
         });
 
         this.ws.on('error', (error) => {

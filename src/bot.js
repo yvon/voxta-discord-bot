@@ -1,11 +1,10 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import CONFIG from './config/config.js';
 import logger from './utils/logger.js';
 import channelManager from './managers/channelManager.js';
 import eventBus from './utils/eventBus.js';
 
 export class Bot extends Client {
-    constructor() {
+    constructor(token) {
         super({
             intents: [
                 GatewayIntentBits.Guilds,
@@ -34,17 +33,11 @@ export class Bot extends Client {
             await channelManager.joinChannel(newChannel);
         });
 
-        process.on('SIGINT', async () => {
-            logger.info("\nClosing connections...");
-            await eventBus.emit('shutdown');
-            await this.destroy();
-            process.exit(0);
-        });
     }
 
     async start() {
         try {
-            await this.login(CONFIG.discord.token);
+            await this.login(token);
         } catch (error) {
             logger.error('Discord connection error:', error);
             process.exit(1);

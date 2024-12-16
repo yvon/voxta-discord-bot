@@ -82,24 +82,9 @@ class VoxtaWebSocketClient {
         });
     }
 
-    async resumeChat(chatId) {
-        await this.connection.invoke('SendMessage', {
-            "$type": "resumeChat",
-            "chatId": chatId
-        });
-        logger.info('Resumed chat with ID:', chatId);
-    }
-
     async handleReceiveMessage(message) {
         logger.info('Received message from Voxta:', message);
         eventBus.emit('voxtaMessage', message);
-    }
-
-    async cleanup() {
-        if (this.connection) {
-            await this.connection.stop();
-            this.connection = null;
-        }
     }
 }
 

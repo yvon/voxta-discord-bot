@@ -30,19 +30,8 @@ export class Bot extends Client {
         this.userId = null;
         this.sessionId = null;
         this.setupEventListeners();
+        this.setupAudioProcessing();
         
-        eventBus.on('audioData', (chunk) => {
-            const decoder = new prism.opus.Decoder({
-                rate: 48000,
-                channels: 1,
-            });
-            
-            const decoded = decoder.write(chunk);
-            if (decoded) {
-                logger.debug(`Received decoded audio data of size: ${decoded.length} bytes`);
-            }
-        });
-
         eventBus.on('voxtaMessage', (message) => {
             if (message.$type === 'chatStarting') {
                 this.sessionId = message.sessionId;
@@ -95,6 +84,20 @@ export class Bot extends Client {
 
     async stopChat() {
         this.hubClient.stop();
+    }
+
+    setupAudioProcessing() {
+        eventBus.on('audioData', (chunk) => {
+            const decoder = new prism.opus.Decoder({
+                rate: 48000,
+                channels: 1,
+            });
+            
+            const decoded = decoder.write(chunk);
+            if (decoded) {
+                logger.debug(`Received decoded audio data of size: ${decoded.length} bytes`);
+            }
+        });
     }
 
     onChatStarted() {

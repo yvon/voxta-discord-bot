@@ -1,4 +1,4 @@
-class WSMessageSender {
+class WSMessageService {
     constructor(sendMessage) {
         this.sendMessage = sendMessage;
     }
@@ -17,4 +17,4 @@ class WSMessageSender {
     }
 }
 
-export default WSMessageSender;
+export default WSMessageService;

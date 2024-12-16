@@ -21,8 +21,8 @@ class AudioWebSocketClient {
             // Send audio configuration message
             const audioConfig = {
                 contentType: "audio/wav",
-                sampleRate: 16000,
-                channels: 1,
+                sampleRate: 48000,
+                channels: 2,
                 bitsPerSample: 16,
                 bufferMilliseconds: 30
             };
@@ -38,8 +38,11 @@ class AudioWebSocketClient {
         });
     }
 
+    //AI! fais en sorte qu'on puisse envoyer du binaire ou une string selon argument. binaire par defaut
     send(data) {
+        logger.debug('yo');
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+            logger.debug('Sending audio data');
             this.ws.send(data);
         } else {
             logger.error('Audio input WebSocket is not connected');

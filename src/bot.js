@@ -136,6 +136,8 @@ export class Bot extends Client {
 
         let headerSent = false;
         voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
+            //AI! en fait je veux que tu concatenes le headers et le chunk pour produire un wav valide et que t'envoies ca en
+            //1 fois
             if (!headerSent) {
                 const header = this.createWavHeader(chunk.length);
                 this.audioWebSocketClient.send(header);

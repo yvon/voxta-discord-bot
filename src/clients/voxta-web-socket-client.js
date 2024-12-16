@@ -2,7 +2,7 @@ import * as signalR from '@microsoft/signalr';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
-class VoxtaWebSocketClient {
+class VoxtaHubWebSocketClient {
     constructor(connectionConfig) {
         const baseUrl = connectionConfig.getBaseUrl();
         const headers = connectionConfig.getHeaders();
@@ -63,4 +63,4 @@ class VoxtaWebSocketClient {
     }
 }
 
-export default VoxtaWebSocketClient;
+export default VoxtaHubWebSocketClient;

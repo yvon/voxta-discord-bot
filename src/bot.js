@@ -12,6 +12,7 @@ export class Bot extends Client {
             ]
         });
 
+        this.token = token;
         this.setupEventListeners();
     }
 
@@ -37,7 +38,7 @@ export class Bot extends Client {
 
     async start() {
         try {
-            await this.login(token);
+            await this.login(this.token);
         } catch (error) {
             logger.error('Discord connection error:', error);
             process.exit(1);

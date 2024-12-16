@@ -28,6 +28,8 @@ export class Bot extends Client {
         this.setupEventListeners();
         
         eventBus.on('voxtaMessage', (message) => {
+            //AI! intercepte le message chatStarting et recupère sessionId dans le payload. met sessionId en variable
+            //d'instance
             if (message.$type === 'chatStarted') {
                 this.onChatStarted();
             }

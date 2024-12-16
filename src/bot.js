@@ -26,6 +26,12 @@ export class Bot extends Client {
         this.wsMessageService = new WSMessageService(this.voxtaWebSocketClient);
         this.userId = null;
         this.setupEventListeners();
+        
+        eventBus.on('voxtaMessage', (message) => {
+            if (message.$type === 'chatStarted') {
+                this.onChatStarted();
+            }
+        });
     }
 
     setupEventListeners() {
@@ -76,5 +82,9 @@ export class Bot extends Client {
 
     async stopChat() {
         this.voxtaWebSocketClient.stop();
+    }
+
+    onChatStarted() {
+        // Cette méthode sera implémentée plus tard
     }
 }

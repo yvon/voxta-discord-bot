@@ -1,15 +1,16 @@
-import VoxtaWebSocketClient from './voxta-web-socket-client.js';
-import logger from '../utils/logger.js';
-import eventBus from '../utils/event-bus.js';
+import { HubConnectionState } from '@microsoft/signalr';
+import WebSocketClient from './web-socket-client.js';
+import logger from '../../utils/logger.js';
+import eventBus from '../../utils/event-bus.js';
 
-class VoxtaHubWebSocketClient extends VoxtaWebSocketClient {
+class HubClient extends WebSocketClient {
     constructor(connectionConfig) {
         super(connectionConfig);
         this.connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
     }
 
     async sendMessage(type, payload = {}) {
-        if (this.connection.state !== signalR.HubConnectionState.Connected) {
+        if (this.connection.state !== HubConnectionState.Connected) {
             logger.error('Cannot send message: not connected to Voxta');
             return;
         }
@@ -33,4 +34,4 @@ class VoxtaHubWebSocketClient extends VoxtaWebSocketClient {
     }
 }
 
-export default VoxtaHubWebSocketClient;
+export default HubClient;

@@ -1,7 +1,7 @@
 import * as signalR from '@microsoft/signalr';
-import logger from '../utils/logger.js';
+import logger from '../../utils/logger.js';
 
-class VoxtaWebSocketClient {
+class WebSocketClient {
     constructor(connectionConfig) {
         const baseUrl = connectionConfig.getBaseUrl();
         const headers = connectionConfig.getHeaders();
@@ -37,4 +37,4 @@ class VoxtaWebSocketClient {
     }
 }
 
-export default VoxtaWebSocketClient;
+export default WebSocketClient;

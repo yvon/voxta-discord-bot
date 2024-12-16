@@ -3,7 +3,7 @@ import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
-import VoxtaHubWebSocketClient from './clients/voxta-hub-web-socket-client.js';
+import HubClient from './clients/websockets/hub-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
 import VoiceService from './services/voiceService.js';
@@ -22,8 +22,8 @@ export class Bot extends Client {
 
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
-        this.voxtaHubWebSocketClient = new VoxtaHubWebSocketClient(voxtaConnectionConfig);
-        this.wsMessageService = new WSMessageService(this.voxtaHubWebSocketClient);
+        this.hubClient = new HubClient(voxtaConnectionConfig);
+        this.wsMessageService = new WSMessageService(this.hubClient);
         this.userId = null;
         this.setupEventListeners();
         
@@ -70,13 +70,13 @@ export class Bot extends Client {
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        await this.voxtaHubWebSocketClient.start();
+        await this.hubClient.start();
         await this.wsMessageService.authenticate();
         await this.wsMessageService.resumeChat(lastChatId);
     }
 
     async stopChat() {
-        this.voxtaHubWebSocketClient.stop();
+        this.hubClient.stop();
     }
 
     onChatStarted() {

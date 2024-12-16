@@ -122,9 +122,13 @@ export class Bot extends Client {
             })
             .on('data', (data) => {
                 logger.debug(`Transcoded data: ${data.length} bytes`);
+                this.audioWebSocketClient.send(data);
             })
             .on('end', () => {
                 logger.info('Transcoder stream ended');
+            })
+            .on('close', () => {
+                logger.info('Transcoder stream closed');
             });
 
         // Vérifier que le pipe est bien établi

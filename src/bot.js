@@ -7,7 +7,7 @@ import AudioWebSocketClient from './clients/audio-websocket-client.js';
 import HubClient from './clients/websockets/hub-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
-import VoiceService from './services/voiceService.js';
+import VoiceService from './services/voice-service.js';
 import CONFIG from './config/config.js';
 
 export class Bot extends Client {

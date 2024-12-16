@@ -85,6 +85,39 @@ export class Bot extends Client {
         this.hubClient.stop();
     }
 
+    createWavHeader(dataLength) {
+        const buffer = Buffer.alloc(44);
+        
+        // RIFF identifier
+        buffer.write('RIFF', 0);
+        // File length
+        buffer.writeUInt32LE(dataLength + 36, 4);
+        // WAVE identifier
+        buffer.write('WAVE', 8);
+        // Format chunk marker
+        buffer.write('fmt ', 12);
+        // Format chunk length
+        buffer.writeUInt32LE(16, 16);
+        // Sample format (1 is PCM)
+        buffer.writeUInt16LE(1, 20);
+        // Channels
+        buffer.writeUInt16LE(1, 22);
+        // Sample rate
+        buffer.writeUInt32LE(48000, 24);
+        // Byte rate
+        buffer.writeUInt32LE(48000 * 2, 28);
+        // Block align
+        buffer.writeUInt16LE(2, 32);
+        // Bits per sample
+        buffer.writeUInt16LE(16, 34);
+        // Data chunk marker
+        buffer.write('data', 36);
+        // Data length
+        buffer.writeUInt32LE(dataLength, 40);
+        
+        return buffer;
+    }
+
     onChatStarted() {
         logger.info('Chat started');
 
@@ -101,8 +134,13 @@ export class Bot extends Client {
           frameSize: 960
         });
 
+        let headerSent = false;
         voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
-            //AI! send wav headers too
+            if (!headerSent) {
+                const header = this.createWavHeader(chunk.length);
+                this.audioWebSocketClient.send(header);
+                headerSent = true;
+            }
             this.audioWebSocketClient.send(chunk);
         });
 

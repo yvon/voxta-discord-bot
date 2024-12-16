@@ -20,11 +20,24 @@ class VoiceService {
         eventBus.on('playAudio', this.handlePlayAudio.bind(this));
     }
 
-    async handlePlayAudio(audioData) {
+    async playAudioResource(resource) {
         if (!this.connection) {
             logger.error('Cannot play audio: No voice connection');
             return;
         }
+        try {
+            this.connection.subscribe(this.player);
+            this.player.play(resource);
+            await this.awaitPlaybackCompletion();
+            eventBus.emit('audioPlaybackComplete');
+        } catch (error) {
+            logger.error('Error playing audio:', error);
+            eventBus.emit('audioPlaybackError', error);
+            throw error;
+        }
+    }
+
+    async handlePlayAudio(audioData) {
         try {
             // Convert ArrayBuffer to Buffer then to Readable stream
             const buffer = Buffer.from(audioData);
@@ -33,12 +46,19 @@ class VoiceService {
             stream.push(null);
 
             const resource = createAudioResource(stream);
-            this.connection.subscribe(this.player);
-            this.player.play(resource);
-            await this.awaitPlaybackCompletion();
-            eventBus.emit('audioPlaybackComplete');
+            await this.playAudioResource(resource);
         } catch (error) {
             logger.error('Error playing audio stream:', error);
+            eventBus.emit('audioPlaybackError', error);
+        }
+    }
+
+    async playMp3File(filePath) {
+        try {
+            const resource = createAudioResource(filePath);
+            await this.playAudioResource(resource);
+        } catch (error) {
+            logger.error('Error playing MP3 file:', error);
             eventBus.emit('audioPlaybackError', error);
         }
     }

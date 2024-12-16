@@ -22,7 +22,7 @@ export class Bot extends Client {
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
         this.voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
-        this.wsMessageService = new WSMessageService((type, payload) => this.voxtaWebSocketClient.sendMessage(type, payload));
+        this.wsMessageService = new WSMessageService(this.voxtaWebSocketClient);
         this.setupEventListeners();
     }
 

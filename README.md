@@ -56,12 +56,3 @@ make run    # Run the container
 3. The bot will automatically join the channel
 4. Speak normally, the bot will transcribe your voice
 5. Responses will be automatically generated and played
-
-## Project Structure
-
-- `src/`
-  - `services/` : Main services (Deepgram, Voxta, Audio, etc.)
-  - `utils/` : Utilities (logger, eventBus)
-  - `config/` : Configuration
-  - `daemon.js` : Process manager
-  - `index.js` : Main entry point

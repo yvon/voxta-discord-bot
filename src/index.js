@@ -30,9 +30,8 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 process.on('SIGINT', async () => {
     logger.info("\nClosing connections...");
-    await channelManager.leaveChannel();
-    await client.destroy();
     await eventBus.emit('shutdown');
+    await client.destroy();
     process.exit(0);
 });
 

@@ -85,6 +85,8 @@ export class Bot extends Client {
     onChatStarted() {
         logger.info('Chat started');
 
+        //AI! fais une instance de la websocket audio ici, connecte toi
+
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);
         voiceService.playMp3File('assets/connected.mp3');

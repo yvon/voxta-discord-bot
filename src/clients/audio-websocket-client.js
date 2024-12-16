@@ -8,6 +8,7 @@ class AudioWebSocketClient {
         this.ws = null;
     }
 
+    //AI! fais une mehode async et resolve quand la connection est établie
     connect(sessionId) {
         const url = `${this.baseUrl}/ws/audio/input/stream?sessionId=${sessionId}`;
         
@@ -26,7 +27,7 @@ class AudioWebSocketClient {
                 bitsPerSample: 16,
                 bufferMilliseconds: 30
             };
-            this.ws.send(JSON.stringify(audioConfig));
+            this.ws.send(JSON.stringify(audioConfig), false);
         });
 
         this.ws.on('error', (error) => {

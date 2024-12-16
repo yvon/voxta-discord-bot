@@ -3,6 +3,7 @@ import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
+import VoxtaWebSocketClient from './clients/voxta-web-socket-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import CONFIG from './config/config.js';
 
@@ -51,6 +52,7 @@ export class Bot extends Client {
     async startChat() {
         const voxtaConnectionConfig = new VoxtaConnectionConfig(CONFIG.voxta.baseUrl);
         const voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
+        const voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
         const lastChatId = await voxtaApiClient.getLastChatId();
 
         logger.info(`Connecting to chat ${lastChatId}...`);

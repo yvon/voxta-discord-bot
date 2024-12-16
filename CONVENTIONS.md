@@ -1,1 +1,2 @@
-Always use english: code, comments, commit messages, documentation, etc.
+- Always use english: code, comments, logs, commit messages, documentation, etc.
+- Use kebab-case for file naming

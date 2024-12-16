@@ -38,12 +38,10 @@ class AudioWebSocketClient {
         });
     }
 
-    //AI! fais en sorte qu'on puisse envoyer du binaire ou une string selon argument. binaire par defaut
-    send(data) {
-        logger.debug('yo');
+    send(data, binary = true) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            logger.debug('Sending audio data');
-            this.ws.send(data);
+            logger.debug(`Sending ${binary ? 'binary' : 'text'} data`);
+            this.ws.send(data, { binary });
         } else {
             logger.error('Audio input WebSocket is not connected');
         }

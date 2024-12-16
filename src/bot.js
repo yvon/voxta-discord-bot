@@ -1,6 +1,4 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
@@ -66,19 +64,14 @@ export class Bot extends Client {
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);
 
-        setTimeout(() => {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = dirname(__filename);
-            const audioPath = join(__dirname, '..', 'assets', 'connected.mp3');
-            voiceService.playMp3File(audioPath);
-        }, 5000);
-
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        // await this.voxtaWebSocketClient.start();
-        // await this.wsMessageService.authenticate();
-        // await this.wsMessageService.resumeChat(lastChatId);
+        await this.voxtaWebSocketClient.start();
+        await this.wsMessageService.authenticate();
+        await this.wsMessageService.resumeChat(lastChatId);
+
+        voiceService.playMp3File('assets/connected.mp3');
     }
 
     async stopChat() {

@@ -4,8 +4,7 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
-    constructor(client, connection) {
-        this.client = client;
+    constructor(connection, userId) {
         this.connection = connection;
         this.player = createAudioPlayer();
         
@@ -27,10 +26,9 @@ class VoiceService {
             this.connection.subscribe(this.player);
             this.player.play(resource);
             await this.awaitPlaybackCompletion();
-            eventBus.emit('audioPlaybackComplete');
+            logger.debug('Audio playback completed');
         } catch (error) {
             logger.error('Error playing audio:', error);
-            eventBus.emit('audioPlaybackError', error);
             throw error;
         }
     }
@@ -46,6 +44,7 @@ class VoiceService {
     }
 
     async playMp3File(filePath) {
+        logger.debug(`Playing audio file: ${filePath}`);
         const resource = createAudioResource(filePath);
         await this.playAudioResource(resource);
     }

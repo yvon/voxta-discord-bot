@@ -31,7 +31,6 @@ class ChannelManager {
         }
 
         this.currentChannel = null;
-        eventBus.emit('channelLeft');
     }
 
     async joinChannel(newChannel) {
@@ -45,7 +44,6 @@ class ChannelManager {
         });
         
         this.currentChannel = newChannel;
-        eventBus.emit('channelJoined');
     }
 }
 

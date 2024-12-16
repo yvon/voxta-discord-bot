@@ -35,7 +35,7 @@ class VoiceService {
         }
     }
 
-    async handlePlayAudio(audioData) {
+    async playAudioData(audioData) {
         // Convert ArrayBuffer to Buffer then to Readable stream
         const buffer = Buffer.from(audioData);
         const stream = new Readable();

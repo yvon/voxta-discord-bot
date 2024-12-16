@@ -1,4 +1,6 @@
 import { Client, GatewayIntentBits } from 'discord.js';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
 import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
@@ -65,8 +67,10 @@ export class Bot extends Client {
         const voiceService = new VoiceService(connection, this.userId);
 
         setTimeout(() => {
-            // AI! faut qu'on construise le chemin absolu du fichier. La c'est relatif au fichier bot.js
-            voiceService.playMp3File('./assets/connected.mp3');
+            const __filename = fileURLToPath(import.meta.url);
+            const __dirname = dirname(__filename);
+            const audioPath = join(__dirname, '..', 'assets', 'connected.mp3');
+            voiceService.playMp3File(audioPath);
         }, 5000);
 
         const lastChatId = await this.voxtaApiClient.getLastChatId();

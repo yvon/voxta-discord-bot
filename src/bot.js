@@ -36,6 +36,8 @@ export class Bot extends Client {
                 this.sessionId = message.sessionId;
             } else if (message.$type === 'chatStarted') {
                 this.onChatStarted();
+            } else if (message.$type === 'recordingStatus' && message.enabled === true) {
+                this.onRecordingRequest();
             }
         });
     }
@@ -85,62 +87,26 @@ export class Bot extends Client {
         this.hubClient.stop();
     }
 
-    createWavHeader(dataLength) {
-        const buffer = Buffer.alloc(44);
-        
-        // RIFF identifier
-        buffer.write('RIFF', 0);
-        // File length
-        buffer.writeUInt32LE(dataLength + 36, 4);
-        // WAVE identifier
-        buffer.write('WAVE', 8);
-        // Format chunk marker
-        buffer.write('fmt ', 12);
-        // Format chunk length
-        buffer.writeUInt32LE(16, 16);
-        // Sample format (1 is PCM)
-        buffer.writeUInt16LE(1, 20);
-        // Channels
-        buffer.writeUInt16LE(2, 22);
-        // Sample rate
-        buffer.writeUInt32LE(48000, 24);
-        // Byte rate
-        buffer.writeUInt32LE(48000 * 4, 28);
-        // Block align
-        buffer.writeUInt16LE(2, 32);
-        // Bits per sample
-        buffer.writeUInt16LE(16, 34);
-        // Data chunk marker
-        buffer.write('data', 36);
-        // Data length
-        buffer.writeUInt32LE(dataLength, 40);
-        
-        return buffer;
-    }
-
     onChatStarted() {
         logger.info('Chat started');
+    }
 
-        this.audioWebSocketClient.connect(this.sessionId);
+    async onRecordingRequest() {
+        logger.info('Recording request received');
 
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);
 
-        voiceService.playMp3File('assets/connected.mp3');
-
         const decoder = new prism.opus.Decoder({
-          rate: 48000,
-          channels: 2,
-          frameSize: 960
+          rate: 16000,
+          channels: 1,
+          frameSize: 480
         });
+
+        await this.audioWebSocketClient.connect(this.sessionId);
 
         voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
-            const header = this.createWavHeader(chunk.length);
-            const wavData = Buffer.concat([header, chunk]);
-            this.audioWebSocketClient.send(wavData);
+            this.audioWebSocketClient.send(chunk);
         });
-
-        // Vérifier que le pipe est bien établi
-        logger.info('Audio pipeline established');
     }
 }

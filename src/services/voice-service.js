@@ -7,13 +7,9 @@ class VoiceService {
     constructor(connection, userId) {
         this.connection = connection;
         this.player = createAudioPlayer();
-        
-        const audioStream = connection.receiver.subscribe(userId, {
-            end: { behavior: EndBehaviorType.Manual }
-        });
 
-        audioStream.on('data', (chunk) => {
-            eventBus.emit('audioData', chunk);
+        this.audioStream = connection.receiver.subscribe(userId, {
+            end: { behavior: EndBehaviorType.Manual }
         });
     }
 

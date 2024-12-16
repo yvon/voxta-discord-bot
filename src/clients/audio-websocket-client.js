@@ -22,12 +22,12 @@ class AudioWebSocketClient {
                 // Send audio configuration message
                 const audioConfig = {
                     contentType: "audio/wav",
-                    sampleRate: 48000,
-                    channels: 2,
+                    sampleRate: 16000,
+                    channels: 1,
                     bitsPerSample: 16,
                     bufferMilliseconds: 30
                 };
-                this.ws.send(JSON.stringify(audioConfig), false);
+                this.send(JSON.stringify(audioConfig), false);
                 resolve();
             });
 
@@ -44,7 +44,6 @@ class AudioWebSocketClient {
 
     send(data, binary = true) {
         if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-            logger.debug(`Sending ${binary ? 'binary' : 'text'} data`);
             this.ws.send(data, { binary });
         } else {
             logger.error('Audio input WebSocket is not connected');

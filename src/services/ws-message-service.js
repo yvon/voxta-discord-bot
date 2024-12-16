@@ -9,7 +9,7 @@ class WSMessageService {
             clientVersion: "1.0",
             scope: ["role:app"],
             capabilities: {
-                audioInput: "None",
+                audioInput: "WebSocketStream",
                 audioOutput: "Url",
                 acceptedAudioContentTypes: ["audio/x-wav", "audio/mpeg"]
             }

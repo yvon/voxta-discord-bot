@@ -4,16 +4,13 @@ import eventBus from '../utils/event-bus.js';
 
 class VoxtaWebSocketClient {
     constructor(connectionConfig) {
-        this.baseUrl = connectionConfig.getBaseUrl();
-        this.headers = connectionConfig.getHeaders();
-        this.connection = null;
-        this.initPromise = this.initialize();
+        const baseUrl = connectionConfig.getBaseUrl();
+        const headers = connectionConfig.getHeaders();
+
+        this.connection = this.setupSignalRConnection(baseUrl, headers);
     }
 
-    async initialize() {
-        const wsUrl = `${this.baseUrl}/hub`;
-        this.connection = this.setupSignalRConnection(wsUrl);
-
+    async start() {
         try {
             await this.connection.start();
             logger.info('Connected to Voxta WebSocket');
@@ -23,9 +20,16 @@ class VoxtaWebSocketClient {
         }
     }
 
-    setupSignalRConnection(wsUrl) {
+    async stop() {
+        await this.connection.stop();
+        logger.info('Disconnected from Voxta WebSocket');
+    }
+
+    setupSignalRConnection(baseUrl, headers) {
+        const wsUrl = `${baseUrl}/hub`;
+
         const connection = new signalR.HubConnectionBuilder()
-            .withUrl(wsUrl, { headers: this.headers })
+            .withUrl(wsUrl, { headers: headers })
             .withAutomaticReconnect()
             .configureLogging(signalR.LogLevel.Information)
             .build();
@@ -35,7 +39,10 @@ class VoxtaWebSocketClient {
     }
 
     async sendMessage(type, payload = {}) {
-        await this.initPromise;
+        if (this.connection.state !== signalR.HubConnectionState.Connected) {
+            logger.error('Cannot send message: not connected to Voxta');
+            return;
+        }
 
         const message = {
             $type: type,

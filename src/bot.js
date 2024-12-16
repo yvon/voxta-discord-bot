@@ -9,6 +9,8 @@ import CONFIG from './config/config.js';
 
 export class Bot extends Client {
     constructor(token) {
+        const voxtaConnectionConfig = new VoxtaConnectionConfig(CONFIG.voxta.baseUrl);
+
         super({
             intents: [
                 GatewayIntentBits.Guilds,
@@ -17,6 +19,8 @@ export class Bot extends Client {
         });
 
         this.token = token;
+        this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
+        this.voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
         this.setupEventListeners();
     }
 
@@ -30,6 +34,7 @@ export class Bot extends Client {
 
             if (channelManager.currentChannel && channelManager.countMembersInChannel() < 1) {
                 await channelManager.leaveChannel();
+                this.stopChat();
             }
 
             const newChannel = newState.channel;
@@ -50,11 +55,13 @@ export class Bot extends Client {
     }
 
     async startChat() {
-        const voxtaConnectionConfig = new VoxtaConnectionConfig(CONFIG.voxta.baseUrl);
-        const voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
-        const voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
-        const lastChatId = await voxtaApiClient.getLastChatId();
-
+        const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
+
+        this.voxtaWebSocketClient.start();
+    }
+
+    async stopChat() {
+        this.voxtaWebSocketClient.stop();
     }
 }

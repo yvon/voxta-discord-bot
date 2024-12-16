@@ -9,6 +9,7 @@ import HubClient from './clients/websockets/hub-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
 import VoiceService from './services/voice-service.js';
+import AudioPlayerService from './services/audio-player-service.js';
 import CONFIG from './config/config.js';
 
 export class Bot extends Client {
@@ -27,6 +28,8 @@ export class Bot extends Client {
         this.hubClient = new HubClient(voxtaConnectionConfig);
         this.audioWebSocketClient = new AudioWebSocketClient(voxtaConnectionConfig);
         this.wsMessageService = new WSMessageService(this.hubClient);
+        this.audioPlayerService = null;
+        this.voiceService = null;
         this.userId = null;
         this.sessionId = null;
         this.setupEventListeners();
@@ -41,6 +44,14 @@ export class Bot extends Client {
             } else if (message.$type === 'speechRecognitionEnd') {
                 this.onSpeechRecognitionEnd(message.text);
             }
+        });
+
+        eventBus.on('playAudio', async (audioData) => {
+            this.onPlayAudio(audioData);
+        });
+
+        eventBus.on('speechPlaybackComplete', (messageId) => {
+            this.onSpeechPlaybackComplete(messageId);
         });
     }
 
@@ -77,6 +88,8 @@ export class Bot extends Client {
     }
 
     async startChat() {
+        this.audioPlayerService = new AudioPlayerService(this.voxtaApiClient);
+
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
@@ -87,17 +100,19 @@ export class Bot extends Client {
 
     async stopChat() {
         this.hubClient.stop();
+        this.audioPlayerService = null;
+        this.voiceService = null;
     }
 
     onChatStarted() {
         logger.info('Chat started');
+
+        const connection = channelManager.getCurrentConnection();
+        this.voiceService = new VoiceService(connection, this.userId);
     }
 
     async onRecordingRequest() {
         logger.info('Recording request received');
-
-        const connection = channelManager.getCurrentConnection();
-        const voiceService = new VoiceService(connection, this.userId);
 
         const decoder = new prism.opus.Decoder({
           rate: 16000,
@@ -107,12 +122,20 @@ export class Bot extends Client {
 
         await this.audioWebSocketClient.connect(this.sessionId);
 
-        voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
+        this.voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
             this.audioWebSocketClient.send(chunk);
         });
     }
 
     onSpeechRecognitionEnd(text) {
         this.wsMessageService.send(this.sessionId, text);
+    }
+
+    onPlayAudio(audioData) {
+        this.voiceService.playAudioData(audioData);
+    }
+
+    onSpeechPlaybackComplete(messageId) {
+        this.wsMessageService.speechPlaybackComplete(this.sessionId, messageId);
     }
 }

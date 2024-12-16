@@ -23,6 +23,10 @@ class WSMessageService {
     send(sessionId, text) {
         return this.wsClient.sendMessage('send', { sessionId, text, doReply: true, doCharacterActionInference: true });
     }
+
+    speechPlaybackComplete(sessionId, messageId) {
+        return this.wsClient.sendMessage('speechPlaybackComplete', { sessionId, messageId });
+    }
 }
 
 export default WSMessageService;

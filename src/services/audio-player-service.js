@@ -2,8 +2,8 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class AudioPlayerService {
-    constructor(voxtaService) {
-        this.voxtaService = voxtaService;
+    constructor(voxtaApiClient) {
+        this.voxtaApiClient = voxtaApiClient;
         // Audio buffers structure:
         // {
         //   messageId: {
@@ -45,14 +45,14 @@ class AudioPlayerService {
         const url = messageBuffer.audioUrls.shift();
 
         if (url) {
-            let promise = this.voxtaService.getAudioResponse(url);
+            let promise = this.voxtaApiClient.getAudioResponse(url);
 
             while (promise) {
                 const chunk = await promise;
 
                 // Download next audio chunk while we play it
                 const nextUrl = messageBuffer.audioUrls.shift();
-                const nextPromise = nextUrl ? this.voxtaService.getAudioResponse(nextUrl) : null;
+                const nextPromise = nextUrl ? this.voxtaApiClient.getAudioResponse(nextUrl) : null;
 
                 try {
                     const playbackPromise = new Promise((resolve, reject) => {
@@ -92,11 +92,7 @@ class AudioPlayerService {
         const buffer = this.audioBuffers[messageId];
         if (!buffer) return;
 
-        await this.voxtaService.sendWebSocketMessage("speechPlaybackComplete", {
-            sessionId: buffer.sessionId,
-            messageId: messageId
-        });
-        logger.info(`Sent playback complete for message ${messageId}`);
+        eventBus.emit('speechPlaybackComplete', messageId);
     }
 
     async handleReplyChunk(message) {

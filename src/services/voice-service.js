@@ -23,8 +23,10 @@ class VoiceService {
             this.player.play(resource);
             await this.awaitPlaybackCompletion();
             logger.debug('Audio playback completed');
+            eventBus.emit('audioPlaybackComplete');
         } catch (error) {
             logger.error('Error playing audio:', error);
+            eventBus.emit('audioPlaybackError', error);
             throw error;
         }
     }

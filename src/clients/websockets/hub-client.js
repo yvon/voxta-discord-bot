@@ -10,6 +10,8 @@ class HubClient extends WebSocketClient {
     }
 
     async sendMessage(type, payload = {}) {
+        logger.info('Sending message to Voxta:', type, payload);
+
         if (this.connection.state !== HubConnectionState.Connected) {
             logger.error('Cannot send message: not connected to Voxta');
             return;

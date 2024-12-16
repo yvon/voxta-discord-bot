@@ -88,15 +88,13 @@ export class Bot extends Client {
 
     setupAudioProcessing() {
         eventBus.on('audioData', (chunk) => {
+            //AI! faut convertir en 16000Hz et envoyer à l'audio websocket
             const decoder = new prism.opus.Decoder({
                 rate: 48000,
                 channels: 1,
             });
             
-            const decoded = decoder.write(chunk);
-            if (decoded) {
-                logger.debug(`Received decoded audio data of size: ${decoded.length} bytes`);
-            }
+            decoder.write(chunk);
         });
     }
 

@@ -33,14 +33,12 @@ class AudioWebSocketClient {
 
             this.ws.on('error', (error) => {
                 reject(error);
+                logger.error('Audio input WebSocket error:', error);
             });
 
-        this.ws.on('error', (error) => {
-            logger.error('Audio input WebSocket error:', error);
-        });
-
-        this.ws.on('close', () => {
-            logger.info('Audio input WebSocket connection closed');
+            this.ws.on('close', () => {
+                logger.info('Audio input WebSocket connection closed');
+            });
         });
     }
 

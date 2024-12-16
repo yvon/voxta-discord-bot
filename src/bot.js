@@ -2,6 +2,9 @@ import { Client, GatewayIntentBits } from 'discord.js';
 import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
+import VoxtaApiClient from './clients/voxta-api-client.js';
+import VoxtaConnectionConfig from './config/voxta-connection-config.js';
+import CONFIG from './config/config.js';
 
 export class Bot extends Client {
     constructor(token) {
@@ -32,8 +35,8 @@ export class Bot extends Client {
             if (channelManager.currentChannel === newChannel) return;
 
             await channelManager.joinChannel(newChannel);
+            this.startChat();
         });
-
     }
 
     async start() {
@@ -43,5 +46,13 @@ export class Bot extends Client {
             logger.error('Discord connection error:', error);
             process.exit(1);
         }
+    }
+
+    async startChat() {
+        const voxtaConnectionConfig = new VoxtaConnectionConfig(CONFIG.voxta.baseUrl);
+        const voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
+        const lastChatId = await voxtaApiClient.getLastChatId();
+
+        logger.info(`Connecting to chat ${lastChatId}...`);
     }
 }

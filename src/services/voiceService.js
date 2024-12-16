@@ -16,8 +16,6 @@ class VoiceService {
         audioStream.on('data', (chunk) => {
             eventBus.emit('audioData', chunk);
         });
-
-        eventBus.on('playAudio', this.handlePlayAudio.bind(this));
     }
 
     async playAudioResource(resource) {
@@ -38,29 +36,19 @@ class VoiceService {
     }
 
     async handlePlayAudio(audioData) {
-        try {
-            // Convert ArrayBuffer to Buffer then to Readable stream
-            const buffer = Buffer.from(audioData);
-            const stream = new Readable();
-            stream.push(buffer);
-            stream.push(null);
+        // Convert ArrayBuffer to Buffer then to Readable stream
+        const buffer = Buffer.from(audioData);
+        const stream = new Readable();
+        stream.push(buffer);
+        stream.push(null);
 
-            const resource = createAudioResource(stream);
-            await this.playAudioResource(resource);
-        } catch (error) {
-            logger.error('Error playing audio stream:', error);
-            eventBus.emit('audioPlaybackError', error);
-        }
+        const resource = createAudioResource(stream);
+        await this.playAudioResource(resource);
     }
 
     async playMp3File(filePath) {
-        try {
-            const resource = createAudioResource(filePath);
-            await this.playAudioResource(resource);
-        } catch (error) {
-            logger.error('Error playing MP3 file:', error);
-            eventBus.emit('audioPlaybackError', error);
-        }
+        const resource = createAudioResource(filePath);
+        await this.playAudioResource(resource);
     }
 
     awaitPlaybackCompletion() {

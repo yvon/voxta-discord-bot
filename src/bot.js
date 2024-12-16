@@ -101,11 +101,11 @@ export class Bot extends Client {
         // Sample format (1 is PCM)
         buffer.writeUInt16LE(1, 20);
         // Channels
-        buffer.writeUInt16LE(1, 22);
+        buffer.writeUInt16LE(2, 22);
         // Sample rate
         buffer.writeUInt32LE(48000, 24);
         // Byte rate
-        buffer.writeUInt32LE(48000 * 2, 28);
+        buffer.writeUInt32LE(48000 * 4, 28);
         // Block align
         buffer.writeUInt16LE(2, 32);
         // Bits per sample
@@ -130,7 +130,7 @@ export class Bot extends Client {
 
         const decoder = new prism.opus.Decoder({
           rate: 48000,
-          channels: 1,
+          channels: 2,
           frameSize: 960
         });
 

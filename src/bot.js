@@ -67,17 +67,12 @@ export class Bot extends Client {
     }
 
     async startChat() {
-        const connection = channelManager.getCurrentConnection();
-        const voiceService = new VoiceService(connection, this.userId);
-
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
         await this.voxtaWebSocketClient.start();
         await this.wsMessageService.authenticate();
         await this.wsMessageService.resumeChat(lastChatId);
-
-        voiceService.playMp3File('assets/connected.mp3');
     }
 
     async stopChat() {
@@ -85,6 +80,10 @@ export class Bot extends Client {
     }
 
     onChatStarted() {
-        // Cette méthode sera implémentée plus tard
+        logger.info('Chat started');
+
+        const connection = channelManager.getCurrentConnection();
+        const voiceService = new VoiceService(connection, this.userId);
+        voiceService.playMp3File('assets/connected.mp3');
     }
 }

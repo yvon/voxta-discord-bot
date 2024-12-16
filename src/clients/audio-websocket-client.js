@@ -1,6 +1,7 @@
 import WebSocket from 'ws';
 import logger from '../utils/logger.js';
 
+//AI! envoie le message {"contentType":"audio/wav","sampleRate":16000,"channels":1,"bitsPerSample":16,"bufferMilliseconds":30}  apres t'etre connecté
 class AudioWebSocketClient {
     constructor(connectionConfig) {
         this.baseUrl = connectionConfig.getBaseUrl().replace('http', 'ws');

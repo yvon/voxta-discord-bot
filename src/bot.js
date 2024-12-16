@@ -64,8 +64,9 @@ export class Bot extends Client {
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);
 
-        //AI! joue le mp3 apres 5 secondes
-        voiceService.playMp3File('./assets/connected.mp3');
+        setTimeout(() => {
+            voiceService.playMp3File('./assets/connected.mp3');
+        }, 5000);
 
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);

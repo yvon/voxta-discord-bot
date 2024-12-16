@@ -7,7 +7,6 @@ class VoxtaWebSocketClient {
         this.baseUrl = connectionConfig.getBaseUrl();
         this.headers = connectionConfig.getHeaders();
         this.connection = null;
-        this.authenticated = false;
         this.initPromise = this.initialize();
         eventBus.on('cleanup', () => this.cleanup());
     }

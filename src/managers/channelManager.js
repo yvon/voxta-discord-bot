@@ -49,5 +49,5 @@ class ChannelManager {
     }
 }
 
-const CHANNEL_MANAGER = new ChannelManager();
-export default CHANNEL_MANAGER;
+const channelManager = new ChannelManager();
+export default channelManager;

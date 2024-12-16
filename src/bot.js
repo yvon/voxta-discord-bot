@@ -22,8 +22,8 @@ export class Bot extends Client {
 
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
-        this.voxtaWebSocketClient = new VoxtaHubWebSocketClient(voxtaConnectionConfig);
-        this.wsMessageService = new WSMessageService(this.voxtaWebSocketClient);
+        this.voxtaHubWebSocketClient = new VoxtaHubWebSocketClient(voxtaConnectionConfig);
+        this.wsMessageService = new WSMessageService(this.voxtaHubWebSocketClient);
         this.userId = null;
         this.setupEventListeners();
         
@@ -76,7 +76,7 @@ export class Bot extends Client {
     }
 
     async stopChat() {
-        this.voxtaWebSocketClient.stop();
+        this.voxtaHubWebSocketClient.stop();
     }
 
     onChatStarted() {

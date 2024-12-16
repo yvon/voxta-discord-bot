@@ -24,6 +24,7 @@ export class Bot extends Client {
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
         this.hubClient = new HubClient(voxtaConnectionConfig);
+        this.audioWebSocketClient = new AudioWebSocketClient(voxtaConnectionConfig);
         this.wsMessageService = new WSMessageService(this.hubClient);
         this.userId = null;
         this.sessionId = null;
@@ -86,8 +87,7 @@ export class Bot extends Client {
     onChatStarted() {
         logger.info('Chat started');
 
-        const audioWsClient = new AudioWebSocketClient(this.voxtaConnectionConfig, this.sessionId);
-        audioWsClient.connect();
+        this.audioWebSocketClient.connect(this.sessionId);
 
         const connection = channelManager.getCurrentConnection();
         const voiceService = new VoiceService(connection, this.userId);

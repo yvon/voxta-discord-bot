@@ -2,15 +2,14 @@ import WebSocket from 'ws';
 import logger from '../utils/logger.js';
 
 class AudioWebSocketClient {
-    constructor(connectionConfig, sessionId) {
+    constructor(connectionConfig) {
         this.baseUrl = connectionConfig.getBaseUrl().replace('http', 'ws');
         this.headers = connectionConfig.getHeaders();
-        this.sessionId = sessionId;
         this.ws = null;
     }
 
-    connect() {
-        const url = `${this.baseUrl}/ws/audio/input/stream?sessionId=${this.sessionId}`;
+    connect(sessionId) {
+        const url = `${this.baseUrl}/ws/audio/input/stream?sessionId=${sessionId}`;
         
         this.ws = new WebSocket(url, {
             headers: this.headers

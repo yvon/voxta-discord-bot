@@ -8,27 +8,32 @@ class AudioWebSocketClient {
         this.ws = null;
     }
 
-    //AI! fais une mehode async et resolve quand la connection est établie
-    connect(sessionId) {
-        const url = `${this.baseUrl}/ws/audio/input/stream?sessionId=${sessionId}`;
-        
-        this.ws = new WebSocket(url, {
-            headers: this.headers
-        });
-
-        this.ws.on('open', () => {
-            logger.info('Audio input WebSocket connection established');
+    async connect(sessionId) {
+        return new Promise((resolve, reject) => {
+            const url = `${this.baseUrl}/ws/audio/input/stream?sessionId=${sessionId}`;
             
-            // Send audio configuration message
-            const audioConfig = {
-                contentType: "audio/wav",
-                sampleRate: 48000,
-                channels: 2,
-                bitsPerSample: 16,
-                bufferMilliseconds: 30
-            };
-            this.ws.send(JSON.stringify(audioConfig), false);
-        });
+            this.ws = new WebSocket(url, {
+                headers: this.headers
+            });
+
+            this.ws.on('open', () => {
+                logger.info('Audio input WebSocket connection established');
+                
+                // Send audio configuration message
+                const audioConfig = {
+                    contentType: "audio/wav",
+                    sampleRate: 48000,
+                    channels: 2,
+                    bitsPerSample: 16,
+                    bufferMilliseconds: 30
+                };
+                this.ws.send(JSON.stringify(audioConfig), false);
+                resolve();
+            });
+
+            this.ws.on('error', (error) => {
+                reject(error);
+            });
 
         this.ws.on('error', (error) => {
             logger.error('Audio input WebSocket error:', error);

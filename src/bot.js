@@ -98,11 +98,17 @@ export class Bot extends Client {
         const transcoder = new prism.FFmpeg({
             args: [
                 '-i', '-',
-                '-ar', '16000',    // Nouveau sample rate
+                '-ar', '16000',    // Sample rate
                 '-ac', '1',        // Mono
                 '-f', 's16le',     // Format 16-bit PCM
+                '-loglevel', 'debug',  // Activer les logs FFmpeg
                 '-'
             ]
+        });
+
+        // Log les erreurs de FFmpeg
+        transcoder.process.stderr.on('data', (data) => {
+            logger.debug(`FFmpeg stderr: ${data}`);
         });
 
         voiceService

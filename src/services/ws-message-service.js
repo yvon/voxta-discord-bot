@@ -15,6 +15,10 @@ class WSMessageService {
             }
         });
     }
+
+    resumeChat(chatId) {
+        return this.wsClient.sendMessage('resumeChat', { chatId });
+    }
 }
 
 export default WSMessageService;

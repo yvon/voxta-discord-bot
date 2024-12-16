@@ -62,14 +62,12 @@ export class Bot extends Client {
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
+        const connection = channelManager.getCurrentConnection();
+        this.voiceService = new VoiceService(this, connection);
+
         await this.voxtaWebSocketClient.start();
         await this.wsMessageService.authenticate();
         await this.wsMessageService.resumeChat(lastChatId);
-
-        const connection = channelManager.getCurrentConnection();
-        if (connection) {
-            this.voiceService = new VoiceService(this, connection);
-        }
     }
 
     async stopChat() {

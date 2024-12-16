@@ -95,41 +95,16 @@ export class Bot extends Client {
 
         voiceService.playMp3File('assets/connected.mp3');
 
-        const transcoder = new prism.FFmpeg({
-            args: [
-                '-i', '-',
-                '-ar', '16000',    // Sample rate
-                '-ac', '1',        // Mono
-                '-f', 's16le',     // Format 16-bit PCM
-                '-loglevel', 'debug',  // Activer les logs FFmpeg
-                '-'
-            ]
+        const decoder = new prism.opus.Decoder({
+          rate: 48000,
+          channels: 1,
+          frameSize: 960
         });
 
-        // Log les erreurs de FFmpeg
-        transcoder.process.stderr.on('data', (data) => {
-            logger.debug(`FFmpeg stderr: ${data}`);
+        voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
+            //AI! send wav headers too
+            this.audioWebSocketClient.send(chunk);
         });
-
-        voiceService
-            .audioStream
-            .on('data', (chunk) => {
-                logger.debug(`Received audio chunk: ${chunk.length} bytes`);
-            })
-            .pipe(transcoder)
-            .on('error', (error) => {
-                logger.error('Transcoder error:', error);
-            })
-            .on('data', (data) => {
-                logger.debug(`Transcoded data: ${data.length} bytes`);
-                this.audioWebSocketClient.send(data);
-            })
-            .on('end', () => {
-                logger.info('Transcoder stream ended');
-            })
-            .on('close', () => {
-                logger.info('Transcoder stream closed');
-            });
 
         // Vérifier que le pipe est bien établi
         logger.info('Audio pipeline established');

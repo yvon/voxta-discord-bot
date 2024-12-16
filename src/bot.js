@@ -38,6 +38,8 @@ export class Bot extends Client {
                 this.onChatStarted();
             } else if (message.$type === 'recordingStatus' && message.enabled === true) {
                 this.onRecordingRequest();
+            } else if (message.$type === 'speechRecognitionEnd') {
+                this.onSpeechRecognitionEnd(message.text);
             }
         });
     }
@@ -108,5 +110,9 @@ export class Bot extends Client {
         voiceService.audioStream.pipe(decoder).on('data', (chunk) => {
             this.audioWebSocketClient.send(chunk);
         });
+    }
+
+    onSpeechRecognitionEnd(text) {
+        this.wsMessageService.send(this.sessionId, text);
     }
 }

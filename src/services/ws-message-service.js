@@ -19,6 +19,10 @@ class WSMessageService {
     resumeChat(chatId) {
         return this.wsClient.sendMessage('resumeChat', { chatId });
     }
+
+    send(sessionId, text) {
+        return this.wsClient.sendMessage('send', { sessionId, text, doReply: true, doCharacterActionInference: true });
+    }
 }
 
 export default WSMessageService;

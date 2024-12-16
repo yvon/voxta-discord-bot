@@ -3,6 +3,10 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class VoxtaHubWebSocketClient extends VoxtaWebSocketClient {
+    constructor(connectionConfig) {
+        super(connectionConfig);
+        this.connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
+    }
     async sendMessage(type, payload = {}) {
         if (this.connection.state !== signalR.HubConnectionState.Connected) {
             logger.error('Cannot send message: not connected to Voxta');

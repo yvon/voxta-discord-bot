@@ -33,7 +33,6 @@ class VoxtaWebSocketClient {
             .configureLogging(signalR.LogLevel.Information)
             .build();
 
-        connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
         return connection;
     }
 }

@@ -1,4 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
+import prism from 'prism-media';
 import logger from './utils/logger.js';
 import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
@@ -30,6 +31,18 @@ export class Bot extends Client {
         this.sessionId = null;
         this.setupEventListeners();
         
+        eventBus.on('audioData', (chunk) => {
+            const decoder = new prism.opus.Decoder({
+                rate: 48000,
+                channels: 1,
+            });
+            
+            const decoded = decoder.write(chunk);
+            if (decoded) {
+                logger.debug(`Received decoded audio data of size: ${decoded.length} bytes`);
+            }
+        });
+
         eventBus.on('voxtaMessage', (message) => {
             if (message.$type === 'chatStarting') {
                 this.sessionId = message.sessionId;

@@ -108,14 +108,20 @@ export class Bot extends Client {
         voiceService
             .audioStream
             .on('data', (chunk) => {
-                logger.debug('data on audioStream');
+                logger.debug(`Received audio chunk: ${chunk.length} bytes`);
             })
             .pipe(transcoder)
             .on('error', (error) => {
-                logger.debug('error on transcoder');
+                logger.error('Transcoder error:', error);
             })
             .on('data', (data) => {
-                logger.debug('data on transcoder');
+                logger.debug(`Transcoded data: ${data.length} bytes`);
+            })
+            .on('end', () => {
+                logger.info('Transcoder stream ended');
             });
+
+        // Vérifier que le pipe est bien établi
+        logger.info('Audio pipeline established');
     }
 }

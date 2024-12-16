@@ -24,7 +24,7 @@ export class Bot extends Client {
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
         this.voxtaWebSocketClient = new VoxtaWebSocketClient(voxtaConnectionConfig);
         this.wsMessageService = new WSMessageService(this.voxtaWebSocketClient);
-        this.voiceService = null;
+        this.userId = null;
         this.setupEventListeners();
     }
 
@@ -45,6 +45,8 @@ export class Bot extends Client {
             if (channelManager.currentChannel === newChannel) return;
 
             await channelManager.joinChannel(newChannel);
+            this.userId = newState.member.id;
+            logger.info(`User id: ${this.userId}`);
             this.startChat();
         });
     }
@@ -59,19 +61,21 @@ export class Bot extends Client {
     }
 
     async startChat() {
+        const connection = channelManager.getCurrentConnection();
+        const voiceService = new VoiceService(connection, this.userId);
+
+        //AI! joue le mp3 apres 5 secondes
+        voiceService.playMp3File('./assets/connected.mp3');
+
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        const connection = channelManager.getCurrentConnection();
-        this.voiceService = new VoiceService(this, connection);
-
-        await this.voxtaWebSocketClient.start();
-        await this.wsMessageService.authenticate();
-        await this.wsMessageService.resumeChat(lastChatId);
+        // await this.voxtaWebSocketClient.start();
+        // await this.wsMessageService.authenticate();
+        // await this.wsMessageService.resumeChat(lastChatId);
     }
 
     async stopChat() {
         this.voxtaWebSocketClient.stop();
-        this.voiceService = null;
     }
 }

@@ -7,6 +7,8 @@ Using Discord as a client notably enables:
 
 > Note: This project is independent and not affiliated with or endorsed by Voxta.
 
+For more information about Voxta, visit [voxta.ai](https://voxta.ai/).
+
 ## Prerequisites
 
 - Node.js 20 or higher

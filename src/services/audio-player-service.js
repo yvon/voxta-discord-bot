@@ -62,9 +62,17 @@ class AudioPlayerService {
 
                 try {
                     const playbackPromise = new Promise((resolve, reject) => {
-                        //AI? est-ce que ya une fuite de mémoire ici?
-                        eventBus.once('audioPlaybackComplete', resolve);
-                        eventBus.once('audioPlaybackError', reject);
+                        const completeListener = () => {
+                            eventBus.off('audioPlaybackError', errorListener);
+                            resolve();
+                        };
+                        const errorListener = (error) => {
+                            eventBus.off('audioPlaybackComplete', completeListener);
+                            reject(error);
+                        };
+                        
+                        eventBus.once('audioPlaybackComplete', completeListener);
+                        eventBus.once('audioPlaybackError', errorListener);
                     });
 
                     eventBus.emit('playAudio', chunk);

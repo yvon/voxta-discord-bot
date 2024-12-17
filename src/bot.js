@@ -100,8 +100,9 @@ export class Bot extends Client {
 
         const connection = channelManager.getCurrentConnection();
         this.voiceService.initialize(connection, this.userId);
-        //AI! play this after 2 seconds
-        this.voiceService.playMp3File('./assets/ready.mp3');
+        setTimeout(() => {
+            this.voiceService.playMp3File('./assets/ready.mp3');
+        }, 2000);
     }
 
     async onRecordingRequest() {

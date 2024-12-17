@@ -6,6 +6,8 @@ import eventBus from '../utils/event-bus.js';
 class VoiceService {
     initialize(connection, userId) {
         this.connection = connection;
+        //AI! fais moi une promise qui se resolve quand la connection est prête. Il faut la tester directement et si pas
+        //encore prete subscribe à l'event voiceConnectionReady
         this.player = createAudioPlayer();
 
         this.audioStream = connection.receiver.subscribe(userId, {

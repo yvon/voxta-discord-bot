@@ -134,8 +134,6 @@ class AudioPlayerService {
     }
 
     handleVoxtaMessage(message) {
-        logger.info('AudioPlayer received message:', message.$type);
-
         switch (message.$type) {
             case 'replyGenerating':
                 this.handleReplyGenerating(message);

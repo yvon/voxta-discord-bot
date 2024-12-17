@@ -1,7 +1,7 @@
 # Voxta Discord Bot
 
 A Discord bot to interact with Voxta through voice channels.
-Among other benefits, using Discord as a client allows you to:
+Using Discord as a client notably enables:
 - Access Voxta from anywhere using the Discord mobile app
 - Benefit from Discord's built-in Krisp noise reduction
 

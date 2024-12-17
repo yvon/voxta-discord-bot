@@ -1,6 +1,6 @@
 # Voxta Discord Bot
 
-A Discord bot that enables voice interaction with Voxta directly from Discord voice channels. This integration offers great flexibility of use, notably allowing access to Voxta from anywhere via the Discord mobile application.
+A Discord bot to interact with Voxta through voice channels. Works with the Discord mobile app too.
 
 > Note: This project is independent and not affiliated with or endorsed by Voxta.
 

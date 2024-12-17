@@ -1,4 +1,4 @@
-import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource } from '@discordjs/voice';
+import { joinVoiceChannel, EndBehaviorType, createAudioPlayer, createAudioResource, VoiceConnectionStatus } from '@discordjs/voice';
 import { Readable } from 'stream';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
@@ -52,18 +52,13 @@ class VoiceService {
 
     waitForConnection() {
         return new Promise((resolve) => {
-            if (this.connection.state.status === 'ready') {
+            if (this.connection.state.status === VoiceConnectionStatus.Ready) {
                 resolve();
                 return;
             }
-            //AI! tu t'es trompé connection.on(VoiceConnectionStatus.Ready, () => {
-	console.log('The connection has entered the Ready state - ready to play audio!');
-});
 
-            this.connection.once('stateChange', (_, newState) => {
-                if (newState.status === 'ready') {
-                    resolve();
-                }
+            this.connection.once(VoiceConnectionStatus.Ready, () => {
+                resolve();
             });
         });
     }

@@ -28,8 +28,8 @@ export class Bot extends Client {
         this.hubClient = new HubClient(voxtaConnectionConfig);
         this.audioWebSocketClient = new AudioWebSocketClient(voxtaConnectionConfig);
         this.wsMessageService = new WSMessageService(this.hubClient);
-        this.audioPlayerService = null;
-        this.voiceService = null;
+        this.audioPlayerService = new AudioPlayerService(this.voxtaApiClient);
+        this.voiceService = new VoiceService();
         this.userId = null;
         this.sessionId = null;
         this.setupEventListeners();
@@ -65,7 +65,6 @@ export class Bot extends Client {
 
             if (channelManager.currentChannel && channelManager.countMembersInChannel() < 1) {
                 await channelManager.leaveChannel();
-                this.stopChat();
             }
 
             const newChannel = newState.channel;
@@ -88,8 +87,6 @@ export class Bot extends Client {
     }
 
     async startChat() {
-        this.audioPlayerService = new AudioPlayerService(this.voxtaApiClient);
-
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
@@ -98,17 +95,11 @@ export class Bot extends Client {
         await this.wsMessageService.resumeChat(lastChatId);
     }
 
-    async stopChat() {
-        this.hubClient.stop();
-        this.audioPlayerService = null;
-        this.voiceService = null;
-    }
-
     onChatStarted() {
         logger.info('Chat started');
 
         const connection = channelManager.getCurrentConnection();
-        this.voiceService = new VoiceService(connection, this.userId);
+        this.voiceService.initialize(connection, this.userId);
     }
 
     async onRecordingRequest() {

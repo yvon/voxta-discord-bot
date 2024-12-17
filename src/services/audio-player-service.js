@@ -4,6 +4,13 @@ import eventBus from '../utils/event-bus.js';
 class AudioPlayerService {
     constructor(voxtaApiClient) {
         this.voxtaApiClient = voxtaApiClient;
+        this.initialize();
+
+        eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
+        eventBus.on('voiceChannelLeft', this.initialize.bind(this));
+    }
+
+    initialize() {
         // Audio buffers structure:
         // {
         //   messageId: {
@@ -14,7 +21,6 @@ class AudioPlayerService {
         //   }
         // }
         this.audioBuffers = {};
-        eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
     }
 
     async checkAndSendPlaybackComplete(messageId) {

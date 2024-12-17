@@ -4,7 +4,7 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
-    constructor(connection, userId) {
+    initialize(connection, userId) {
         this.connection = connection;
         this.player = createAudioPlayer();
 

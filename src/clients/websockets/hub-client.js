@@ -7,6 +7,7 @@ class HubClient extends WebSocketClient {
     constructor(connectionConfig) {
         super(connectionConfig);
         this.connection.on("ReceiveMessage", this.handleReceiveMessage.bind(this));
+        eventBus.on('voiceChannelLeft', this.stop.bind(this));
     }
 
     async sendMessage(type, payload = {}) {

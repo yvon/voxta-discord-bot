@@ -5,6 +5,7 @@ import eventBus from '../utils/event-bus.js';
 class ChannelManager {
     constructor() {
         this.currentChannel = null;
+
         eventBus.on('shutdown', async () => {
             await this.leaveChannel();
         });
@@ -31,6 +32,7 @@ class ChannelManager {
         }
 
         this.currentChannel = null;
+        eventBus.emit('voiceChannelLeft');
     }
 
     async joinChannel(newChannel) {
@@ -44,6 +46,7 @@ class ChannelManager {
         });
         
         this.currentChannel = newChannel;
+        eventBus.emit('voiceChannelJoined');
     }
 }
 

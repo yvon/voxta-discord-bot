@@ -4,10 +4,9 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
-    initialize(connection, userId) {
+    async initialize(connection, userId) {
         this.connection = connection;
-        //AI! fais moi une promise qui se resolve quand la connection est prête. Il faut la tester directement et si pas
-        //encore prete subscribe à l'event voiceConnectionReady
+        await this.waitForConnection();
         this.player = createAudioPlayer();
 
         this.audioStream = connection.receiver.subscribe(userId, {
@@ -47,6 +46,21 @@ class VoiceService {
         logger.debug(`Playing audio file: ${filePath}`);
         const resource = createAudioResource(filePath);
         await this.playAudioResource(resource);
+    }
+
+    waitForConnection() {
+        return new Promise((resolve) => {
+            if (this.connection.state.status === 'ready') {
+                resolve();
+                return;
+            }
+
+            this.connection.once('stateChange', (_, newState) => {
+                if (newState.status === 'ready') {
+                    resolve();
+                }
+            });
+        });
     }
 
     awaitPlaybackCompletion() {

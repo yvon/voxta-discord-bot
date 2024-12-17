@@ -6,7 +6,6 @@ import eventBus from '../utils/event-bus.js';
 class VoiceService {
     async initialize(connection, userId) {
         this.connection = connection;
-        await this.waitForConnection();
         this.player = createAudioPlayer();
 
         this.audioStream = connection.receiver.subscribe(userId, {
@@ -19,6 +18,9 @@ class VoiceService {
             logger.error('Cannot play audio: No voice connection');
             return;
         }
+
+        await this.waitForConnection();
+
         try {
             this.connection.subscribe(this.player);
             this.player.play(resource);
@@ -54,6 +56,9 @@ class VoiceService {
                 resolve();
                 return;
             }
+            //AI! tu t'es trompé connection.on(VoiceConnectionStatus.Ready, () => {
+	console.log('The connection has entered the Ready state - ready to play audio!');
+});
 
             this.connection.once('stateChange', (_, newState) => {
                 if (newState.status === 'ready') {

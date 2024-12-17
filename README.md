@@ -5,7 +5,7 @@ Using Discord as a client notably enables:
 - Access Voxta from anywhere using the Discord mobile app
 - Benefit from Discord's built-in Krisp noise reduction
 
-> Note: This project is independent and not affiliated with or endorsed by Voxta.
+Note: This project is independent and not affiliated with or endorsed by Voxta.
 
 For more information about Voxta, visit [voxta.ai](https://voxta.ai/).
 

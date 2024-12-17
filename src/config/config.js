@@ -1,16 +1,6 @@
 import 'dotenv/config';
 
 const CONFIG = {
-    deepgram: {
-        model: "nova-2",
-        language: process.env.LANGUAGE || "en-US",
-        encoding: "opus",
-        sampleRate: 48000,
-        apiKey: process.env.DEEPGRAM_API_KEY
-    },
-    audio: {
-        inactivityDuration: 1000
-    },
     voxta: {
         baseUrl: process.env.VOXTA_URL || "http://localhost:5384"
     },

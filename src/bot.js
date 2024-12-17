@@ -102,7 +102,7 @@ export class Bot extends Client {
         this.voiceService.initialize(connection, this.userId);
         setTimeout(() => {
             this.voiceService.playMp3File('./assets/ready.mp3');
-        }, 2000);
+        }, 1000);
     }
 
     async onRecordingRequest() {

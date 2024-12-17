@@ -33,4 +33,5 @@ node src/index.js
 3. Invite the bot to your Discord server
 2. Join a voice channel
 3. The bot will automatically join the channel
--- AI! dire ici d'attendre le "ding" d'initialisation et échanger avec Voxta
+4. Wait for the initialization "ding" sound
+5. You can now start talking with Voxta!

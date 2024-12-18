@@ -37,6 +37,7 @@ class VoiceService {
     async playAudioData(audioData) {
         const buffer = Buffer.from(audioData);
         const stream = new Readable();
+
         stream.push(buffer);
         stream.push(null);
 

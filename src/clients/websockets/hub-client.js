@@ -3,7 +3,7 @@ import * as signalR from '@microsoft/signalr';
 import logger from '../../utils/logger.js';
 import eventBus from '../../utils/event-bus.js';
 
-class HubClient {
+class HubWebSocketClient {
     constructor(connectionConfig) {
         const baseUrl = connectionConfig.getBaseUrl();
         const headers = connectionConfig.getHeaders();
@@ -66,4 +66,4 @@ class HubClient {
     }
 }
 
-export default HubClient;
+export default HubWebSocketClient;

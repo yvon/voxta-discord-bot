@@ -8,9 +8,7 @@ class AudioWebSocketClient {
         this.headers = connectionConfig.getHeaders();
         this.ws = null;
 
-        eventBus.on('voiceChannelLeft', () => {
-            this.close();
-        });
+        eventBus.on('voiceChannelLeft', this.close.bind(this));
     }
 
     async connect(sessionId) {

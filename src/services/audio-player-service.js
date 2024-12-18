@@ -145,12 +145,12 @@ class AudioPlayerService {
                 this.handleReplyEnd(message);
                 break;
             case 'speechRecognitionPartial':
-                this.onUserInterruption();
+                this.handleUserInterruption();
                 break;
         }
     }
 
-    async onUserInterruption() {
+    async handleUserInterruption() {
         logger.info('User interrupted playback, cleaning up all buffers');
         for (const messageId in this.audioBuffers) {
             const buffer = this.audioBuffers[messageId];

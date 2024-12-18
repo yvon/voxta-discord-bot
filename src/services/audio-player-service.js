@@ -174,7 +174,6 @@ class AudioPlayerService {
     }
 
     async handleUserInterruption() {
-        logger.info('User interrupted playback, cleaning up all buffers');
         this.removePlaybackListeners();
         for (const messageId in this.audioBuffers) {
             const buffer = this.audioBuffers[messageId];

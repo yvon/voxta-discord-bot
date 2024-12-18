@@ -92,7 +92,6 @@ class VoiceService {
     }
 
     handleUserInterruption() {
-        logger.info('User interrupted playback, stopping audio player');
         if (this.player) {
             this.player.stop();
         }

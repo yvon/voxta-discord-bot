@@ -54,12 +54,9 @@ class AudioPlayerService {
         }
 
         messageBuffer.isPlaying = true;
-        // AI! Fais une methode getNextValidChunk(messageBuffer) qui retourne le prochain chunk valide
-        // - audio url non null
-        // - audio url non vide
-        const chunk = messageBuffer.chunks.shift();
+        const chunk = this.getNextValidChunk(messageBuffer);
 
-        if (chunk?.audioUrl) {
+        if (chunk) {
             let promise = this.voxtaApiClient.getAudioResponse(chunk.audioUrl);
 
             while (promise) {
@@ -75,8 +72,8 @@ class AudioPlayerService {
                 });
 
                 // Download next audio chunk while we play it
-                const nextChunk = messageBuffer.chunks.shift();
-                const nextPromise = nextChunk?.audioUrl ? this.voxtaApiClient.getAudioResponse(nextChunk.audioUrl) : null;
+                const nextChunk = this.getNextValidChunk(messageBuffer);
+                const nextPromise = nextChunk ? this.voxtaApiClient.getAudioResponse(nextChunk.audioUrl) : null;
 
                 try {
                     const playbackPromise = new Promise((resolve, reject) => {
@@ -164,6 +161,16 @@ class AudioPlayerService {
                 this.handleUserInterruption();
                 break;
         }
+    }
+
+    getNextValidChunk(messageBuffer) {
+        while (messageBuffer.chunks.length > 0) {
+            const chunk = messageBuffer.chunks.shift();
+            if (chunk?.audioUrl?.length > 0) {
+                return chunk;
+            }
+        }
+        return null;
     }
 
     async handleUserInterruption() {

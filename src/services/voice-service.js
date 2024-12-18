@@ -4,6 +4,10 @@ import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
+    constructor() {
+        eventBus.on('speechRecognitionPartial', this.handleUserInterruption.bind(this));
+    }
+
     async initialize(connection, userId) {
         this.connection = connection;
         this.player = createAudioPlayer();
@@ -77,6 +81,13 @@ class VoiceService {
                 reject(error);
             });
         });
+    }
+
+    handleUserInterruption() {
+        logger.info('User interrupted playback, stopping audio player');
+        if (this.player) {
+            this.player.stop();
+        }
     }
 }
 

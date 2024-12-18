@@ -1,6 +1,18 @@
+import eventBus from '../utils/event-bus.js';
+
 class WSMessageService {
     constructor(wsClient) {
         this.wsClient = wsClient;
+
+        eventBus.on('speechPlaybackStart', (message) => {
+            this.speechPlaybackStart(
+                message.sessionId,
+                message.messageId,
+                message.startIndex,
+                message.endIndex,
+                message.duration
+            );
+        });
     }
 
     authenticate() {
@@ -26,6 +38,10 @@ class WSMessageService {
 
     speechPlaybackComplete(sessionId, messageId) {
         return this.wsClient.sendMessage('speechPlaybackComplete', { sessionId, messageId });
+    }
+
+    speechPlaybackStart(sessionId, messageId, startIndex, endIndex, duration) {
+        return this.wsClient.sendMessage('speechPlaybackStart', { sessionId, messageId, startIndex, endIndex, duration });
     }
 }
 

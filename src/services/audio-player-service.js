@@ -55,10 +55,16 @@ class AudioPlayerService {
             let promise = this.voxtaApiClient.getAudioResponse(chunk.audioUrl);
 
             while (promise) {
-                const chunk = await promise;
+                const data = await promise;
+                const metadata = await parseBuffer(data);
 
-                const metadata = await parseBuffer(chunk);
-                logger.debug('Audio data length:', metadata.format.duration);
+                eventBus.emit('speechPlaybackStart', {
+                    sessionId: chunk.sessionId,
+                    messageId: chunk.messageId,
+                    startIndex: chunk.startIndex,
+                    endIndex: chunk.endIndex,
+                    duration: metadata.format.duration
+                });
 
                 // Download next audio chunk while we play it
                 const nextChunk = messageBuffer.chunks.shift();
@@ -79,7 +85,7 @@ class AudioPlayerService {
                         eventBus.once('audioPlaybackError', errorListener);
                     });
 
-                    eventBus.emit('playAudio', chunk);
+                    eventBus.emit('playAudio', data);
                     await playbackPromise;
                 } catch (error) {
                     logger.error('Error playing audio:', error);

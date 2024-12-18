@@ -5,7 +5,7 @@ import channelManager from './managers/channel-manager.js';
 import eventBus from './utils/event-bus.js';
 import VoxtaApiClient from './clients/voxta-api-client.js';
 import AudioWebSocketClient from './clients/audio-websocket-client.js';
-import HubClient from './clients/websockets/hub-client.js';
+import HubWebSocketClient from './clients/hub-web-socket-client.js';
 import VoxtaConnectionConfig from './config/voxta-connection-config.js';
 import WSMessageService from './services/ws-message-service.js';
 import VoiceService from './services/voice-service.js';
@@ -25,9 +25,9 @@ export class Bot extends Client {
 
         this.token = token;
         this.voxtaApiClient = new VoxtaApiClient(voxtaConnectionConfig);
-        this.hubClient = new HubClient(voxtaConnectionConfig);
+        this.hubWebSocketClient = new HubWebSocketClient(voxtaConnectionConfig);
         this.audioWebSocketClient = new AudioWebSocketClient(voxtaConnectionConfig);
-        this.wsMessageService = new WSMessageService(this.hubClient);
+        this.wsMessageService = new WSMessageService(this.hubWebSocketClient);
         this.audioPlayerService = new AudioPlayerService(this.voxtaApiClient);
         this.voiceService = new VoiceService();
         this.userId = null;
@@ -90,7 +90,7 @@ export class Bot extends Client {
         const lastChatId = await this.voxtaApiClient.getLastChatId();
         logger.info(`Connecting to chat ${lastChatId}...`);
 
-        await this.hubClient.start();
+        await this.hubWebSocketClient.start();
         await this.wsMessageService.authenticate();
         await this.wsMessageService.resumeChat(lastChatId);
     }

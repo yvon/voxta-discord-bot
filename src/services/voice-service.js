@@ -7,6 +7,7 @@ class VoiceService {
     async initialize(connection, userId) {
         this.connection = connection;
         this.player = createAudioPlayer();
+        this.connection.subscribe(this.player);
 
         this.audioStream = connection.receiver.subscribe(userId, {
             end: { behavior: EndBehaviorType.Manual }
@@ -22,7 +23,6 @@ class VoiceService {
         await this.waitForConnection();
 
         try {
-            this.connection.subscribe(this.player);
             this.player.play(resource);
             await this.awaitPlaybackCompletion();
             logger.debug('Audio playback completed');

@@ -5,7 +5,15 @@ import eventBus from '../utils/event-bus.js';
 
 class VoiceService {
     constructor() {
-        eventBus.on('speechRecognitionPartial', this.handleUserInterruption.bind(this));
+        eventBus.on('voxtaMessage', this.handleVoxtaMessage.bind(this));
+    }
+
+    handleVoxtaMessage(message) {
+        switch (message.$type) {
+            case 'speechRecognitionPartial':
+                this.handleUserInterruption();
+                break;
+        }
     }
 
     async initialize(connection, userId) {

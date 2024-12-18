@@ -144,6 +144,9 @@ class AudioPlayerService {
             case 'replyEnd':
                 this.handleReplyEnd(message);
                 break;
+            case 'speechRecognitionPartial':
+                this.onUserInterruption();
+                break;
         }
     }
 

@@ -1,3 +1,4 @@
+import { parseBuffer } from 'music-metadata';
 import logger from '../utils/logger.js';
 import eventBus from '../utils/event-bus.js';
 
@@ -55,6 +56,9 @@ class AudioPlayerService {
 
             while (promise) {
                 const chunk = await promise;
+
+                const metadata = await parseBuffer(chunk);
+                logger.debug('Audio data length:', metadata.format.duration);
 
                 // Download next audio chunk while we play it
                 const nextUrl = messageBuffer.audioUrls.shift();

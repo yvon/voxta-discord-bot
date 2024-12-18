@@ -54,6 +54,9 @@ class AudioPlayerService {
         }
 
         messageBuffer.isPlaying = true;
+        // AI! Fais une methode getNextValidChunk(messageBuffer) qui retourne le prochain chunk valide
+        // - audio url non null
+        // - audio url non vide
         const chunk = messageBuffer.chunks.shift();
 
         if (chunk?.audioUrl) {

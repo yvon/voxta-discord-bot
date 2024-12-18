@@ -36,6 +36,11 @@ class AudioPlayerService {
         }
     }
 
+    removePlaybackListeners() {
+        eventBus.removeAllListeners('audioPlaybackComplete');
+        eventBus.removeAllListeners('audioPlaybackError');
+    }
+
     async playBuffer(messageId) {
         const messageBuffer = this.audioBuffers[messageId];
         if (!messageBuffer) {
@@ -73,11 +78,11 @@ class AudioPlayerService {
                 try {
                     const playbackPromise = new Promise((resolve, reject) => {
                         const completeListener = () => {
-                            eventBus.off('audioPlaybackError', errorListener);
+                            this.removePlaybackListeners();
                             resolve();
                         };
                         const errorListener = (error) => {
-                            eventBus.off('audioPlaybackComplete', completeListener);
+                            this.removePlaybackListeners();
                             reject(error);
                         };
                         
@@ -160,6 +165,7 @@ class AudioPlayerService {
 
     async handleUserInterruption() {
         logger.info('User interrupted playback, cleaning up all buffers');
+        this.removePlaybackListeners();
         for (const messageId in this.audioBuffers) {
             const buffer = this.audioBuffers[messageId];
             buffer.isComplete = true;

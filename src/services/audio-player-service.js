@@ -146,6 +146,16 @@ class AudioPlayerService {
                 break;
         }
     }
+
+    async onUserInterruption() {
+        logger.info('User interrupted playback, cleaning up all buffers');
+        for (const messageId in this.audioBuffers) {
+            const buffer = this.audioBuffers[messageId];
+            buffer.isComplete = true;
+            buffer.audioUrls = [];
+            await this.checkAndSendPlaybackComplete(messageId);
+        }
+    }
 }
 
 export default AudioPlayerService;

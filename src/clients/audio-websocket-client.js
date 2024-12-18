@@ -1,11 +1,16 @@
 import WebSocket from 'ws';
 import logger from '../utils/logger.js';
+import eventBus from '../utils/event-bus.js';
 
 class AudioWebSocketClient {
     constructor(connectionConfig) {
         this.baseUrl = connectionConfig.getBaseUrl().replace('http', 'ws');
         this.headers = connectionConfig.getHeaders();
         this.ws = null;
+
+        eventBus.on('voiceChannelLeft', () => {
+            this.close();
+        });
     }
 
     async connect(sessionId) {

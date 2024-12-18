@@ -178,7 +178,6 @@ class AudioPlayerService {
         this.removePlaybackListeners();
         for (const messageId in this.audioBuffers) {
             const buffer = this.audioBuffers[messageId];
-            buffer.isComplete = true;
             buffer.chunks = [];
             await this.checkAndSendPlaybackComplete(messageId);
         }

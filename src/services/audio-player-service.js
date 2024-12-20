@@ -53,57 +53,62 @@ class AudioPlayerService {
             return;
         }
 
-        messageBuffer.isPlaying = true;
         const chunk = this.getNextValidChunk(messageBuffer);
 
-        if (chunk) {
-            let promise = this.voxtaApiClient.getAudioResponse(chunk.audioUrl);
+        if (!chunk) {
+            return;
+        }
 
-            while (promise) {
-                const data = await promise;
-                const metadata = await parseBuffer(data);
+        messageBuffer.isPlaying = true;
+        let promise = this.voxtaApiClient.getAudioResponse(chunk.audioUrl);
 
-                eventBus.emit('speechPlaybackStart', {
-                    sessionId: chunk.sessionId,
-                    messageId: chunk.messageId,
-                    startIndex: chunk.startIndex,
-                    endIndex: chunk.endIndex,
-                    duration: metadata.format.duration
+        while (promise) {
+            const data = await promise;
+            const metadata = await parseBuffer(data);
+
+            eventBus.emit('speechPlaybackStart', {
+                sessionId: chunk.sessionId,
+                messageId: chunk.messageId,
+                startIndex: chunk.startIndex,
+                endIndex: chunk.endIndex,
+                duration: metadata.format.duration
+            });
+
+            // Download next audio chunk while we play it
+            const nextChunk = this.getNextValidChunk(messageBuffer);
+            const nextPromise = nextChunk ? this.voxtaApiClient.getAudioResponse(nextChunk.audioUrl) : null;
+
+            try {
+                const playbackPromise = new Promise((resolve, reject) => {
+                    const completeListener = () => {
+                        this.removePlaybackListeners();
+                        resolve();
+                    };
+                    const errorListener = (error) => {
+                        this.removePlaybackListeners();
+                        reject(error);
+                    };
+                    
+                    eventBus.once('audioPlaybackComplete', completeListener);
+                    eventBus.once('audioPlaybackError', errorListener);
                 });
 
-                // Download next audio chunk while we play it
-                const nextChunk = this.getNextValidChunk(messageBuffer);
-                const nextPromise = nextChunk ? this.voxtaApiClient.getAudioResponse(nextChunk.audioUrl) : null;
-
-                try {
-                    const playbackPromise = new Promise((resolve, reject) => {
-                        const completeListener = () => {
-                            this.removePlaybackListeners();
-                            resolve();
-                        };
-                        const errorListener = (error) => {
-                            this.removePlaybackListeners();
-                            reject(error);
-                        };
-                        
-                        eventBus.once('audioPlaybackComplete', completeListener);
-                        eventBus.once('audioPlaybackError', errorListener);
-                    });
-
-                    eventBus.emit('playAudio', data);
-                    await playbackPromise;
-                } catch (error) {
-                    logger.error('Error playing audio:', error);
-                    messageBuffer.isPlaying = false;
-                    return;
-                }
-
-                promise = nextPromise;
+                eventBus.emit('playAudio', data);
+                await playbackPromise;
+            } catch (error) {
+                logger.error('Error playing audio:', error);
+                messageBuffer.isPlaying = false;
+                return;
             }
+
+            promise = nextPromise;
         }
 
         await this.checkAndSendPlaybackComplete(messageId);
         messageBuffer.isPlaying = false;
+
+        // Dirty workaround: try to play the buffer again - just in case we missed some chunks
+        this.playBuffer(messageId);
     }
 
     handleReplyGenerating(message) {
